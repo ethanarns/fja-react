@@ -94,3 +94,11 @@ export interface LevelEntrance {
     unknown5: string;
     scrollType: ScrollType;
 }
+
+/**
+ * Will contain more and more as things become supported
+ * Hint block text?
+ */
+export interface RomData {
+    levels: Level[];
+}

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useState } from "react";
-import { Level } from "./RomInterfaces";
+import { RomData } from "./RomInterfaces";
+import { getRomDataFromBuffer } from "./RomParser"
 
 interface RomContextProps {
     /**
@@ -14,15 +15,22 @@ interface RomContextProps {
      */
     setRomBuffer: (value: any) => void;
 
-    levels: Level[];
-    setLevels: (value: any) => void;
+    loadRomFromArrayBuffer: (arrayBuffer: ArrayBuffer) => void;
+
+    romData: RomData;
+    setRomData: (romData: RomData) => void;
 }
+
+const EMPTY_ROM_DATA: RomData = {
+    levels: []
+};
 
 const romContextInit: RomContextProps = {
     romBuffer: new Uint8Array(),
     setRomBuffer: () => undefined,
-    levels: [],
-    setLevels: () => undefined
+    loadRomFromArrayBuffer: () => undefined,
+    romData: EMPTY_ROM_DATA,
+    setRomData: () => undefined
 };
 
 export const RomContext = createContext<RomContextProps>(romContextInit);
@@ -30,15 +38,25 @@ export const RomContext = createContext<RomContextProps>(romContextInit);
 export default function RomProvider(props: { children: ReactNode}) {
 
     const [romBuffer, setRomBuffer] = useState<Uint8Array>(new Uint8Array());
-    const [levels, setLevels] = useState<Level[]>([]);
+    const [romData, setRomData] = useState<RomData>(EMPTY_ROM_DATA);
+
+    const loadRomFromArrayBuffer = (arrayBuffer: ArrayBuffer) => {
+        const newRomBuffer = new Uint8Array(arrayBuffer);
+        // Use this for exporting later
+        setRomBuffer(newRomBuffer);
+        const initRomData = getRomDataFromBuffer(newRomBuffer);
+        // Use this for things like level data, objects
+        setRomData(initRomData);
+    }
 
     return (
         <RomContext.Provider
             value={{
                 romBuffer,
                 setRomBuffer,
-                levels,
-                setLevels
+                loadRomFromArrayBuffer,
+                romData,
+                setRomData
             }}
         >
             {props.children}
