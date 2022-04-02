@@ -42,10 +42,10 @@ export default function RomProvider(props: { children: ReactNode}) {
 
     const loadRomFromArrayBuffer = (arrayBuffer: ArrayBuffer) => {
         const newRomBuffer = new Uint8Array(arrayBuffer);
-        // Use this for exporting later
+        // Use this State for exporting later
         setRomBuffer(newRomBuffer);
         const initRomData = getRomDataFromBuffer(newRomBuffer);
-        // Use this for things like level data, objects
+        // Use this State for things like level data, objects
         setRomData(initRomData);
     }
 
