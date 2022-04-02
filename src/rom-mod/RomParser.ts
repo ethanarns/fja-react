@@ -1,4 +1,4 @@
-import { LEVEL_DATA_LIST_BASE_PTR, LEVEL_ENTRANCE_LIST_BASE_PTR, LEVEL_HEADER_LENGTHS, LEVEL_NAMES_BASE_PTR, LEVEL_SPRITES_BASE_PTR } from "../GLOBALS";
+import { LEVEL_DATA_LIST_BASE_PTR, LEVEL_ENTRANCE_LIST_BASE_PTR, LEVEL_HEADER_LENGTHS, LEVEL_NAMES_BASE_PTR, LEVEL_SPRITES_BASE_PTR, MAX_LEVEL_ENTRANCE_ID, SKIP_RECURSION_LEVELS } from "../GLOBALS";
 import { readAddressFromArray } from "./binaryUtils/binary-io";
 import { Level, LevelDataOffset, LevelEntrance, LevelHeaders, LevelObject, MainLevelDataOffset, RomData } from "./RomInterfaces";
 import "./SMA3-CHARS";
@@ -12,7 +12,7 @@ export function getRomDataFromBuffer(romBuffer: Uint8Array): RomData {
     let romData: RomData = {
         levels: []
     };
-    console.log(loadMainLevelByOffset(romBuffer,0,0));
+    console.log(loadAllLevelsFromRom(romBuffer));
     return romData;
 }
 
@@ -165,63 +165,82 @@ function readSpriteObjects(romBuffer: Uint8Array, levelOffset: number): LevelObj
     return [];
 }
 
-// function loadAllLevelsFromRom(): Level[] {
-//     let levelsToLoad: Level[] = [];
-//     const NUM_WORLDS = 6;
-//     const NUM_LEVELS = 10;
-//     let usedLevelDataOffsets: LevelDataOffset[] = Object.assign([],SKIP_RECURSION_LEVELS);
+function loadAllLevelsFromRom(romBuffer: Uint8Array): Level[] {
+    let levelsToLoad: Level[] = [];
+    const NUM_WORLDS = 6;
+    const NUM_LEVELS = 10;
+    let usedLevelDataOffsets: LevelDataOffset[] = Object.assign([],SKIP_RECURSION_LEVELS);
 
-//     // Recursion subfunction
-//     const recurse: Function = (levelDataOffsetId: LevelDataOffset, worldIndex: number, limit:number) => {
-//         if (levelDataOffsetId > MAX_LEVEL_ENTRANCE_ID) {
-//             // It's a minigame, can't (and shouldn't) load
-//             return;
-//         }
-//         if (usedLevelDataOffsets.includes(levelDataOffsetId)) {
-//             // Checks if limit is 0, since that means its a main level
-//             return;
-//         }
-//         if (SKIP_RECURSION_LEVELS.includes(levelDataOffsetId)) {
-//             return;
-//         }
-//         if (limit > 5) {
-//             console.warn("Recursed very deep!");
-//             return;
-//         }
-//         limit++;
-//         const level = this.loadSubLevelByLevelDataOffset(levelDataOffsetId,worldIndex);
-//         levelsToLoad.push(level);
-//         usedLevelDataOffsets.push(levelDataOffsetId);
-//         for (let i = 0; i < level.exits.length; i++) {
-//             const exit = level.exits[i];
-//             recurse(exit.destinationLevelId,worldIndex,0);
-//         }
-//     } // End recursion subfunction
+    // Recursion subfunction
+    const recurse: Function = (levelDataOffsetId: LevelDataOffset, worldIndex: number, limit:number) => {
+        if (levelDataOffsetId > MAX_LEVEL_ENTRANCE_ID) {
+            // It's a minigame, can't (and shouldn't) load
+            return;
+        }
+        if (usedLevelDataOffsets.includes(levelDataOffsetId)) {
+            // Checks if limit is 0, since that means its a main level
+            return;
+        }
+        if (SKIP_RECURSION_LEVELS.includes(levelDataOffsetId)) {
+            return;
+        }
+        if (limit > 5) {
+            console.warn("Recursed very deep!");
+            return;
+        }
+        limit++;
+        const level = loadSubLevelByLevelDataOffset(romBuffer,levelDataOffsetId,worldIndex);
+        levelsToLoad.push(level);
+        usedLevelDataOffsets.push(levelDataOffsetId);
+        for (let i = 0; i < level.exits.length; i++) {
+            const exit = level.exits[i];
+            recurse(exit.destinationLevelId,worldIndex,0);
+        }
+    } // End recursion subfunction
 
-//     for (let world = 0; world < NUM_WORLDS; world++) {
-//         for (let level = 0; level < NUM_LEVELS; level++) {
-//             const l = this.loadLevelByWorldAndLevelIndex(world,level);
-//             if (l) {
-//                 levelsToLoad.push(l);
-//                 usedLevelDataOffsets.push(l.levelEntrance!.levelEntranceId);
-//             } else {
-//                 console.error(`Failed to load level before recursion`);
-//             }
-//         }
-//     }
-//     levelsToLoad.forEach(l => {
-//         for (let i = 0; i < l.exits.length; i++) {
-//             const exit = l.exits[i];
-//             recurse(exit.destinationLevelId,l.world,0);
-//         }
-//     });
-//     SKIP_RECURSION_LEVELS.forEach(skippedLevelId => {
-//         const skippedLevel = this.loadSubLevelByLevelDataOffset(skippedLevelId,0);
-//         levelsToLoad.push(skippedLevel);
-//     });
+    for (let world = 0; world < NUM_WORLDS; world++) {
+        for (let level = 0; level < NUM_LEVELS; level++) {
+            const l = loadLevelByWorldAndLevelIndex(romBuffer, world,level);
+            if (l) {
+                levelsToLoad.push(l);
+                usedLevelDataOffsets.push(l.levelEntrance!.levelEntranceId);
+            } else {
+                console.error(`Failed to load level before recursion`);
+            }
+        }
+    }
+    levelsToLoad.forEach(l => {
+        for (let i = 0; i < l.exits.length; i++) {
+            const exit = l.exits[i];
+            recurse(exit.destinationLevelId,l.world,0);
+        }
+    });
+    SKIP_RECURSION_LEVELS.forEach(skippedLevelId => {
+        const skippedLevel = loadSubLevelByLevelDataOffset(romBuffer,skippedLevelId,0);
+        levelsToLoad.push(skippedLevel);
+    });
 
-//     return levelsToLoad;
-// }
+    return levelsToLoad;
+}
+
+/**
+ * Gets the level id, mainly used to get the name of the level
+ * @param currentWorld number
+ * @param currentLevel number
+ * @returns Level number, starting with zero
+ */
+function getMainLevelDataOffsetByLevelIndex(currentWorld: number, currentLevel: number): MainLevelDataOffset {
+    // The actual way these are stored is multiplied by 2
+    currentLevel *= 2;
+    currentWorld *= 2;
+    return (currentWorld*6) + (currentLevel >> 1);
+}
+
+function loadLevelByWorldAndLevelIndex(romBuffer: Uint8Array, currentWorld: number, currentLevel: number): Level | null {
+    const mainLevelOffset: MainLevelDataOffset = getMainLevelDataOffsetByLevelIndex(currentWorld,currentLevel);
+    const l = loadMainLevelByOffset(romBuffer, mainLevelOffset,currentWorld);
+    return l;
+}
 
 /**
  * This retrieves the level name for main levels. Sublevels don't really have
@@ -267,4 +286,28 @@ function readLevelName(romBuffer: Uint8Array, mainLevelDataOffset: MainLevelData
     // Fix this
     result = result.replace("w@","w/");
     return result;
+}
+
+/**
+ * This loads a sublevel by the offset that leads directly to header and static data
+ * @param subLevelLevelDataOffset The offset that points to headers, statics, and exits
+ * @returns A Level
+ */
+function loadSubLevelByLevelDataOffset(romBuffer: Uint8Array, subLevelLevelDataOffset: LevelDataOffset, worldIndex: number = 0): Level {;
+    const headers = readLevelHeaders(romBuffer, subLevelLevelDataOffset);
+    const title = `Sublevel 0x${subLevelLevelDataOffset.toString(16)}`;
+    const spriteObjects: LevelObject[] = readSpriteObjects(romBuffer, subLevelLevelDataOffset);
+
+    const mainLevelStaticData = getStaticObjectsAndExits(romBuffer,subLevelLevelDataOffset);
+    const l: Level = {
+        levelId: subLevelLevelDataOffset,
+        objects: spriteObjects.concat(mainLevelStaticData.levelObjects),
+        levelTitle: title,
+        levelEntrance: undefined,
+        availableSpriteTiles: getCombinedSpriteTiles(romBuffer, headers.tileset),
+        headers: headers,
+        world: worldIndex,
+        exits: mainLevelStaticData.exits
+    }
+    return l;
 }
