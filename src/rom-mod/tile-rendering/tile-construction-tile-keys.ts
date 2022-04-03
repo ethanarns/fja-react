@@ -1,3 +1,5 @@
+import { LayerOrder } from "../RomInterfaces";
+
 export interface TileChunkPreRenderData {
     tileId: number;
     paletteId: number;
@@ -5,232 +7,34 @@ export interface TileChunkPreRenderData {
     flipV: boolean;
 }
 
-export type RenderedTileDataName =
-    "platform_brown_zig_zag_right" |
-    "platform_brown_zig_zag_left" |
-    "platform_brown_zig_zag_middle" |
-    "stone_square_color1" |
-    "green_pipe_top_left" |
-    "green_pipe_top_right" |
-    "platform_thin_wood" |
-    "block_egg_green" |
-    "sign_arrow_red_base_left" |
-    "sign_arrow_red_top_left" |
-    "sign_arrow_red_base_right" |
-    "sign_arrow_red_top_right" |
-    "sign_arrow_leftwards_red_base_left" |
-    "sign_arrow_leftwards_red_top_left" |
-    "sign_arrow_leftwards_red_base_right" |
-    "sign_arrow_leftwards_red_top_right" |
-    "pipe_green_bottom_left_end" |
-    "pipe_green_bottom_right_end" |
-    "pipe_green_middle_left" |
-    "pipe_green_middle_right" |
-    "thin_wooden_platform" |
-    "poundable_post_top" |
-    "poundable_post_middle" |
-    "poundable_post_bottom" |
-    "donut_lift" |
-    "castle_brick_brown_left" |
-    "castle_brick_brown_right" |
-    "castle_interior_brown_pillar_top" |
-    "castle_interior_brown_pillar_middle" |
-    "castle_interior_brown_pillar_bottom" |
-    "castle_interior_thin_brown_platform" |
-    "castle_interior_static_log_left" |
-    "castle_interior_static_log_middle" |
-    "castle_interior_static_log_right" |
-    "ground1_top_fuzz" |
-    "ground1_top_base" |
-    "ground1_fill" |
-    "ground1_slope_45_topfuzz" |
-    "ground1_slope_45_top" |
-    "ground1_slope_30_base" |
-    "ground1_slope_30_top" |
-    "flower_ground_base_1" |
-    "flower_ground_fuzz_1" |
-    "flower_ground_fuzz_2" |
-    "flower_ground_fill_1" |
-    "flower_ground_slope_downright_base_1" |
-    "flower_ground_slope_downright_fuzz_1" |
-    "flower_ground_slope_downright_fuzz_2" |
-    "flower_ground_slope_downright_30_base_1" |
-    "flower_ground_slope_downright_30_halfbase_1" |
-    "flower_ground_slope_downright_30_fuzz_1" |
-    "flower_ground_slope_downright_45_base_1" |
-    "flower_ground_slope_downright_45_fuzz_1" |
-    "flower_ground_slope_downright_45_belowbase_1" |
-    "flower_ground_slope_downright_sharp_base" |
-    "flower_ground_slope_downright_sharp_fuzz" |
-    "flower_ground_slope_downright_sharp_secondfuzz" |
-    "flower_ground_slope_downright_sharp_secondbase" |
-    "flower_ground_side_left_top" |
-    "flower_ground_side_left" |
-    "flower_ground_side_right_top" |
-    "flower_ground_side_right" |
-    "endgreen" |
-    "endgreen_top" |
-    "endgreen_left"|
-    "endgreen_right" |
-    "endgreen_topleft" |
-    "endgreen_topright" |
-    "ground4_halffuzz" |
-    "ground4_fullfuzz" |
-    "ground4_between" |
-    "ground5_halffuzz" |
-    "ground1_slope_30_secondbase" |
-    "ground1_slope_30_secondtop" |
-    "ground3_base" |
-    "ground3_belowbase1" |
-    "ground3_below_continue" |
-    "ground3_rightbase" |
-    "ground3_topcorner" |
-    "ground3_below_continue_overlap_thinlog" |
-    "ground2_base" |
-    "ground2_belowbase1" |
-    "ground2_fuzz_top" |
-    "ground2_topcorner" |
-    "ground2_left" |
-    "ground2_below_continue" |
-    "overlap_ground3_ground1_topfuzz" |
-    "overlap_ground2_ground1_topfuzz" |
-    "overlap_arrowsignleft_ground1_topfuzz" |
-    "overlap_arrowsignright_ground1_topfuzz" |
-    "overlap_arrowsignright_gardentopfuzz" |
-    "overlap_arrowsignleft_gardentopfuzz" |
+export interface RenderData {
+    data: string | string[];
+    dataType: RenderDataType;
+}
+export type RenderDataType =
+    // Example: "3a68,3a69,3a58,3a59"
+    "quadChunkString" |
+    // Example: [3a68,3a69,3a58,3a59]
+    "quadChunkArray" |
+    // Example: "3a68"
+    "singleChunkCode" |
+    // Example: "platform_brown_zig_zag_right"
+    "quadChunkNamedString";
 
-    "ground6_base" |
-    "ground6_base_topfuzz" |
-    
-    "levelendblock_fill" |
-    "levelendblock_topleft" |
-    "levelendblock_top" |
-    "levelendblock_left" |
-    "levelendblock_bottomleft" |
+export interface DrawInstruction {
+    offsetX: number;
+    offsetY: number;
+    uniqueLevelObjectId: string;
+    layer: LayerOrder;
+    renderData: RenderData;
+}
 
-    "groundinset_fill" |
-    
-    "groundinsethole_fill" |
-    
-    "breakablerock_fill" |
-    
-    "junglemud_thintop" |
-    "junglemud_onebelow" |
-    "junglemud_fill" |
-    
-    "junglemud_grass_overhang_leftfuzz" |
-    "junglemud_grass_overhang_leftfuzz_top" |
-    "junglemud_grass_overhang_left_visualbase" |
-    "junglemud_grass_overhang_left_visualbase_below1" |
-    "junglemud_grass_overhang_left_visualbase_below_continue" |
-    
-    "junglemud_downleft45_base" |
-    "junglemud_downleft45_base_below1" |
-    "junglemud_downright45_base" |
-    "junglemud_downright45_base_below1" |
-    
-    "junglemud_grass_top_visualbase" |
-    "junglemud_grass_top_visualbase_shadow" |
-    
-    "junglestone_fill" |
-    "junglestone_moss_top" |
-    "junglestone_moss_topleft" |
-    "junglestone_moss_topright" |
-    "junglestone_left" |
-    "junglestone_right" |
-    "junglestone_bottom" |
-    "junglestone_bottomleft" |
-    "junglestone_bottomright" |
-    "junglestone_top" |
-    "junglestone_topleft" |
-    "junglestone_topright" |
-    "ground_ceiling_left" |
-    "ground_ceiling_middle" |
-    "ground_ceiling_right" |
-    "green_pipe_top_left_flipped" |
-    "green_pipe_top_right_flipped" |
-    "castlebg_topright_dark" |
-    "castlebg_fill" |
-    "castlebg_topright_clear" |
-    "castlebg_topleft_clear" |
-    "castlebg_bottomright_clear" |
-    "castlebg_bottomleft_clear" |
-    "castle_fallingdoor_shade" |
-    "castle_fallingdoor_blank" |
-    "castle_fallingdoor_rightline" |
-    
-    "decal_dottedplatform_right_1" |
-    "decal_dottedplatform_right_2" |
-    "decal_seesaw_holder_left" |
-    "decal_seesaw_holder_right" |
-    "twisted_tree_trunk_vertical" |
-    "twisted_tree_trunk_vertical_ground" |
-    "twisted_tree_trunk_downright_1" |
-    "twisted_tree_trunk_downright_2" |
-    "twisted_tree_trunk_downleft_1" |
-    "twisted_tree_trunk_downleft_2" |
-    
-    "overlap_ground_0xdPlatform" |
-    
-    "ground_edge_left" |
-    "ground_edge_right" |
-    
-    "raven_sphere_topleft" |
-    "raven_sphere_topright" |
-    "raven_sphere_bottomleft" |
-    "raven_sphere bottomright" |
-    "lineguide_93_1" |
-    "lineguide_93_2" |
-    "lineguide_93_3" |
-    "lineguide_92_1" |
-    "lineguide_92_2" |
-    "lineguide_92_3" |
-    "lineguide_94_1" |
-    "lineguide_94_2" |
-    "lineguide_94_3" |
-    "lineguide_95_1" |
-    "lineguide_95_2" |
-    "lineguide_95_3" |
-    "lineguide_space" |
-    "lineguide_91" |
-    "lineguide_90" |
-    "lineguide_8e" |
-    "lineguide_8f" |
-    "lineguide_topmost_horizontal" |
-    "lineguide_leftmost_vertical" |
-    "lineguide_downright_45" |
-    "lineguide_downleft_45" |
-    "lineguide_stopper_down_1" |
-    "lineguide_stopper_down_2" |
-    "lineguide_stopper_right_1" |
-    "lineguide_stopper_right_2" |
-    "lineguide_stopper_left_1" |
-    "lineguide_stopper_left_2" |
-    "tree_trunk_8d" |
-    "tree_trunk_8d_root" |
-    "rock_floating_fill" |
-    "rock_floating_top" |
-    "rock_floating_bottom" |
-    "rock_floating_left" |
-    "rock_floating_right" |
-    "rock_floating_tl" |
-    "rock_floating_tr" |
-    "rock_floating_bl" |
-    "rock_floating_br" |
-    "ground_ceiling_downright_shallow_fuzz1" |
-    "ground_ceiling_downright_shallow_fuzz2" |
-    "ground_ceiling_upright_shallow_fuzz1" |
-    "ground_ceiling_upright_shallow_fuzz2" |
-    "WIPE_breakable_rock" |
-    "dotted_platform_flat" |
-    "pipe_level_bg_1" |
-    "OVERLAP_thin_wooden_platform_below1_ground_2" |
-    "wooden_post_spike";
+export type RenderedTileDataName = string;
 
 export const RENDERED_TILE_DEFAULTS: Record<RenderedTileDataName,string> = {
-    "platform_brown_zig_zag_right": "0x081b25a8",
-    "platform_brown_zig_zag_left": "0x081b2598",
-    "platform_brown_zig_zag_middle": "0x081b25a0",
+    "platform_brown_zig_zag_right": "108d,108e,109d,109e",
+    "platform_brown_zig_zag_left": "108c,108d,109c,109d",
+    "platform_brown_zig_zag_middle": "108d,108d,109d,109d",
     "stone_square_color1": "0x081b1520",
     "green_pipe_top_left": "0x081b7670",
     "green_pipe_top_right": "0x081b7678",

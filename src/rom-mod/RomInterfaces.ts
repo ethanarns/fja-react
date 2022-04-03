@@ -49,22 +49,30 @@ export enum ScrollType {
  * Helps order things when rendering
  */
 export enum LayerOrder {
-    /**
-     * Things like highlighting and selection
-     */
     GUI = 15,
+    SELECTION = 14,
+    HIGHLIGHTS = 13,
     /**
      * Sprites, formerly known as Dynamics, will always go over static objects
      */
     SPRITES = 10,
 
+    /**
+     * These basically act as sprites, despite often being statics
+     */
+    COINS = 9,
+
     BREAKABLE_ROCK_WIPE = 7.1,
     BREAKABLE_ROCK = 7,
+
+    PLATFORMS = 4,
 
     /**
      * Stuff like Pipes, 
      */
     STANDARD_OBJECTS = 1,
+
+    SCREEN_PAGE_LINES = -10,
 }
 
 /**
