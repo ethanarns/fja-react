@@ -25,7 +25,7 @@ export const FULL_TILE_DIMS_PX = 16;
 
 export const FULL_TILE_DIM_COUNT = 0xff;
 
-export const PHASER_CANVAS_ID = "phaser-container";
+export const DOM_CANVAS_ID = "dom-container";
 export const SCENE_ID = "render-scene";
 
 export const LEVEL_DATA_LIST_BASE_PTR = 0x001ef1a4;

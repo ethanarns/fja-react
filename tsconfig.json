@@ -23,7 +23,7 @@
   "include": [
     "src",
     "src/rom-mod/**/*",
-    "src/phaser/**/*",
+    "src/pixi/**/*",
     "src/components/**/*"
   ]
 }

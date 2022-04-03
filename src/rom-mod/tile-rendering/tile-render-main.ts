@@ -1,26 +1,26 @@
-import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { Level } from "../RomInterfaces";
-import "./tile-construction-tile-keys"
+import { Graphics } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 
-export function generateTilesheet(texMan: Phaser.Textures.TextureManager, level: Level): string[] {
+export function generateGraphics(level: Level): Record<string,Graphics> {
+    const codeGraphicsRecord: Record<string,Graphics> = {};
     if (!level.palettes) {
         console.log("ERROR: No palettes attached to level!",level);
-        return [];
+        return {};
     }
     const allChunkCodes = getAllChunkCodes();
     allChunkCodes.forEach(chunkCode => {
-        addTextureFromChunk(chunkCode,texMan,level);
+        codeGraphicsRecord[chunkCode] = getGraphicFromChunk(chunkCode,level);
     });
     
-    return allChunkCodes;
+    return codeGraphicsRecord;
 }
 
 /**
  * Goes through all known chunk codes and returns the unique, valid ones
  * @returns A list of every known Chunk code
  */
-function getAllChunkCodes(): string[] {
+export function getAllChunkCodes(): string[] {
     let chunkCodes: string[] = [];
     Object.keys(RENDERED_TILE_DEFAULTS).forEach(key => {
         const fullLineString = RENDERED_TILE_DEFAULTS[key as RenderedTileDataName].trim();
@@ -60,26 +60,18 @@ function getChunkFromNumber(tileAttr: number): TileChunkPreRenderData {
     return result;
 }
 
-function addTextureFromChunk(code: string, texMan: Phaser.Textures.TextureManager, level: Level): void {
+function getGraphicFromChunk(code: string, level: Level): Graphics {
+    const pixiGraphic = new Graphics();
     const chunkNum = parseInt(code, 16);
     if (code.length !== 4 || isNaN(chunkNum)) {
         console.error("Bad code passed to addTextureFromChunk:", code);
-        return;
+        return pixiGraphic;
     }
     if (!level.palettes) {
         console.error("Level does not have valid palettes:",level);
-        return;
+        return pixiGraphic;
     }
     const chunkPreRenderData = getChunkFromNumber(chunkNum);
-    const texture_name = code;
-    // let tex: Phaser.Textures.CanvasTexture;
-    // if (texMan.get(texture_name) !== undefined) {
-    //     tex = texMan.get;
-    // } else {
-    //     tex = texMan.createCanvas(texture_name, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
-    // }
-    const tex = texMan.createCanvas(texture_name, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
-    const ctx = tex.context;
     const spritePixels = level.availableSpriteTiles[chunkPreRenderData.tileId];
     const palette = level.palettes[chunkPreRenderData.paletteId];
     let pixelValueIndex = 0;
@@ -89,18 +81,30 @@ function addTextureFromChunk(code: string, texMan: Phaser.Textures.TextureManage
             pixelValueIndex++;
             if (pixelValue !== 0) {
                 const color = palette[pixelValue];
-                ctx.fillStyle = color;
+                pixiGraphic.beginFill(convertRgbToHex(color));
                 let xPos = chunkPreRenderData.flipH ? (8-x-1) : x;
                 let yPos = chunkPreRenderData.flipV ? (8-y-1) : y;
                 let rectX = xPos;
                 let rectY = yPos;
-                ctx.fillRect(rectX,rectY,1,1);
+                pixiGraphic.drawRect(rectX,rectY,1,1);
+                pixiGraphic.endFill();
             }
         }
     }
     if(pixelValueIndex !== 64) {
         console.error("Did not create 64 pixels");
-        return;
+        return pixiGraphic;
     }
-    tex.refresh();
+    return pixiGraphic;
+}
+
+function convertRgbToHex(rgb: string): number {
+    const noCss = rgb.split("(")[1].split(")")[0];
+    const numbers = noCss.split(",");
+    const hexNums = numbers.map((x) => {
+        x = parseInt(x).toString(16);
+        return ( x.length === 1) ? "0" + x : x;
+    });
+    const strVal = "0x" + hexNums.join("");
+    return parseInt(strVal,16);
 }

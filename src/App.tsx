@@ -1,24 +1,27 @@
 import './App.css';
-import { PHASER_CANVAS_ID, SCENE_ID } from './GLOBALS';
+import { DOM_CANVAS_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
-import Phaser from 'phaser';
-import { gameConfig } from "./phaser/GameConfig";
 import { RomContext } from './rom-mod/RomProvider';
-import RenderScene from './phaser/RenderScene';
+import generatePixiApp from './pixi/getPixiApp';
+import { Application } from "pixi.js"
+import { generateGraphics, getAllChunkCodes } from './rom-mod/tile-rendering/tile-render-main';
+import { placeGraphic } from "./pixi/pixiConnection";
 
 function App() {
-    const [game, setGame] = useState<Phaser.Game | null>(null);
+    const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
     // Basically on load
     useEffect(() => {
-        setGame(new Phaser.Game(gameConfig));
+        const newPixiApp = generatePixiApp();
+        setPixiApp(newPixiApp);
     },[]);
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
-        if (!game) {
+        if (!pixiApp) {
+            console.error("PIXI App not loaded when file opened");
             return;
         }
         const target = event.target as HTMLInputElement;
@@ -34,9 +37,14 @@ function App() {
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
             console.log("loadedGameData",loadedGameData);
-            
-            const scene = game.scene.getScene(SCENE_ID) as RenderScene;
-            scene.updateRomData(loadedGameData.levels[0]);
+
+            const graphics = generateGraphics(loadedGameData.levels[0]);
+            const codes = getAllChunkCodes();
+            codes.forEach((code: string, index: number) => {
+                const x = index % 10;
+                const y = Math.floor(index / 10);
+                placeGraphic(graphics[code],x*10,y*10,pixiApp, code);
+            });
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
             console.error(err);
@@ -45,7 +53,7 @@ function App() {
     
     return (
         <div className="App">
-            <div id={PHASER_CANVAS_ID}></div>
+            <div id={DOM_CANVAS_ID}></div>
             { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
         </div>
     );
