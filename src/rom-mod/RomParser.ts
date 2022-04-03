@@ -1,18 +1,20 @@
 import { LEVEL_DATA_LIST_BASE_PTR, LEVEL_ENTRANCE_LIST_BASE_PTR, LEVEL_HEADER_LENGTHS, LEVEL_NAMES_BASE_PTR, LEVEL_SPRITES_BASE_PTR, MAX_LEVEL_ENTRANCE_ID, SKIP_RECURSION_LEVELS } from "../GLOBALS";
 import { readAddressFromArray } from "./binaryUtils/binary-io";
 import { Level, LevelDataOffset, LevelEntrance, LevelHeaders, LevelObject, MainLevelDataOffset, RomData } from "./RomInterfaces";
-import "./SMA3-CHARS";
 import { getCombinedSpriteTiles } from "./binaryUtils/tile-utils";
 import { CHAR_TABLE } from "./SMA3-CHARS";
-import { getUuidv4 } from "../utility-functions";
-import "./binaryUtils/static-data-read";
+import { getMainLevelDataOffsetByLevelIndex, getUuidv4 } from "../utility-functions";
 import { getStaticObjectsAndExits } from "./binaryUtils/static-data-read";
+import { getPaletteData } from "./tile-rendering/palette-data";
 
 export function getRomDataFromBuffer(romBuffer: Uint8Array): RomData {
+    const allLevels = loadAllLevelsFromRom(romBuffer);
+    if (allLevels.length === 0 && allLevels.length > MAX_LEVEL_ENTRANCE_ID) {
+        console.error("Unusual number of levels found:",allLevels.length);
+    }
     let romData: RomData = {
-        levels: []
+        levels: allLevels
     };
-    console.log(loadAllLevelsFromRom(romBuffer));
     return romData;
 }
 
@@ -105,7 +107,6 @@ function loadMainLevelByOffset(romBuffer: Uint8Array, mainLevelDataOffset: MainL
     if (spriteObjects.length === 0) {
         console.warn(`Failed to load any sprite objects for level "${levelTitle}"`);
     }
-
     const mainLevelStaticData = getStaticObjectsAndExits(romBuffer,headersStaticsAndExitsDataOffset);
     const l: Level = {
         levelId: headersStaticsAndExitsDataOffset,
@@ -117,6 +118,8 @@ function loadMainLevelByOffset(romBuffer: Uint8Array, mainLevelDataOffset: MainL
         world: worldIndex,
         exits: mainLevelStaticData.exits
     }
+    const palettes = getPaletteData(romBuffer,l);
+    l.palettes = palettes;
     return l;
 }
 
@@ -221,19 +224,6 @@ function loadAllLevelsFromRom(romBuffer: Uint8Array): Level[] {
     });
 
     return levelsToLoad;
-}
-
-/**
- * Gets the level id, mainly used to get the name of the level
- * @param currentWorld number
- * @param currentLevel number
- * @returns Level number, starting with zero
- */
-function getMainLevelDataOffsetByLevelIndex(currentWorld: number, currentLevel: number): MainLevelDataOffset {
-    // The actual way these are stored is multiplied by 2
-    currentLevel *= 2;
-    currentWorld *= 2;
-    return (currentWorld*6) + (currentLevel >> 1);
 }
 
 function loadLevelByWorldAndLevelIndex(romBuffer: Uint8Array, currentWorld: number, currentLevel: number): Level | null {

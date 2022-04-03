@@ -13,6 +13,7 @@ export const SKIP_RECURSION_LEVELS = [0x36, 0x37];
 /**
  * Size: 1/2 the width of a standard coin (including its transparent sides),
  * or 1/2 the width of a poundable post, in pixels
+ * Mainly used for sizing TileChunks (8x8)
  */
 export const TILE_QUADRANT_DIMS_PX = 8;
 
@@ -21,6 +22,8 @@ export const TILE_QUADRANT_DIMS_PX = 8;
  * or the width of a poundable post, in pixels
  */
 export const FULL_TILE_DIMS_PX = 16;
+
+export const FULL_TILE_DIM_COUNT = 0xff;
 
 export const PHASER_CANVAS_ID = "phaser-container";
 export const SCENE_ID = "render-scene";
@@ -34,3 +37,10 @@ export const LEVEL_ENTRANCE_LIST_BASE_PTR = 0x001ef08c;
 export const LEVEL_HEADER_LENGTHS = 0x00167766;
 
 export const TILE_BYTES = 0x20; // 32
+
+// Palette crap
+export const PALETTE_SPACER_LIST_PTR_MAYBE = 0x001671d8;
+export const PALETTE_SPACER_DISTANCE_MAYBE = 6;
+export const PALETTE_COMPRESSED_DATA_LIST_PTR = 0x002cf008;
+export const PALETTE_LEVEL_BASE_PTR = 0x001a8d2e;
+export const PALETTE_WORLD_LIST_BASE_PTR = 0x00164b7c;

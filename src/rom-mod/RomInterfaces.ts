@@ -25,6 +25,11 @@ export type ObjectStorageType = "4byte" | "s4byte" | "5byte";
 export type LevelObjectType = "static" | "sprite";
 
 /**
+ * A list of 16 colors, bg and fg each have 16 of these
+ */
+export type Palette = string[];
+
+/**
  * ******************
  * ENUMS AND ORDERING
  * ******************
@@ -110,6 +115,7 @@ export enum LevelEntryAnimation {
     headers: LevelHeaders;
     world: number;
     exits: LevelExit[];
+    palettes?: Palette[];
 }
 
 /**

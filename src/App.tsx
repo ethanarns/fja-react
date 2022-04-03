@@ -1,11 +1,10 @@
 import './App.css';
-import { PHASER_CANVAS_ID } from './GLOBALS';
+import { PHASER_CANVAS_ID, SCENE_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import Phaser from 'phaser';
 import { gameConfig } from "./phaser/GameConfig";
 import { RomContext } from './rom-mod/RomProvider';
-
-
+import RenderScene from './phaser/RenderScene';
 
 function App() {
     const [game, setGame] = useState<Phaser.Game | null>(null);
@@ -15,7 +14,6 @@ function App() {
 
     // Basically on load
     useEffect(() => {
-        console.log("useEffect");
         setGame(new Phaser.Game(gameConfig));
     },[]);
 
@@ -23,8 +21,6 @@ function App() {
         if (!game) {
             return;
         }
-        //const scene = game.scene.getScene(SCENE_ID) as RenderScene;
-        //scene.addObject();
         const target = event.target as HTMLInputElement;
         if (!target || !target.files) {
             console.error("Could not target loader element");
@@ -35,8 +31,12 @@ function App() {
         }
         const file: File = target.files[0];
         file.arrayBuffer().then(result => {
-            loadRomFromArrayBuffer(result);
+            const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
+            console.log("loadedGameData",loadedGameData);
+            
+            const scene = game.scene.getScene(SCENE_ID) as RenderScene;
+            scene.updateRomData(loadedGameData.levels[0]);
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
             console.error(err);
