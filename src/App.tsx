@@ -3,15 +3,16 @@ import { DOM_CANVAS_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
-import { Application, Graphics } from "pixi.js"
-import { generateGraphics, getAllChunkCodes } from './rom-mod/tile-rendering/tile-render-main';
-import { placeGraphic, placeLevelObject } from "./pixi/pixiMod";
-import { Level, LevelObject } from './rom-mod/RomInterfaces';
+import { Application, RenderTexture } from "pixi.js"
+import { CompositeTilemap } from "@pixi/tilemap";
+import { generateGraphics } from './rom-mod/tile-rendering/tile-render-main';
+import { placeLevelObject } from "./pixi/pixiMod";
+import { Level } from './rom-mod/RomInterfaces';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
-    const [availableGraphics, setAvailableGraphics] = useState<Record<string,Graphics>>({});
+    const [availableGraphics, setAvailableGraphics] = useState<Record<string,RenderTexture>>({});
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
@@ -46,7 +47,7 @@ function App() {
         setAvailableGraphics({});
 
         // Then create the new ones
-        const graphics = generateGraphics(l);
+        const graphics = generateGraphics(l,pixiApp);
         setAvailableGraphics(graphics);
         return graphics;
     };
@@ -70,16 +71,35 @@ function App() {
             setInputLoaded(true);
             console.log("loadedGameData",loadedGameData);
             const tmpGraphics = updateGraphicsForLevel(loadedGameData.levels[0]);
+            const tilemap = new CompositeTilemap();
+            tilemap.name = "base_tilemap";
+            console.log("t",tilemap);
+            pixiApp.stage.addChild(tilemap);
+            // tilemap.tile(tmpGraphics["108d"],0,0);
+            // tilemap.tile(tmpGraphics["108d"],8,8);
 
-            let i = 0;
-            loadedGameData.levels[0].objects.forEach((lo: LevelObject, index: number) => {
-                if (lo.objectId === 0x63) {
-                    lo.xPos = i;
-                    lo.yPos = i;
-                    i++;
-                    placeLevelObject(lo, loadedGameData.levels[0], pixiApp, tmpGraphics);
-                }
-            });
+            const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
+            console.log("obj63",obj63);
+            obj63.xPos = 0;
+            obj63.yPos = 0;
+            obj63.dimZ = 1;
+            placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpGraphics);
+            const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
+            console.log("obj63_2",obj63_2);
+            obj63_2.xPos = 1;
+            obj63_2.yPos = 1;
+            obj63_2.dimZ = 2;
+            placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpGraphics);
+            // pixiApp.loader
+            // let i = 0;
+            // loadedGameData.levels[0].objects.forEach((lo: LevelObject, index: number) => {
+            //     if (lo.objectId === 0x63) {
+            //         lo.xPos = i;
+            //         lo.yPos = i;
+            //         i++;
+            //         placeLevelObject(lo, loadedGameData.levels[0], pixiApp, tmpGraphics);
+            //     }
+            // });
 
             // //const graphics = generateGraphics(loadedGameData.levels[0]);
             // getAllChunkCodes().forEach((code: string, index: number) => {

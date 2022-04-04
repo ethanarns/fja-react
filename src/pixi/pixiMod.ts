@@ -1,29 +1,17 @@
-import { Graphics, Application } from "pixi.js";
+import { Application, RenderTexture } from "pixi.js";
 import { Level, LevelObject } from "../rom-mod/RomInterfaces";
+import { CompositeTilemap } from "@pixi/tilemap";
 import { DrawInstruction, RENDERED_TILE_DEFAULTS } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
 import getStatic4ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static4byte";
 import getStatic5ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static5byte";
 import { FULL_TILE_DIMS_PX, TILE_QUADRANT_DIMS_PX } from "../GLOBALS";
 
-export function placeGraphic(graphic: Graphics, globalX: number, globalY: number, pixiApp: Application, chunkCode: string, clickCallback: Function): Graphics {
-    console.log(chunkCode,globalX,globalY);
-    graphic.x = globalX;
-    graphic.y = globalY;
-    graphic.interactive = true;
-    graphic.buttonMode = true;
-    graphic.name = chunkCode;
-    graphic.on('pointerdown', () => {
-        clickCallback(graphic, chunkCode);
-    });
-    pixiApp.stage.addChild(graphic);
-    return graphic;
-}
-
-export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, graphics: Record<string,Graphics>): void {
+export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, graphics: Record<string,RenderTexture>): void {
     const instructions = getDrawInstructionsForObject(lo, level);
     instructions.forEach(instruction => {
         executeInstruction(instruction,pixiApp,lo.xPos,lo.yPos,graphics);
     });
+    console.log("instructions",instructions);
 }
 
 export function getDrawInstructionsForObject(lo: LevelObject,level: Level): DrawInstruction[] {
@@ -54,11 +42,11 @@ function executeInstruction(
     pixiApp: Application,
     sourceX: number,
     sourceY: number,
-    graphics: Record<string,Graphics>
+    graphics: Record<string,RenderTexture>
 ) {
     const trueX = sourceX + instruction.offsetX;
     const trueY = sourceY + instruction.offsetY;
-    console.log(trueX,trueY);
+    console.log("executing instruction at",trueX,trueY);
     const globalX = trueX * FULL_TILE_DIMS_PX;
     const globalY = trueY * FULL_TILE_DIMS_PX;
     if (instruction.renderData.dataType === "quadChunkNamedString") {
@@ -79,15 +67,20 @@ function placeChunkArray(
     globalRootX: number,
     globalRootY: number,
     chunkCodes: string[],
-    graphics: Record<string,Graphics>,
+    graphics: Record<string,RenderTexture>,
     pixiApp: Application
 ): void {
     if (chunkCodes.length !== 4) {
         console.error("Bad chunk code array:", chunkCodes);
         return;
     }
-    placeGraphic(graphics[chunkCodes[0]],globalRootX,globalRootY,pixiApp,chunkCodes[0],() => {});
-    placeGraphic(graphics[chunkCodes[1]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY,pixiApp,chunkCodes[1],() => {});
-    placeGraphic(graphics[chunkCodes[2]],globalRootX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[2],() => {});
-    placeGraphic(graphics[chunkCodes[3]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[3],() => {});
+    const tilemap = pixiApp.stage.getChildByName("base_tilemap") as CompositeTilemap;
+    tilemap.tile(graphics[chunkCodes[0]],globalRootX,globalRootY);
+    tilemap.tile(graphics[chunkCodes[1]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY);
+    tilemap.tile(graphics[chunkCodes[2]],globalRootX,globalRootY + TILE_QUADRANT_DIMS_PX);
+    tilemap.tile(graphics[chunkCodes[3]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY + TILE_QUADRANT_DIMS_PX);
+    // placeGraphic(graphics[chunkCodes[0]],globalRootX,globalRootY,pixiApp,chunkCodes[0],() => {});
+    // placeGraphic(graphics[chunkCodes[1]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY,pixiApp,chunkCodes[1],() => {});
+    // placeGraphic(graphics[chunkCodes[2]],globalRootX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[2],() => {});
+    // placeGraphic(graphics[chunkCodes[3]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[3],() => {});
 }

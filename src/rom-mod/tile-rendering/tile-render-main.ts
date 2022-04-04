@@ -1,16 +1,18 @@
 import { Level } from "../RomInterfaces";
-import { Graphics } from "pixi.js";
+import { Graphics, RenderTexture, Application } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 
-export function generateGraphics(level: Level): Record<string,Graphics> {
-    const codeGraphicsRecord: Record<string,Graphics> = {};
+export function generateGraphics(level: Level, pixiApp: Application): Record<string,RenderTexture> {
+    const codeGraphicsRecord: Record<string,RenderTexture> = {};
     if (!level.palettes) {
         console.log("ERROR: No palettes attached to level!",level);
         return {};
     }
     const allChunkCodes = getAllChunkCodes();
     allChunkCodes.forEach(chunkCode => {
-        codeGraphicsRecord[chunkCode] = getGraphicFromChunk(chunkCode,level);
+        const graphic = getGraphicFromChunk(chunkCode,level)
+        codeGraphicsRecord[chunkCode] = pixiApp.renderer.generateTexture(graphic);
+        graphic.destroy();
     });
     
     return codeGraphicsRecord;
