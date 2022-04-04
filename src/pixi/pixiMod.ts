@@ -1,17 +1,18 @@
-import { Application, RenderTexture } from "pixi.js";
-import { Level, LevelObject } from "../rom-mod/RomInterfaces";
+import { Application, RenderTexture, SimplePlane, Texture } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
+
 import { DrawInstruction, RENDERED_TILE_DEFAULTS } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
+import { FULL_TILE_DIMS_PX, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../GLOBALS";
+import { Level, LevelObject } from "../rom-mod/RomInterfaces";
+
 import getStatic4ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static4byte";
 import getStatic5ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static5byte";
-import { FULL_TILE_DIMS_PX, TILE_QUADRANT_DIMS_PX } from "../GLOBALS";
 
-export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, graphics: Record<string,RenderTexture>): void {
+export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, textureMap: Record<string,RenderTexture>): void {
     const instructions = getDrawInstructionsForObject(lo, level);
     instructions.forEach(instruction => {
-        executeInstruction(instruction,pixiApp,lo.xPos,lo.yPos,graphics);
+        executeInstruction(instruction,pixiApp,lo.xPos,lo.yPos,textureMap,lo);
     });
-    console.log("instructions",instructions);
 }
 
 export function getDrawInstructionsForObject(lo: LevelObject,level: Level): DrawInstruction[] {
@@ -42,7 +43,8 @@ function executeInstruction(
     pixiApp: Application,
     sourceX: number,
     sourceY: number,
-    graphics: Record<string,RenderTexture>
+    textureMap: Record<string,RenderTexture>,
+    lo: LevelObject
 ) {
     const trueX = sourceX + instruction.offsetX;
     const trueY = sourceY + instruction.offsetY;
@@ -51,7 +53,7 @@ function executeInstruction(
     const globalY = trueY * FULL_TILE_DIMS_PX;
     if (instruction.renderData.dataType === "quadChunkNamedString") {
         const quadChunkCodeString = RENDERED_TILE_DEFAULTS[instruction.renderData.data as string];
-        placeChunkArray(globalX,globalY,quadChunkCodeString.split(","),graphics,pixiApp);
+        placeChunkArray(globalX,globalY,quadChunkCodeString.split(","),textureMap,pixiApp,lo);
     } else if (instruction.renderData.dataType === "singleChunkCode") {
 
     } else if (instruction.renderData.dataType === "quadChunkString") {
@@ -67,20 +69,39 @@ function placeChunkArray(
     globalRootX: number,
     globalRootY: number,
     chunkCodes: string[],
-    graphics: Record<string,RenderTexture>,
-    pixiApp: Application
+    textureMap: Record<string,RenderTexture>,
+    pixiApp: Application,
+    levelObject: LevelObject
 ): void {
     if (chunkCodes.length !== 4) {
         console.error("Bad chunk code array:", chunkCodes);
         return;
     }
-    const tilemap = pixiApp.stage.getChildByName("base_tilemap") as CompositeTilemap;
-    tilemap.tile(graphics[chunkCodes[0]],globalRootX,globalRootY);
-    tilemap.tile(graphics[chunkCodes[1]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY);
-    tilemap.tile(graphics[chunkCodes[2]],globalRootX,globalRootY + TILE_QUADRANT_DIMS_PX);
-    tilemap.tile(graphics[chunkCodes[3]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY + TILE_QUADRANT_DIMS_PX);
-    // placeGraphic(graphics[chunkCodes[0]],globalRootX,globalRootY,pixiApp,chunkCodes[0],() => {});
-    // placeGraphic(graphics[chunkCodes[1]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY,pixiApp,chunkCodes[1],() => {});
-    // placeGraphic(graphics[chunkCodes[2]],globalRootX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[2],() => {});
-    // placeGraphic(graphics[chunkCodes[3]],globalRootX + TILE_QUADRANT_DIMS_PX,globalRootY + TILE_QUADRANT_DIMS_PX,pixiApp,chunkCodes[3],() => {});
+    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+    tilemap.tile(textureMap[chunkCodes[0]],
+        globalRootX,
+        globalRootY
+    );
+    tilemap.tile(textureMap[chunkCodes[1]],
+        globalRootX + TILE_QUADRANT_DIMS_PX,
+        globalRootY
+    );
+    tilemap.tile(textureMap[chunkCodes[2]],
+        globalRootX,
+        globalRootY + TILE_QUADRANT_DIMS_PX
+    );
+    tilemap.tile(textureMap[chunkCodes[3]],
+        globalRootX + TILE_QUADRANT_DIMS_PX,
+        globalRootY + TILE_QUADRANT_DIMS_PX
+    );
+    const plane = new SimplePlane(Texture.WHITE,FULL_TILE_DIMS_PX,FULL_TILE_DIMS_PX);
+    plane.x = globalRootX;
+    plane.y = globalRootY;
+    plane.alpha = 0;
+    plane.interactive = true;
+    plane.buttonMode = true;
+    plane.on("pointerdown", () => {
+        console.log(levelObject);
+    });
+    pixiApp.stage.addChild(plane);
 }

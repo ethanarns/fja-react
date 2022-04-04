@@ -3,7 +3,7 @@ import { Graphics, RenderTexture, Application } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 
 export function generateGraphics(level: Level, pixiApp: Application): Record<string,RenderTexture> {
-    const codeGraphicsRecord: Record<string,RenderTexture> = {};
+    const codeTextureMap: Record<string,RenderTexture> = {};
     if (!level.palettes) {
         console.log("ERROR: No palettes attached to level!",level);
         return {};
@@ -11,11 +11,12 @@ export function generateGraphics(level: Level, pixiApp: Application): Record<str
     const allChunkCodes = getAllChunkCodes();
     allChunkCodes.forEach(chunkCode => {
         const graphic = getGraphicFromChunk(chunkCode,level)
-        codeGraphicsRecord[chunkCode] = pixiApp.renderer.generateTexture(graphic);
+        codeTextureMap[chunkCode] = pixiApp.renderer.generateTexture(graphic);
+        // Don't leave the source graphics lying around
         graphic.destroy();
     });
     
-    return codeGraphicsRecord;
+    return codeTextureMap;
 }
 
 /**

@@ -1,5 +1,5 @@
 import './App.css';
-import { DOM_CANVAS_ID } from './GLOBALS';
+import { DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
@@ -34,10 +34,8 @@ function App() {
             console.error("Cannot wipe stage, app not started");
             return {};
         }
-        pixiApp.stage.children.forEach(c => {
-            c.destroy();
-        });
-        pixiApp.stage.removeChildren();
+        const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+        tilemap.clear();
 
         // Then, wipe the existing graphics available
         const existingGraphicsKeys = Object.keys(availableGraphics);
@@ -67,17 +65,18 @@ function App() {
         }
         const file: File = target.files[0];
         file.arrayBuffer().then(result => {
+            // Load the ROM data
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
             console.log("loadedGameData",loadedGameData);
-            const tmpGraphics = updateGraphicsForLevel(loadedGameData.levels[0]);
+            // Create the tilemap
             const tilemap = new CompositeTilemap();
-            tilemap.name = "base_tilemap";
-            console.log("t",tilemap);
+            tilemap.name = TILEMAP_ID;
             pixiApp.stage.addChild(tilemap);
-            // tilemap.tile(tmpGraphics["108d"],0,0);
-            // tilemap.tile(tmpGraphics["108d"],8,8);
+            // First graphics update
+            const tmpGraphics = updateGraphicsForLevel(loadedGameData.levels[0]);
 
+            // Object placement testing
             const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
             console.log("obj63",obj63);
             obj63.xPos = 0;
@@ -90,41 +89,7 @@ function App() {
             obj63_2.yPos = 1;
             obj63_2.dimZ = 2;
             placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpGraphics);
-            // pixiApp.loader
-            // let i = 0;
-            // loadedGameData.levels[0].objects.forEach((lo: LevelObject, index: number) => {
-            //     if (lo.objectId === 0x63) {
-            //         lo.xPos = i;
-            //         lo.yPos = i;
-            //         i++;
-            //         placeLevelObject(lo, loadedGameData.levels[0], pixiApp, tmpGraphics);
-            //     }
-            // });
 
-            // //const graphics = generateGraphics(loadedGameData.levels[0]);
-            // getAllChunkCodes().forEach((code: string, index: number) => {
-            //     const x = index % 10;
-            //     const y = Math.floor(index / 10);
-            //     placeGraphic(tmpGraphics[code],x*10,y*10,pixiApp, code, () => {
-            //         pixiApp.stage.scale.x *= 0.9;
-            //         pixiApp.stage.scale.y *= 0.9;
-            //     });
-            // });
-
-            // const g2 = updateGraphicsForLevel(loadedGameData.levels[1]);
-            // console.log(g2);
-
-            // //const graphics = generateGraphics(loadedGameData.levels[0]);
-            // getAllChunkCodes().forEach((code: string, index: number) => {
-            //     const x = (index % 10);
-            //     const y = Math.floor(index / 10);
-            //     placeGraphic(g2[code],x*10 + 120,y*10,pixiApp, code, (graphic: Graphics, x: number, y: number, chunkCode: string) => {
-            //         pixiApp.stage.scale.x *= 1.1;
-            //         pixiApp.stage.scale.y *= 1.1;
-            //         pixiApp.stage.x += 10;
-            //         graphic.destroy();
-            //     });
-            // });
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
             console.error(err);
