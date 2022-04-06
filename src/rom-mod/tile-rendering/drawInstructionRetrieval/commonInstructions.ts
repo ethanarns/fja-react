@@ -1,7 +1,7 @@
 import { LayerOrder, LevelObject } from "../../RomInterfaces";
-import { DrawInstruction, RenderData } from "../tile-construction-tile-keys";
+import { DrawInstruction } from "../tile-construction-tile-keys";
 
-export function drawVerticalItemWithEnds(lo: LevelObject, top: RenderData, middle: RenderData, bottom: RenderData, layer?: LayerOrder): DrawInstruction[] {
+export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: string, bottom: string, layer?: LayerOrder): DrawInstruction[] {
     let result: DrawInstruction[] = [];
 
     if (lo.dimZ === undefined) {
@@ -18,7 +18,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: RenderData, middl
         offsetY:0,
         uniqueLevelObjectId: lo.uuid,
         layer: trueLayer,
-        renderData: top
+        renderCodes: top
     });
     // Bottom
     if (length > 0) {
@@ -27,7 +27,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: RenderData, middl
             offsetY:length,
             uniqueLevelObjectId: lo.uuid,
             layer: trueLayer,
-            renderData: bottom
+            renderCodes: bottom
         });
     }
     // In-between
@@ -38,7 +38,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: RenderData, middl
                 offsetY:i,
                 uniqueLevelObjectId: lo.uuid,
                 layer: trueLayer,
-                renderData: middle
+                renderCodes: middle
             });
         }
     }
@@ -46,7 +46,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: RenderData, middl
     return result
 }
 
-export function drawHorizontalItemWithEnds(lo: LevelObject, left: RenderData, middle: RenderData, right: RenderData, layer?: LayerOrder): DrawInstruction[] {
+export function drawHorizontalItemWithEnds(lo: LevelObject, left: string, middle: string, right: string, layer?: LayerOrder): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     if (lo.dimZ === undefined) {
         console.error("No DimZ:",lo);
@@ -62,7 +62,7 @@ export function drawHorizontalItemWithEnds(lo: LevelObject, left: RenderData, mi
         offsetY: 0,
         uniqueLevelObjectId: lo.uuid,
         layer: trueLayer,
-        renderData: left
+        renderCodes: left
     });
     // Do end if greater than 0
     if (length > 0) {
@@ -71,7 +71,7 @@ export function drawHorizontalItemWithEnds(lo: LevelObject, left: RenderData, mi
             offsetY:0,
             uniqueLevelObjectId: lo.uuid,
             layer: trueLayer,
-            renderData: right
+            renderCodes: right
         });
     }
     // Do betweens if more than 2 tiles
@@ -82,7 +82,7 @@ export function drawHorizontalItemWithEnds(lo: LevelObject, left: RenderData, mi
                 offsetY:0,
                 uniqueLevelObjectId: lo.uuid,
                 layer: trueLayer,
-                renderData: middle
+                renderCodes: middle
             });
         }
     }

@@ -1,8 +1,11 @@
 import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { LayerOrder } from "../RomInterfaces";
+import { DrawInstruction } from "./tile-construction-tile-keys";
 
 export interface ScreenPageTileChunk {
     objUuidFrom: string;
     chunkCode: string;
+    layer: LayerOrder;
 }
 
 export interface PixelCoordinates {
@@ -44,7 +47,7 @@ export default class ScreenPageData {
      */
     public hasChunkData: boolean = false;
 
-    private chunks: (ScreenPageTileChunk | null)[][] = [];
+    private chunks: (ScreenPageTileChunk[] | null)[][] = [];
 
     constructor(screenPageId: number) {
         this.screenPageId = screenPageId;
@@ -114,7 +117,7 @@ export default class ScreenPageData {
      * @param chunkY Chunk-scale coords
      * @returns ScreenPageTileChunk, null if none
      */
-    public getTileChunkDataFromLocalCoords(chunkX: number, chunkY: number): ScreenPageTileChunk | null {
+    public getTileChunkDataFromLocalCoords(chunkX: number, chunkY: number): ScreenPageTileChunk[] | null {
         if (!this.hasChunkData) {
             return null;
         }
@@ -129,6 +132,31 @@ export default class ScreenPageData {
         return this.chunks[chunkY][chunkX];
     }
 
+    public wipeCheck(): void {
+        let shouldKeep = false;
+        this.chunks.forEach(subChunks => {
+            subChunks.forEach(chunkData => {
+                if (chunkData !== null) {
+                    if (chunkData.length > 0) {
+                        shouldKeep = true;
+                    } else {
+                        // It's an empty array, just null it
+                        chunkData = null;
+                    }
+                }
+            });
+        });
+        if (!shouldKeep) {
+            this.wipeCheck();
+        }
+    }
+
+    /**
+     * Attempt to place a tile onto an existing section
+     * @param chunkX Chunk-scale coords
+     * @param chunkY Chunk-scale coords
+     * @param newChunk ScreenPageTileChunk to place
+     */
     public placeTileChunkData(chunkX: number, chunkY: number, newChunk: ScreenPageTileChunk): void {
         if (chunkX < 0 || chunkY < 0) {
             console.error("ScreenPageChunk location data may not have negatives.");
@@ -142,9 +170,59 @@ export default class ScreenPageData {
             this.fillChunks();
             this.hasChunkData = true;
         }
+        // It's empty, add it
+        if (this.chunks[chunkY][chunkX] === null || this.chunks[chunkY][chunkX]!.length === 0) {
+            this.chunks[chunkY][chunkX] = [newChunk];
+            return;
+        }
         //
         // Do more checks here
         //
-        this.chunks[chunkY][chunkX] = newChunk;
+        this.chunks[chunkY][chunkX]!.push(newChunk);
+    }
+
+    public tileInstruction(relativeTileX: number, relativeTileY: number, instruction: DrawInstruction): void {
+        if (
+            relativeTileX < 0 ||
+            relativeTileX >= ScreenPageData.SCREEN_PAGE_TILE_DIMS ||
+            relativeTileY < 0 ||
+            relativeTileY >= ScreenPageData.SCREEN_PAGE_TILE_DIMS
+        ) {
+            console.error("Bad coords in placeTile:",relativeTileX, relativeTileY);
+            return;
+        }
+        // Each tile is a 2x2 square of chunks
+        const relativeChunkXbase = relativeTileX * 2;
+        const relativeChunkYbase = relativeTileY * 2;
+        instruction.renderCodes.split(",").forEach((code, index) => {
+            const newChunk: ScreenPageTileChunk = {
+                objUuidFrom: instruction.uniqueLevelObjectId,
+                chunkCode: code,
+                layer: instruction.layer
+            };
+            if (index === 0) {
+                this.placeTileChunkData(
+                    relativeChunkXbase,
+                    relativeChunkYbase,
+                newChunk);
+            } else if (index === 1) {
+                this.placeTileChunkData(
+                    relativeChunkXbase + 1,
+                    relativeChunkYbase,
+                newChunk);
+            } else if (index === 2) {
+                this.placeTileChunkData(
+                    relativeChunkXbase,
+                    relativeChunkYbase + 1,
+                newChunk);
+            } else if (index === 3) {
+                this.placeTileChunkData(
+                    relativeChunkXbase + 1,
+                    relativeChunkYbase + 1,
+                newChunk);
+            } else {
+                console.error("Bad index in placeTile:",index);
+            }
+        })
     }
 }

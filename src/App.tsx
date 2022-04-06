@@ -1,3 +1,10 @@
+/**
+ * This file contains most of the starting logic, but is mainly used for initializing
+ * the entire app upon loading of the ROM file. Its only functions should be those
+ * related to interacting with the HTML, other functions should be created in
+ * different files
+ */
+
 import './App.css';
 import { DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
@@ -6,8 +13,8 @@ import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
 import { } from './rom-mod/tile-rendering/texture-generation';
-import { Level, RomData } from './rom-mod/RomInterfaces';
-import { fullRender } from "./pixi/pixiMod";
+import { RomData } from './rom-mod/RomInterfaces';
+import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
 function App() {
@@ -15,8 +22,8 @@ function App() {
     const [inputLoaded, setInputLoaded] = useState(false);
     const [textureCache, setTextureCache] = useState<Record<string,RenderTexture>>({});
     const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [romData, setRomData] = useState<RomData>();
+    const [curLevelId, setCurLevelId] = useState(0);
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
@@ -24,15 +31,20 @@ function App() {
     useEffect(() => {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
+        setCurLevelId(0);
     },[]);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const rerender = (level: Level): void => {
+    const rerenderPages = () => {
         if (!pixiApp) {
-            console.error("Cannot rerender if PixiApp is not started");
+            console.error("PixiJS App not started");
             return;
         }
-        fullRender(level,pixiApp,textureCache,setTextureCache,screenPageData);
+        if (!romData) {
+            console.error("romData not retrieved");
+            return;
+        }
+        wipeTiles(pixiApp);
+        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData)
     }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
@@ -64,27 +76,20 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            screenPages[1].placeTileChunkData(0,0,{
-                objUuidFrom: "",
-                chunkCode: "108d"
-            });
+            const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
+            console.log("obj63",obj63);
+            obj63.xPos = 5;
+            obj63.yPos = 2;
+            placeLevelObject(obj63, loadedGameData.levels[0], screenPages);
+            const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
+            console.log("obj63_2",obj63_2);
+            obj63_2.xPos = 14;
+            obj63_2.yPos = 1;
+            obj63_2.dimZ = 5;
+            placeLevelObject(obj63_2, loadedGameData.levels[0], screenPages);
 
             // Can't do local rerender, parent objects not yet set
-            fullRender(loadedGameData.levels[0],pixiApp,textureCache,setTextureCache,screenPages);
-
-            // // Object placement testing
-            // const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
-            // console.log("obj63",obj63);
-            // obj63.xPos = 0;
-            // obj63.yPos = 0;
-            // obj63.dimZ = 1;
-            // placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpTextures);
-            // const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
-            // console.log("obj63_2",obj63_2);
-            // obj63_2.xPos = 1;
-            // obj63_2.yPos = 1;
-            // obj63_2.dimZ = 2;
-            // placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpTextures);
+            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
 
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
@@ -95,7 +100,10 @@ function App() {
     return (
         <div className="App">
             <div id={DOM_CANVAS_ID}></div>
-            { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
+            <section id="buttons">
+                <button onClick={rerenderPages}>Re-render</button>
+                { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
+            </section>
         </div>
     );
 }

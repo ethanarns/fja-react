@@ -4,23 +4,44 @@
  * combining them
  */
 
-import { Application, RenderTexture, SimplePlane, Texture } from "pixi.js";
+import { Application, RenderTexture } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
-import { DrawInstruction, RENDERED_TILE_DEFAULTS } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
-import { FULL_TILE_DIMS_PX, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../GLOBALS";
+import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
+import { TILEMAP_ID } from "../GLOBALS";
 import { Level, LevelObject } from "../rom-mod/RomInterfaces";
 
-import getStatic4ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static4byte";
-import getStatic5ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static5byte";
+import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
+
 import ScreenPageData from "../rom-mod/tile-rendering/ScreenPageChunks";
 import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-generation";
 
-export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, textureMap: Record<string,RenderTexture>): void {
+/**
+ * Places chunk render codes for a LevelObject onto the Screen Pages. Note that
+ * this does not actually render anything, merely place the codes
+ * @param lo LevelObject to place on screenPages
+ * @param level Current Level
+ * @param screenPages ScreenPageData array to put tiles on
+ */
+export function placeLevelObject(
+    lo: LevelObject,
+    level: Level,
+    screenPages: ScreenPageData[]): void {
     const instructions = getDrawInstructionsForObject(lo, level);
-    instructions.forEach(instruction => {
-        executeInstruction(instruction,pixiApp,lo.xPos,lo.yPos,textureMap,lo);
+    instructions.forEach(i => {
+        executeInstruction(i, lo, screenPages);
     });
+}
+
+function executeInstruction(instruction: DrawInstruction, lo: LevelObject, screenPages: ScreenPageData[]): void {
+    const tileScaleX = lo.xPos + instruction.offsetX;
+    const tileScaleY = lo.yPos + instruction.offsetY;
+    const screenPageId = ScreenPageData.getScreenPageIdFromTileCoords(tileScaleX,tileScaleY);
+    screenPages.filter(sx => sx.screenPageId === screenPageId)[0].tileInstruction(
+        tileScaleX % 0x10,
+        tileScaleY % 0x10,
+        instruction
+    );
 }
 
 export function getDrawInstructionsForObject(lo: LevelObject,level: Level): DrawInstruction[] {
@@ -29,93 +50,25 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level): Draw
         return [];
     }
 
-    if (lo.objectType === "static") {
-        if (lo.objectStorage === "s4byte") {
-            return getStatic4ByteDrawInstuctions(lo, level);
-        } else {
-            return getStatic5ByteDrawInstuctions(lo, level);
-        }
+    const objectRecord = OBJECT_RECORDS.filter( x => {
+        return x.objectType === lo.objectType
+            && (lo.objectStorage === "s4byte") === x.isExtended
+            && lo.objectId === x.objectId;
+    })
+    if (objectRecord.length === 1) {
+        return objectRecord[0].instructionFunction(lo,level);
+    } else if (objectRecord.length === 0) {
+        console.warn("Object render data not found:", lo);
+        return [];
     } else {
-        return getSpriteInstructions(lo, level);
+        console.error("Found multiple object records:", lo, objectRecord);
+        return [];
     }
-}
-
-function getSpriteInstructions(lo: LevelObject, level: Level): DrawInstruction[] {
-    let ret: DrawInstruction[] = [];
-
-    return ret;
-}
-
-function executeInstruction(
-    instruction: DrawInstruction,
-    pixiApp: Application,
-    sourceX: number,
-    sourceY: number,
-    textureMap: Record<string,RenderTexture>,
-    lo: LevelObject
-) {
-    const trueX = sourceX + instruction.offsetX;
-    const trueY = sourceY + instruction.offsetY;
-    console.log("executing instruction at",trueX,trueY);
-    const globalX = trueX * FULL_TILE_DIMS_PX;
-    const globalY = trueY * FULL_TILE_DIMS_PX;
-    if (instruction.renderData.dataType === "quadChunkNamedString") {
-        const quadChunkCodeString = RENDERED_TILE_DEFAULTS[instruction.renderData.data as string];
-        placeChunkArray(globalX,globalY,quadChunkCodeString.split(","),textureMap,pixiApp,lo);
-    } else if (instruction.renderData.dataType === "singleChunkCode") {
-
-    } else if (instruction.renderData.dataType === "quadChunkString") {
-
-    } else if (instruction.renderData.dataType === "quadChunkArray") {
-
-    } else {
-        console.error("Unknown instruction render type:", instruction.renderData);
-    }
-}
-
-function placeChunkArray(
-    globalRootX: number,
-    globalRootY: number,
-    chunkCodes: string[],
-    textureMap: Record<string,RenderTexture>,
-    pixiApp: Application,
-    levelObject: LevelObject
-): void {
-    if (chunkCodes.length !== 4) {
-        console.error("Bad chunk code array:", chunkCodes);
-        return;
-    }
-    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-    tilemap.tile(textureMap[chunkCodes[0]],
-        globalRootX,
-        globalRootY
-    );
-    tilemap.tile(textureMap[chunkCodes[1]],
-        globalRootX + TILE_QUADRANT_DIMS_PX,
-        globalRootY
-    );
-    tilemap.tile(textureMap[chunkCodes[2]],
-        globalRootX,
-        globalRootY + TILE_QUADRANT_DIMS_PX
-    );
-    tilemap.tile(textureMap[chunkCodes[3]],
-        globalRootX + TILE_QUADRANT_DIMS_PX,
-        globalRootY + TILE_QUADRANT_DIMS_PX
-    );
-    const plane = new SimplePlane(Texture.WHITE,FULL_TILE_DIMS_PX,FULL_TILE_DIMS_PX);
-    plane.x = globalRootX;
-    plane.y = globalRootY;
-    plane.alpha = 0;
-    plane.interactive = true;
-    plane.buttonMode = true;
-    plane.on("pointerdown", () => {
-        console.log(levelObject);
-    });
-    pixiApp.stage.addChild(plane);
 }
 
 /**
  * Goes through screenPageData and renders each found graphic
+ * Does not wipe existing data
  * @param curLevel Level you are currently on
  * @param pixiApp Application running
  * @param availableTextures RenderTexture cache map
@@ -137,35 +90,42 @@ export function fullRender(
         if (sp.hasChunkData) {
             for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
                 for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
-                    const curChunkTileData = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
-                    if (curChunkTileData !== null) {
-                        const chunkCode = curChunkTileData.chunkCode;
-                        let renderTexture: RenderTexture | undefined = undefined;
-                        if (availableTextures[chunkCode]) {
-                            // Already available in texture cache
-                            renderTexture = availableTextures[chunkCode];
-                        } else {
-                            // Generate new ones
-                            const graphic = getGraphicFromChunkCode(chunkCode,curLevel)
-                            renderTexture = pixiApp.renderer.generateTexture(graphic)
-                            setAvailableTextures({
-                                chunkCode: renderTexture,
-                                ...availableTextures
-                            });
-                            // Don't leave it lying around
-                            graphic.destroy();
-                        }
-                        // Place render texture
-                        const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
-                        const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-                        console.log(`Placing "${chunkCode}" at (${pxCoords.globalPixelX},${pxCoords.globalPixelY})`);
-                        tilemap.tile(renderTexture,
-                            pxCoords.globalPixelX,
-                            pxCoords.globalPixelY
-                        );
+                    const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+                    if (curChunkTileDataArray !== null) {
+                        curChunkTileDataArray.forEach(chunktileData => {
+                            const chunkCode = chunktileData.chunkCode;
+                            let renderTexture: RenderTexture | undefined = undefined;
+                            if (availableTextures[chunkCode]) {
+                                // Already available in texture cache
+                                renderTexture = availableTextures[chunkCode];
+                            } else {
+                                // Generate new ones
+                                const graphic = getGraphicFromChunkCode(chunkCode,curLevel)
+                                renderTexture = pixiApp.renderer.generateTexture(graphic)
+                                setAvailableTextures({
+                                    chunkCode: renderTexture,
+                                    ...availableTextures
+                                });
+                                // Don't leave it lying around
+                                graphic.destroy();
+                            }
+                            // Place render texture
+                            const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
+                            const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+                            tilemap.tile(renderTexture,
+                                pxCoords.globalPixelX,
+                                pxCoords.globalPixelY
+                            );
+                        })
                     }
                 }
             }
         }
     });
+}
+
+export function wipeTiles(pixiApp: Application) {
+    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+    tilemap.clear();
+    // Also clear the interactive overlays while you're at it
 }

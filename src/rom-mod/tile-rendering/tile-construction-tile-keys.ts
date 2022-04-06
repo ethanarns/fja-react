@@ -7,26 +7,18 @@ export interface TileChunkPreRenderData {
     flipV: boolean;
 }
 
-export interface RenderData {
-    data: string | string[];
-    dataType: RenderDataType;
-}
-export type RenderDataType =
-    // Example: "3a68,3a69,3a58,3a59"
-    "quadChunkString" |
-    // Example: [3a68,3a69,3a58,3a59]
-    "quadChunkArray" |
-    // Example: "3a68"
-    "singleChunkCode" |
-    // Example: "platform_brown_zig_zag_right"
-    "quadChunkNamedString";
-
 export interface DrawInstruction {
+    /**
+     * In Tile-Scale, not chunk or pixel
+     */
     offsetX: number;
+    /**
+     * In Tile-Scale, not chunk or pixel
+     */
     offsetY: number;
     uniqueLevelObjectId: string;
     layer: LayerOrder;
-    renderData: RenderData;
+    renderCodes: string;
 }
 
 export type RenderedTileDataName = string;
