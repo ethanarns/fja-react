@@ -53,6 +53,13 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
+            screenPages[1].placeTileChunkData(0,0,{
+                objUuidFrom: "",
+                chunkCode: "108d"
+            });
+
+            console.log(screenPages);
+
             fullRender(loadedGameData.levels[0],pixiApp,availableTextures,setAvailableTextures,screenPages);
 
             // // Object placement testing

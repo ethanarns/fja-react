@@ -65,7 +65,7 @@ export default class ScreenPageData {
     public getGlobalPixelCoordsFromChunkCoords(innerChunkX: number, innerChunkY: number): PixelCoordinates {
         const ret: PixelCoordinates = {
             globalPixelX: this.globalPixelX + innerChunkX * TILE_QUADRANT_DIMS_PX,
-            globalPixelY: this.globalPixelX + innerChunkY * TILE_QUADRANT_DIMS_PX
+            globalPixelY: this.globalPixelY + innerChunkY * TILE_QUADRANT_DIMS_PX
         };
         return ret;
     }
@@ -100,8 +100,9 @@ export default class ScreenPageData {
     public fillChunks(): void {
         this.chunks = [];
         for (let y = 0; y < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; y++) {
+            this.chunks.push([])
             for (let x = 0; x < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; x++) {
-                this.chunks[y][x] = null;
+                this.chunks[y].push(null);
             }
         }
         this.hasChunkData = true;
@@ -136,6 +137,10 @@ export default class ScreenPageData {
         if (chunkX > ScreenPageData.SCREEN_PAGE_CHUNK_DIMS || chunkY > ScreenPageData.SCREEN_PAGE_CHUNK_DIMS) {
             console.error(`Out of bounds attempt to set data in ScreenPageChunk "${this.screenPageId}"`, chunkX, chunkY);
             return;
+        }
+        if (!this.hasChunkData) {
+            this.fillChunks();
+            this.hasChunkData = true;
         }
         //
         // Do more checks here

@@ -154,6 +154,7 @@ export function fullRender(
                         // Place render texture
                         const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
                         const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+                        console.log(`Placing "${chunkCode}" at (${pxCoords.globalPixelX},${pxCoords.globalPixelY})`);
                         tilemap.tile(renderTexture,
                             pxCoords.globalPixelX,
                             pxCoords.globalPixelY
