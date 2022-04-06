@@ -1,14 +1,19 @@
-import { TileChunkPreRenderData } from "./tile-construction-tile-keys";
+import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 
 export interface ScreenPageTileChunk {
     objUuidFrom: string;
-    chunkPreRenderData: TileChunkPreRenderData;
+    chunkCode: string;
+}
+
+export interface PixelCoordinates {
+    globalPixelX: number;
+    globalPixelY: number;
 }
 
 export default class ScreenPageData {
     public static readonly SCREEN_PAGE_TILE_DIMS = 0x10;
     public static readonly SCREEN_PAGE_CHUNK_DIMS = ScreenPageData.SCREEN_PAGE_TILE_DIMS * 2;
-    public static readonly SCREEN_PAGE_PIXEL_DIMS = ScreenPageData.SCREEN_PAGE_CHUNK_DIMS * 8;
+    public static readonly SCREEN_PAGE_PIXEL_DIMS = ScreenPageData.SCREEN_PAGE_CHUNK_DIMS * TILE_QUADRANT_DIMS_PX;
 
     /**
      * This number is the highest screenpage
@@ -55,6 +60,14 @@ export default class ScreenPageData {
 
         this.globalPixelX = this.chunkX * 8;
         this.globalPixelY = this.chunkY * 8;
+    }
+
+    public getGlobalPixelCoordsFromChunkCoords(innerChunkX: number, innerChunkY: number): PixelCoordinates {
+        const ret: PixelCoordinates = {
+            globalPixelX: this.globalPixelX + innerChunkX * TILE_QUADRANT_DIMS_PX,
+            globalPixelY: this.globalPixelX + innerChunkY * TILE_QUADRANT_DIMS_PX
+        };
+        return ret;
     }
 
     public static getScreenPageIdFromTileCoords(tileX: number, tileY: number): number {

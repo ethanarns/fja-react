@@ -5,9 +5,9 @@ import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
-import { generateLevelTextureChunks } from './rom-mod/tile-rendering/texture-generation';
+import { getGraphicFromChunkCode } from './rom-mod/tile-rendering/texture-generation';
 import { Level } from './rom-mod/RomInterfaces';
-import { placeLevelObject } from "./pixi/pixiMod";
+import { fullRender } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
 function App() {
@@ -23,44 +23,6 @@ function App() {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
     },[]);
-
-    /**
-     * Wipes all renders and Graphics, then regenerates as many RenderTextures
-     * as possible (more will be done on the fly)
-     * @param l Level
-     * @returns Record<string,Graphics>
-     */
-    const regenerateTextures = (l: Level) => {
-        if (!pixiApp) {
-            console.error("Cannot refresh textures, app not started");
-            return {};
-        }
-        // Wipe the existing graphics available
-        Object.keys(availableTextures).forEach(key => {
-            availableTextures[key].destroy();
-        })
-        setAvailableTextures({});
-
-        // Then create the new ones
-        const texs = generateLevelTextureChunks(l,pixiApp);
-        setAvailableTextures(texs);
-        return texs;
-    };
-
-    const fullRender = () => {
-        screenPageData.forEach(sp => {
-            if (sp.hasChunkData) {
-                for (let chunkY = 0; chunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; chunkY++) {
-                    for (let chunkX = 0; chunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; chunkX++) {
-                        const curChunkTileData = sp.getTileChunkDataFromLocalCoords(chunkX,chunkY);
-                        if (curChunkTileData !== null) {
-                            const chunkRenderData = curChunkTileData.chunkPreRenderData;
-                        }
-                    }
-                }
-            }
-        });
-    }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
         if (!pixiApp) {
@@ -91,24 +53,21 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            // First graphics update
-            const tmpTextures = regenerateTextures(loadedGameData.levels[0]);
+            fullRender(loadedGameData.levels[0],pixiApp,availableTextures,setAvailableTextures,screenPages);
 
-            
-
-            // Object placement testing
-            const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
-            console.log("obj63",obj63);
-            obj63.xPos = 0;
-            obj63.yPos = 0;
-            obj63.dimZ = 1;
-            placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpTextures);
-            const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
-            console.log("obj63_2",obj63_2);
-            obj63_2.xPos = 1;
-            obj63_2.yPos = 1;
-            obj63_2.dimZ = 2;
-            placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpTextures);
+            // // Object placement testing
+            // const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
+            // console.log("obj63",obj63);
+            // obj63.xPos = 0;
+            // obj63.yPos = 0;
+            // obj63.dimZ = 1;
+            // placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpTextures);
+            // const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
+            // console.log("obj63_2",obj63_2);
+            // obj63_2.xPos = 1;
+            // obj63_2.yPos = 1;
+            // obj63_2.dimZ = 2;
+            // placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpTextures);
 
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");

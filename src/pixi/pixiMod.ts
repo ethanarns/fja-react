@@ -13,6 +13,8 @@ import { Level, LevelObject } from "../rom-mod/RomInterfaces";
 
 import getStatic4ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static4byte";
 import getStatic5ByteDrawInstuctions from "../rom-mod/tile-rendering/drawInstructionRetrieval/static5byte";
+import ScreenPageData from "../rom-mod/tile-rendering/ScreenPageChunks";
+import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-generation";
 
 export function placeLevelObject(lo: LevelObject, level: Level, pixiApp: Application, textureMap: Record<string,RenderTexture>): void {
     const instructions = getDrawInstructionsForObject(lo, level);
@@ -110,4 +112,55 @@ function placeChunkArray(
         console.log(levelObject);
     });
     pixiApp.stage.addChild(plane);
+}
+
+/**
+     * Takes the data stored in screenPages and renders it to the screen
+     * @param curLevel Level you are currently on
+     */
+export function fullRender(
+    curLevel: Level,
+    pixiApp: Application,
+    availableTextures: Record<string,RenderTexture>,
+    setAvailableTextures: Function,
+    screenPageData: ScreenPageData[]
+): void {
+    if (!pixiApp) {
+        console.error("Cannot render when pixiApp is not started");
+        return;
+    }
+    screenPageData.forEach(sp => {
+        if (sp.hasChunkData) {
+            for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
+                for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
+                    const curChunkTileData = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+                    if (curChunkTileData !== null) {
+                        const chunkCode = curChunkTileData.chunkCode;
+                        let renderTexture: RenderTexture | undefined = undefined;
+                        if (availableTextures[chunkCode]) {
+                            // Already available in texture cache
+                            renderTexture = availableTextures[chunkCode];
+                        } else {
+                            // Generate new ones
+                            const graphic = getGraphicFromChunkCode(chunkCode,curLevel)
+                            renderTexture = pixiApp.renderer.generateTexture(graphic)
+                            setAvailableTextures({
+                                chunkCode: renderTexture,
+                                ...availableTextures
+                            });
+                            // Don't leave it lying around
+                            graphic.destroy();
+                        }
+                        // Place render texture
+                        const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
+                        const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+                        tilemap.tile(renderTexture,
+                            pxCoords.globalPixelX,
+                            pxCoords.globalPixelY
+                        );
+                    }
+                }
+            }
+        }
+    });
 }
