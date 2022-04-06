@@ -1,8 +1,21 @@
+/**
+ * This file contains the logic that converts chunk codes into Graphics/Textures
+ * It does not handle anything related to object placement or Pixi logic. Just
+ * the RenderTextures (and Graphics used as intermediary canvases)
+ */
+
 import { Level } from "../RomInterfaces";
 import { Graphics, RenderTexture, Application } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 
-export function generateGraphics(level: Level, pixiApp: Application): Record<string,RenderTexture> {
+/**
+ * Plug in a level and the current Pixi application, and it will export textures of each chunk
+ * mapped to the chunk code
+ * @param level Level
+ * @param pixiApp Application
+ * @returns A map, with keys that are chunk render codes (ie 30d5 <- End green chunk)
+ */
+export function generateLevelTextureChunks(level: Level, pixiApp: Application): Record<string,RenderTexture> {
     const codeTextureMap: Record<string,RenderTexture> = {};
     if (!level.palettes) {
         console.log("ERROR: No palettes attached to level!",level);
@@ -10,7 +23,7 @@ export function generateGraphics(level: Level, pixiApp: Application): Record<str
     }
     const allChunkCodes = getAllChunkCodes();
     allChunkCodes.forEach(chunkCode => {
-        const graphic = getGraphicFromChunk(chunkCode,level)
+        const graphic = getGraphicFromChunkCode(chunkCode,level)
         codeTextureMap[chunkCode] = pixiApp.renderer.generateTexture(graphic);
         // Don't leave the source graphics lying around
         graphic.destroy();
@@ -23,7 +36,7 @@ export function generateGraphics(level: Level, pixiApp: Application): Record<str
  * Goes through all known chunk codes and returns the unique, valid ones
  * @returns A list of every known Chunk code
  */
-export function getAllChunkCodes(): string[] {
+function getAllChunkCodes(): string[] {
     let chunkCodes: string[] = [];
     Object.keys(RENDERED_TILE_DEFAULTS).forEach(key => {
         const fullLineString = RENDERED_TILE_DEFAULTS[key as RenderedTileDataName].trim();
@@ -63,18 +76,21 @@ function getChunkFromNumber(tileAttr: number): TileChunkPreRenderData {
     return result;
 }
 
-function getGraphicFromChunk(code: string, level: Level): Graphics {
-    const pixiGraphic = new Graphics();
+export function getGraphicFromChunkCode(code: string, level: Level): Graphics {
     const chunkNum = parseInt(code, 16);
     if (code.length !== 4 || isNaN(chunkNum)) {
         console.error("Bad code passed to addTextureFromChunk:", code);
-        return pixiGraphic;
+        return new Graphics();
     }
+    return getGraphicFromChunkData(getChunkFromNumber(chunkNum),level);
+}
+
+export function getGraphicFromChunkData(chunkPreRenderData: TileChunkPreRenderData, level: Level): Graphics {
+    const pixiGraphic = new Graphics();
     if (!level.palettes) {
         console.error("Level does not have valid palettes:",level);
         return pixiGraphic;
     }
-    const chunkPreRenderData = getChunkFromNumber(chunkNum);
     const spritePixels = level.availableSpriteTiles[chunkPreRenderData.tileId];
     const palette = level.palettes[chunkPreRenderData.paletteId];
     let pixelValueIndex = 0;

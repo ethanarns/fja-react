@@ -5,14 +5,16 @@ import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
-import { generateGraphics } from './rom-mod/tile-rendering/tile-render-main';
-import { placeLevelObject } from "./pixi/pixiMod";
+import { generateLevelTextureChunks } from './rom-mod/tile-rendering/texture-generation';
 import { Level } from './rom-mod/RomInterfaces';
+import { placeLevelObject } from "./pixi/pixiMod";
+import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
-    const [availableGraphics, setAvailableGraphics] = useState<Record<string,RenderTexture>>({});
+    const [availableTextures, setAvailableTextures] = useState<Record<string,RenderTexture>>({});
+    const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
@@ -23,32 +25,42 @@ function App() {
     },[]);
 
     /**
-     * Wipes all renders and Graphics, then regenerates the graphics
-     * Record object
+     * Wipes all renders and Graphics, then regenerates as many RenderTextures
+     * as possible (more will be done on the fly)
      * @param l Level
      * @returns Record<string,Graphics>
      */
-    const updateGraphicsForLevel = (l: Level) => {
-        // Clean the stage
+    const regenerateTextures = (l: Level) => {
         if (!pixiApp) {
-            console.error("Cannot wipe stage, app not started");
+            console.error("Cannot refresh textures, app not started");
             return {};
         }
-        const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-        tilemap.clear();
-
-        // Then, wipe the existing graphics available
-        const existingGraphicsKeys = Object.keys(availableGraphics);
-        existingGraphicsKeys.forEach(key => {
-            availableGraphics[key].destroy();
+        // Wipe the existing graphics available
+        Object.keys(availableTextures).forEach(key => {
+            availableTextures[key].destroy();
         })
-        setAvailableGraphics({});
+        setAvailableTextures({});
 
         // Then create the new ones
-        const graphics = generateGraphics(l,pixiApp);
-        setAvailableGraphics(graphics);
-        return graphics;
+        const texs = generateLevelTextureChunks(l,pixiApp);
+        setAvailableTextures(texs);
+        return texs;
     };
+
+    const fullRender = () => {
+        screenPageData.forEach(sp => {
+            if (sp.hasChunkData) {
+                for (let chunkY = 0; chunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; chunkY++) {
+                    for (let chunkX = 0; chunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; chunkX++) {
+                        const curChunkTileData = sp.getTileChunkDataFromLocalCoords(chunkX,chunkY);
+                        if (curChunkTileData !== null) {
+                            const chunkRenderData = curChunkTileData.chunkPreRenderData;
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
         if (!pixiApp) {
@@ -69,12 +81,20 @@ function App() {
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
             console.log("loadedGameData",loadedGameData);
+
             // Create the tilemap
             const tilemap = new CompositeTilemap();
             tilemap.name = TILEMAP_ID;
             pixiApp.stage.addChild(tilemap);
+
+            // Create the ScreenPages
+            const screenPages = ScreenPageData.generateAllScreenPages()
+            setScreenPageData(screenPages);
+
             // First graphics update
-            const tmpGraphics = updateGraphicsForLevel(loadedGameData.levels[0]);
+            const tmpTextures = regenerateTextures(loadedGameData.levels[0]);
+
+            
 
             // Object placement testing
             const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
@@ -82,13 +102,13 @@ function App() {
             obj63.xPos = 0;
             obj63.yPos = 0;
             obj63.dimZ = 1;
-            placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpGraphics);
+            placeLevelObject(obj63, loadedGameData.levels[0], pixiApp, tmpTextures);
             const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
             console.log("obj63_2",obj63_2);
             obj63_2.xPos = 1;
             obj63_2.yPos = 1;
             obj63_2.dimZ = 2;
-            placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpGraphics);
+            placeLevelObject(obj63_2, loadedGameData.levels[0], pixiApp, tmpTextures);
 
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");

@@ -1,3 +1,9 @@
+/**
+ * The purpose of this file is to take LevelObjects, and place them upon the
+ * Pixi stage, one way or another. It does not handle rendering textures, only
+ * combining them
+ */
+
 import { Application, RenderTexture, SimplePlane, Texture } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 

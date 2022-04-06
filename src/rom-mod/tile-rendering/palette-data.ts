@@ -7,7 +7,8 @@ import { readAddress } from "../binaryUtils/binary-io";
  * 
  * Note: This was converted from my C++ version of the project, could use
  * some optimization...
- * @param level Level to pull from
+ * @param romBuffer ROM data to pull data from
+ * @param level Level to get data from
  */
 export function getPaletteData(romBuffer: Uint8Array, level: Level): string[][] {
     let resultArray: number[] = [];
