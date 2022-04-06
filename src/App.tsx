@@ -5,16 +5,18 @@ import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
-import { getGraphicFromChunkCode } from './rom-mod/tile-rendering/texture-generation';
-import { Level } from './rom-mod/RomInterfaces';
+import { } from './rom-mod/tile-rendering/texture-generation';
+import { Level, RomData } from './rom-mod/RomInterfaces';
 import { fullRender } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
-    const [availableTextures, setAvailableTextures] = useState<Record<string,RenderTexture>>({});
+    const [textureCache, setTextureCache] = useState<Record<string,RenderTexture>>({});
     const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [romData, setRomData] = useState<RomData>();
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
@@ -23,6 +25,15 @@ function App() {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
     },[]);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const rerender = (level: Level): void => {
+        if (!pixiApp) {
+            console.error("Cannot rerender if PixiApp is not started");
+            return;
+        }
+        fullRender(level,pixiApp,textureCache,setTextureCache,screenPageData);
+    }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
         if (!pixiApp) {
@@ -42,7 +53,7 @@ function App() {
             // Load the ROM data
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
-            console.log("loadedGameData",loadedGameData);
+            setRomData(loadedGameData);
 
             // Create the tilemap
             const tilemap = new CompositeTilemap();
@@ -58,9 +69,8 @@ function App() {
                 chunkCode: "108d"
             });
 
-            console.log(screenPages);
-
-            fullRender(loadedGameData.levels[0],pixiApp,availableTextures,setAvailableTextures,screenPages);
+            // Can't do local rerender, parent objects not yet set
+            fullRender(loadedGameData.levels[0],pixiApp,textureCache,setTextureCache,screenPages);
 
             // // Object placement testing
             // const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];

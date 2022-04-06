@@ -115,9 +115,13 @@ function placeChunkArray(
 }
 
 /**
-     * Takes the data stored in screenPages and renders it to the screen
-     * @param curLevel Level you are currently on
-     */
+ * Goes through screenPageData and renders each found graphic
+ * @param curLevel Level you are currently on
+ * @param pixiApp Application running
+ * @param availableTextures RenderTexture cache map
+ * @param setAvailableTextures Function to set updated textures
+ * @param screenPageData ScreenPageData[] Screen Page data
+ */
 export function fullRender(
     curLevel: Level,
     pixiApp: Application,
