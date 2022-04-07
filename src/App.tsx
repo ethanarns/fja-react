@@ -25,7 +25,7 @@ function App() {
     const [romData, setRomData] = useState<RomData>();
     const [curLevelId, setCurLevelId] = useState(0);
 
-    const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
+    const { loadRomFromArrayBuffer } = useContext(RomContext);
 
     // Basically on load
     useEffect(() => {

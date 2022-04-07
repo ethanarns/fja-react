@@ -97,3 +97,11 @@ export function getStaticChunkCodeByOffsets(rom: Uint8Array, offset1: number, of
     const paramNum = readWordFromArray(rom,paramsArrayBase,offset2);
     return paramNum.toString(16).padStart(4,"0");
 }
+
+export function getStaticTileChunksByOffsets(rom: Uint8Array, offset1: number, offset2: number): string {
+    const chunkCode0 = getStaticChunkCodeByOffsets(rom, offset1, offset2 + 0);
+    const chunkCode1 = getStaticChunkCodeByOffsets(rom, offset1, offset2 + 1);
+    const chunkCode2 = getStaticChunkCodeByOffsets(rom, offset1, offset2 + 2);
+    const chunkCode3 = getStaticChunkCodeByOffsets(rom, offset1, offset2 + 3);
+    return `${chunkCode0},${chunkCode1},${chunkCode2},${chunkCode3}`;
+}

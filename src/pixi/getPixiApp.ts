@@ -6,7 +6,8 @@ export default function generatePixiApp(): Application | null {
     const pixiApp = new Application({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
-        antialias: false
+        antialias: false,
+        backgroundColor: 0x222222
     });
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
     const foundCanvas = document.getElementById(DOM_CANVAS_ID);
