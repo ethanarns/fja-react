@@ -48,21 +48,11 @@ function App() {
             return;
         }
         wipeTiles(pixiApp);
-        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData)
+        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData,spriteCallback)
     };
 
-    const wipeTextureCache = () => {
-        if (!pixiApp) {
-            return;
-        }
-        Object.keys(textureCache).forEach(texKey => {
-            textureCache[texKey].destroy();
-        });
-        const graphics = getBlankChunkGraphics();
-        setTextureCache({
-            "WHTE": pixiApp.renderer.generateTexture(graphics)
-        });
-        graphics.destroy();
+    const spriteCallback = (uuid: string) => {
+        console.log(uuid);
     }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
@@ -109,7 +99,7 @@ function App() {
             });
 
             // Can't do local rerender, parent objects not yet set
-            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
+            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages,spriteCallback);
 
             // Set up key controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
@@ -133,7 +123,6 @@ function App() {
                         break;
                 };
             });
-
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
             console.error(err);
@@ -145,7 +134,6 @@ function App() {
             <div id={DOM_CANVAS_ID}></div>
             <section id="buttons">
                 <button onClick={rerenderPages}>Re-render</button>
-                <button onClick={wipeTextureCache}>Wipe Textures</button>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
             </section>
         </div>

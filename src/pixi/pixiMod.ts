@@ -4,7 +4,7 @@
  * combining them
  */
 
-import { Application, RenderTexture } from "pixi.js";
+import { Application, RenderTexture, Sprite } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
@@ -93,7 +93,8 @@ export function fullRender(
     pixiApp: Application,
     availableTextures: Record<string,RenderTexture>,
     setAvailableTextures: Function,
-    screenPageData: ScreenPageData[]
+    screenPageData: ScreenPageData[],
+    callback: Function
 ): void {
     if (!pixiApp) {
         console.error("Cannot render when pixiApp is not started");
@@ -129,6 +130,16 @@ export function fullRender(
                                 pxCoords.globalPixelX,
                                 pxCoords.globalPixelY
                             );
+                            const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
+                            spr.interactive = true;
+                            spr.buttonMode = true;
+                            spr.alpha = 0;
+                            spr.x = pxCoords.globalPixelX;
+                            spr.y = pxCoords.globalPixelY;
+                            spr.on("pointerdown", () => {
+                                callback(chunktileData.objUuidFrom);
+                            });
+                            pixiApp.stage.addChild(spr);
                         })
                     }
                 }
@@ -141,4 +152,6 @@ export function wipeTiles(pixiApp: Application) {
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
     // Also clear the interactive overlays while you're at it
+    const removed = pixiApp.stage.removeChildren();
+    console.log("Removed children:",removed);
 }

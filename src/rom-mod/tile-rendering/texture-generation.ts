@@ -5,7 +5,7 @@
  */
 
 import { Level } from "../RomInterfaces";
-import { Graphics } from "pixi.js";
+import { Graphics, RenderTexture, Application } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 
@@ -111,4 +111,19 @@ export function getBlankChunkGraphics(): Graphics {
     graphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
     graphics.endFill();
     return graphics;
+}
+
+export function resetTextureCache(
+    textureCache: Record<string,RenderTexture>,
+    setTextureCache: Function,
+    pixiApp: Application
+): void {
+    Object.keys(textureCache).forEach(texKey => {
+        textureCache[texKey].destroy();
+    });
+    const graphics = getBlankChunkGraphics();
+    setTextureCache({
+        "WHTE": pixiApp.renderer.generateTexture(graphics)
+    });
+    graphics.destroy();
 }
