@@ -22,13 +22,15 @@ import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-gener
  * @param lo LevelObject to place on screenPages
  * @param level Current Level
  * @param screenPages ScreenPageData array to put tiles on
+ * @param romBuffer Uint8Array to check for finding values better
  */
 export function placeLevelObject(
     lo: LevelObject,
     level: Level,
-    screenPages: ScreenPageData[]
+    screenPages: ScreenPageData[],
+    romBuffer: Uint8Array
 ): void {
-    const instructions = getDrawInstructionsForObject(lo, level);
+    const instructions = getDrawInstructionsForObject(lo, level, romBuffer);
     instructions.forEach(i => {
         executeInstruction(i, lo, screenPages);
     });
@@ -45,7 +47,7 @@ function executeInstruction(instruction: DrawInstruction, lo: LevelObject, scree
     );
 }
 
-export function getDrawInstructionsForObject(lo: LevelObject,level: Level): DrawInstruction[] {
+export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBuffer: Uint8Array): DrawInstruction[] {
     if (!lo || !lo.objectId || !level) {
         console.error("Cannot do getDrawInstructionsForObject, bad input", lo, level);
         return [];
@@ -57,7 +59,7 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level): Draw
             && lo.objectId === x.objectId;
     })
     if (objectRecord.length === 1) {
-        return objectRecord[0].instructionFunction(lo,level);
+        return objectRecord[0].instructionFunction(lo,level,romBuffer);
     } else if (objectRecord.length === 0) {
         console.debug("Object render data not found:", lo);
         const blanks: string[] = [

@@ -1,8 +1,9 @@
 import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
 import { drawHorizontalItemWithEnds } from "./drawInstructionRetrieval/commonInstructions";
 import { DrawInstruction } from "./tile-construction-tile-keys";
+import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
 
-export type InstructionGenerator = (levelObject: LevelObject, level: Level) => DrawInstruction[];
+export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
 export interface ObjectRecord {
     objectType: LevelObjectType;
@@ -34,5 +35,12 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         instructionFunction: () => [],
         prettyName: "Green Pipe Down Usable",
         textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xdd,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xdd"
     }
 ];

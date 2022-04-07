@@ -25,7 +25,7 @@ function App() {
     const [romData, setRomData] = useState<RomData>();
     const [curLevelId, setCurLevelId] = useState(0);
 
-    const { loadRomFromArrayBuffer } = useContext(RomContext);
+    const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
 
     // Basically on load
     useEffect(() => {
@@ -84,18 +84,18 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
-            obj63.xPos = 5;
-            obj63.yPos = 2;
-            placeLevelObject(obj63, loadedGameData.levels[curLevelId], screenPages);
-            const obj63_2 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[1];
-            obj63_2.xPos = 14;
-            obj63_2.yPos = 40;
-            obj63_2.dimZ = 5;
-            placeLevelObject(obj63_2, loadedGameData.levels[curLevelId], screenPages);
+            // const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
+            // obj63.xPos = 5;
+            // obj63.yPos = 2;
+            // placeLevelObject(obj63, loadedGameData.levels[curLevelId], screenPages, romBuffer);
+            // const obj63_2 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[1];
+            // obj63_2.xPos = 14;
+            // obj63_2.yPos = 40;
+            // obj63_2.dimZ = 5;
+            // placeLevelObject(obj63_2, loadedGameData.levels[curLevelId], screenPages, romBuffer);
 
             loadedGameData.levels[curLevelId].objects.forEach(lobj => {
-                placeLevelObject(lobj,loadedGameData.levels[curLevelId],screenPages)
+                placeLevelObject(lobj, loadedGameData.levels[curLevelId], screenPages, new Uint8Array(result));
             });
 
             // Can't do local rerender, parent objects not yet set
