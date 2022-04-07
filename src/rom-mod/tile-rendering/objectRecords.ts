@@ -39,8 +39,78 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
     {
         objectType: "static",
         isExtended: true,
+        objectId: 0xd4,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd4"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xd5,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd5"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xd6,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd6"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xd7,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd7"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xd8,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd8"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xd9,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xd9"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xda,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xda"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xdb,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xdb"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xdc,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xdc"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
         objectId: 0xdd,
         instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
         prettyName: "Big Blue Rock: 0xdd"
+    },
+    {
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xde,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xde"
     }
 ];

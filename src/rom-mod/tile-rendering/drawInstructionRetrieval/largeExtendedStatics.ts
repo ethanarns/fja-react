@@ -54,6 +54,5 @@ export function bigBlueRocks(lo: LevelObject, level: Level, romBuffer: Uint8Arra
             break;
         }
     }
-    console.log("Done! Ret is ",ret);
     return ret;
 }
