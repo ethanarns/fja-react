@@ -152,6 +152,9 @@ export function wipeTiles(pixiApp: Application) {
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
     // Also clear the interactive overlays while you're at it
-    const removed = pixiApp.stage.removeChildren();
-    console.log("Removed children:",removed);
+    const toRemove = pixiApp.stage.children.filter(c => c.name !== TILEMAP_ID);
+    toRemove.forEach(ch => {
+        ch.destroy();
+        pixiApp.stage.removeChild(ch);
+    });
 }
