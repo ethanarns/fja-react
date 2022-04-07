@@ -6,13 +6,13 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
+import { ARROW_MOVE_SPEED, DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
-import { } from './rom-mod/tile-rendering/texture-generation';
+import { getBlankChunkGraphics } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
@@ -32,6 +32,10 @@ function App() {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
         setCurLevelId(0);
+        const graphics = getBlankChunkGraphics();
+        setTextureCache({
+            "WHTE": newPixiApp!.renderer.generateTexture(graphics)
+        });
     },[]);
 
     const rerenderPages = () => {
@@ -45,6 +49,20 @@ function App() {
         }
         wipeTiles(pixiApp);
         fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData)
+    };
+
+    const wipeTextureCache = () => {
+        if (!pixiApp) {
+            return;
+        }
+        Object.keys(textureCache).forEach(texKey => {
+            textureCache[texKey].destroy();
+        });
+        const graphics = getBlankChunkGraphics();
+        setTextureCache({
+            "WHTE": pixiApp.renderer.generateTexture(graphics)
+        });
+        graphics.destroy();
     }
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
@@ -76,20 +94,45 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            const obj63 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[0];
-            console.log("obj63",obj63);
+            const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
             obj63.xPos = 5;
             obj63.yPos = 2;
-            placeLevelObject(obj63, loadedGameData.levels[0], screenPages);
-            const obj63_2 = loadedGameData.levels[0].objects.filter(o => o.objectId === 0x63)[1];
-            console.log("obj63_2",obj63_2);
+            placeLevelObject(obj63, loadedGameData.levels[curLevelId], screenPages);
+            const obj63_2 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[1];
             obj63_2.xPos = 14;
-            obj63_2.yPos = 1;
+            obj63_2.yPos = 40;
             obj63_2.dimZ = 5;
-            placeLevelObject(obj63_2, loadedGameData.levels[0], screenPages);
+            placeLevelObject(obj63_2, loadedGameData.levels[curLevelId], screenPages);
+
+            loadedGameData.levels[curLevelId].objects.forEach(lobj => {
+                placeLevelObject(lobj,loadedGameData.levels[curLevelId],screenPages)
+            });
 
             // Can't do local rerender, parent objects not yet set
             fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
+
+            // Set up key controls
+            document.addEventListener("keydown", (ev: KeyboardEvent) => {
+                if (!pixiApp) {
+                    return;
+                }
+                switch (ev.key) {
+                    case "ArrowDown":
+                        pixiApp.stage.y -= ARROW_MOVE_SPEED;
+                        break;
+                    case "ArrowUp":
+                        pixiApp.stage.y += ARROW_MOVE_SPEED;
+                        break;
+                    case "ArrowRight":
+                        pixiApp.stage.x -= ARROW_MOVE_SPEED;
+                        break;
+                    case "ArrowLeft":
+                        pixiApp.stage.x += ARROW_MOVE_SPEED;
+                        break;
+                    default:
+                        break;
+                };
+            });
 
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
@@ -102,6 +145,7 @@ function App() {
             <div id={DOM_CANVAS_ID}></div>
             <section id="buttons">
                 <button onClick={rerenderPages}>Re-render</button>
+                <button onClick={wipeTextureCache}>Wipe Textures</button>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
             </section>
         </div>

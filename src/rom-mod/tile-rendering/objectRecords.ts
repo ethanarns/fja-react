@@ -26,5 +26,13 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         ),
         prettyName: "Platform Brown Zig-Zag",
         textDescription: "A common platform, it is decorated with a brown zig-zag pattern."
+    },
+    {
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x3c,
+        instructionFunction: () => [],
+        prettyName: "Green Pipe Down Usable",
+        textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
     }
 ];

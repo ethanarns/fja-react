@@ -8,8 +8,8 @@ import { Application, RenderTexture } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
-import { TILEMAP_ID } from "../GLOBALS";
-import { Level, LevelObject } from "../rom-mod/RomInterfaces";
+import { TILEMAP_ID, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
+import { LayerOrder, Level, LevelObject } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
@@ -26,7 +26,8 @@ import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-gener
 export function placeLevelObject(
     lo: LevelObject,
     level: Level,
-    screenPages: ScreenPageData[]): void {
+    screenPages: ScreenPageData[]
+): void {
     const instructions = getDrawInstructionsForObject(lo, level);
     instructions.forEach(i => {
         executeInstruction(i, lo, screenPages);
@@ -58,8 +59,20 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level): Draw
     if (objectRecord.length === 1) {
         return objectRecord[0].instructionFunction(lo,level);
     } else if (objectRecord.length === 0) {
-        console.warn("Object render data not found:", lo);
-        return [];
+        console.debug("Object render data not found:", lo);
+        const blanks: string[] = [
+            WHITE_SQUARE_RENDER_CODE,
+            WHITE_SQUARE_RENDER_CODE,
+            WHITE_SQUARE_RENDER_CODE,
+            WHITE_SQUARE_RENDER_CODE
+        ];
+        return [{
+            offsetX: 0,
+            offsetY: 0,
+            renderCodes: blanks.join(","),
+            layer: LayerOrder.STANDARD_OBJECTS,
+            uniqueLevelObjectId: lo.uuid
+        }];
     } else {
         console.error("Found multiple object records:", lo, objectRecord);
         return [];

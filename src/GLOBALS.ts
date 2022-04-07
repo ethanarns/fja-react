@@ -39,9 +39,14 @@ export const LEVEL_HEADER_LENGTHS = 0x00167766;
 
 export const TILE_BYTES = 0x20; // 32
 
+export const WHITE_SQUARE_RENDER_CODE = "WHTE";
+
 // Palette crap
 export const PALETTE_SPACER_LIST_PTR_MAYBE = 0x001671d8;
 export const PALETTE_SPACER_DISTANCE_MAYBE = 6;
 export const PALETTE_COMPRESSED_DATA_LIST_PTR = 0x002cf008;
 export const PALETTE_LEVEL_BASE_PTR = 0x001a8d2e;
 export const PALETTE_WORLD_LIST_BASE_PTR = 0x00164b7c;
+
+// Controls
+export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
