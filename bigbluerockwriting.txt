@@ -1,6 +1,6 @@
 Tracking from dd
 Note that the first quadrant of 0xdd is
-40ee,4181
+44ee,4181
 4190,4191
 With the first static rock list, the data it gets plus offset is 081be75a -> 0x17,0x08, aka 0x0817
 So the only thing it ended up writing was 0x0817 to 0200121c??

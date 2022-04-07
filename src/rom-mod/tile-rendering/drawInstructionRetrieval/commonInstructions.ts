@@ -1,3 +1,4 @@
+import { readAddressFromArray, readWordFromArray } from "../../binaryUtils/binary-io";
 import { LayerOrder, LevelObject } from "../../RomInterfaces";
 import { DrawInstruction } from "../tile-construction-tile-keys";
 
@@ -87,4 +88,12 @@ export function drawHorizontalItemWithEnds(lo: LevelObject, left: string, middle
         }
     }
     return result;
+}
+
+export function getStaticChunkCodeByOffsets(rom: Uint8Array, offset1: number, offset2: number): string {
+    //                                   0x081bad20
+    const OBJECT_TILES_AND_PARAMS_BASE = 0x001bad20;
+    const paramsArrayBase = readAddressFromArray(rom,OBJECT_TILES_AND_PARAMS_BASE,offset1);
+    const paramNum = readWordFromArray(rom,paramsArrayBase,offset2);
+    return paramNum.toString(16).padStart(4,"0");
 }

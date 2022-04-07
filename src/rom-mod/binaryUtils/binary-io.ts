@@ -21,6 +21,15 @@ export function readByteFromArray(
     return rom[addr];
 }
 
+export function readWordFromArray(
+    rom: Uint8Array,
+    baseAddr: number,
+    index: number
+): number {
+    const addr = baseAddr + (index * 2);
+    return rom[addr] + (rom[addr+1] << 8);
+}
+
 /**
  * Retrieve an address (as base10 index) at a specified address
  * @param rom Uint8Array holding the ROM's binary data
