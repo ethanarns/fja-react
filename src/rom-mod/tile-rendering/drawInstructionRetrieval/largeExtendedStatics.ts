@@ -43,7 +43,7 @@ export function bigBlueRocks(lo: LevelObject, level: Level, romBuffer: Uint8Arra
                 offsetX: xIndex,
                 offsetY: lengthIndex - 1,
                 uniqueLevelObjectId: lo.uuid,
-                layer: LayerOrder.STANDARD_OBJECTS,
+                layer: LayerOrder.ROCKS,
                 renderCodes: getStaticTileChunksByOffsets(romBuffer,brStaticsValue >> 8, innerOffset << 2)
             });
         }

@@ -210,3 +210,157 @@ export function drawFlowerSlope_steepest(lo: LevelObject): DrawInstruction[] {
     }
     return result;
 }
+
+// 0xe8
+export function drawGardenSlope_downright_30(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    const yLength = lo.dimY;
+    let xLength = lo.dimX;
+    if (yLength === undefined || xLength === undefined) {
+        console.error("drawGardenGround missing XY dims:",lo);
+        return [];
+    }
+    if (xLength === 0) {
+        xLength = 1;
+    }
+    // If there is one that's more than 2 tiles, just repeat the below until covered
+    for (let xRepeat = 0; xRepeat < xLength; xRepeat += 2) {
+        result.push({
+            offsetX: xRepeat,
+            offsetY: Math.floor(xRepeat * 0.5),
+            renderCodes: "4513,4512,4523,4522",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        result.push({
+            offsetX: xRepeat,
+            offsetY: Math.floor(xRepeat * 0.5)-1,
+            renderCodes: "44ee,44ee,4503,4502",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        result.push({
+            offsetX: xRepeat+1,
+            offsetY: Math.floor(xRepeat * 0.5),
+            renderCodes: "4511,4510,4521,4520",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        for (let fillHeightIndex = Math.floor(xRepeat * 0.5)+1; fillHeightIndex < yLength+1; fillHeightIndex++) {
+            result.push({
+                offsetX: xRepeat,
+                offsetY: fillHeightIndex,
+                renderCodes: "4500,4500,4500,4500",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+            result.push({
+                offsetX: xRepeat+1,
+                offsetY: fillHeightIndex,
+                renderCodes: "4500,4500,4500,4500",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    }
+
+    // Repeat above if more than 2 width tiles found
+    return result;
+}
+
+// 0xe9
+export function drawGardenSlope_downright_steepest(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    let xLength = lo.dimX;
+    let yLength = lo.dimY;
+    if (xLength === undefined || yLength === undefined) {
+        console.error("0xe9 is missing dimensions:",lo);
+        return [];
+    }
+    xLength++;
+    yLength++;
+    for (let xOffset = 0; xOffset < xLength; xOffset++) {
+        const baseYOffset = xOffset;
+        result.push({
+            offsetX:xOffset,
+            offsetY:baseYOffset,
+            renderCodes: "4515,4514,452b,452a",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        result.push({
+            offsetX:xOffset,
+            offsetY:baseYOffset - 1,
+            renderCodes: "44ee,44ee,4505,4504",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        for (let yOffset = baseYOffset + 1; yOffset < yLength; yOffset++) {
+            result.push({
+                offsetX:xOffset,
+                offsetY:yOffset,
+                renderCodes: "4500,4500,4500,4500",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    }
+    return result;
+}
+
+// 0xec and 0xeb
+export function drawGroundSides(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    let yLength = lo.dimY;
+    const xLength = lo.dimX;
+    if (yLength === undefined || xLength === undefined) {
+        console.error("drawGroundSides missing XY dims:",lo);
+        return [];
+    }
+    if (lo.objectId === 0xeb) {
+        if (xLength !== 0 && lo.uuid !== "tableImageGenerator") {
+            console.warn("drawGroundSides: Found 0xeb with a length not 0",lo);
+        }
+        result.push({
+            offsetX: 0,
+            offsetY: 0,
+            renderCodes: "4543,4542,4553,4552",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        if (yLength === 0) {
+            yLength = 2;
+        }
+        for (let yOffset = 1; yOffset < yLength+1; yOffset++) {
+            result.push({
+                offsetX: 0,
+                offsetY: yOffset,
+                renderCodes: "4563,4562,4573,4572",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    } else if (lo.objectId === 0xec) {
+        if (xLength !== 0 && lo.uuid !== "tableImageGenerator") {
+            console.warn("drawGroundSides: Found 0xec with a length not 0",lo);
+        }
+        result.push({
+            offsetX: 0,
+            offsetY: 0,
+            renderCodes: "4142,4143,4152,4153",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        for (let yOffset = 1; yOffset < yLength+1; yOffset++) {
+            result.push({
+                offsetX: 0,
+                offsetY: yOffset,
+                renderCodes: "4162,4163,4172,4173",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    }
+
+    return result;
+}

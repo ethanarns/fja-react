@@ -4,7 +4,7 @@ import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
 
 import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
-import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45 } from "./drawInstructionRetrieval/ground/flowerGround";
+import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -120,24 +120,48 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         isExtended: false,
         objectId: 0xe5,
         instructionFunction: (lo) => drawGardenSlope_downleft_30(lo),
-        prettyName: "Flower Garden - Down Left 30"
+        prettyName: "Flower Ground - Down Left 30"
     },{
         objectType: "static",
         isExtended: false,
         objectId: 0xe6,
         instructionFunction: (lo) => drawGardenSlope_downLeft_45(lo),
-        prettyName: "Flower Garden - Down Left 45"
+        prettyName: "Flower Ground - Down Left 45"
     },{
         objectType: "static",
         isExtended: false,
         objectId: 0xe7,
         instructionFunction: (lo) => drawFlowerSlope_steepest(lo),
-        prettyName: "Flower Garden - Left 1 Down 2"
+        prettyName: "Flower Ground - Left 1 Down 2"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xe8,
+        instructionFunction: (lo) => drawGardenSlope_downright_30(lo),
+        prettyName: "Flower Ground - Right 2 Down 1"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xe9,
+        instructionFunction: (lo) => drawGardenSlope_downright_steepest(lo),
+        prettyName: "Flower Ground - Down 1 Right 1"
     },{
         objectType: "static",
         isExtended: false,
         objectId: 0xea,
         instructionFunction: (lo) => drawFlowerSlope_steepest(lo),
-        prettyName: "Flower Garden - Right 1 Down 2"
+        prettyName: "Flower Ground - Right 1 Down 2"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xeb,
+        instructionFunction: (lo) => drawGroundSides(lo),
+        prettyName: "Flower Ground - Edge Left"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xec,
+        instructionFunction: (lo) => drawGroundSides(lo),
+        prettyName: "Flower Ground - Edge Right"
     }
 ];

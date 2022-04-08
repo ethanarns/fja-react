@@ -67,6 +67,8 @@ export enum LayerOrder {
 
     PLATFORMS = 4,
 
+    ROCKS = 3.5,
+
     GROUND = 3,
 
     /**
