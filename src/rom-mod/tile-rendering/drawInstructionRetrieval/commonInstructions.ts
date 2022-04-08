@@ -105,3 +105,23 @@ export function getStaticTileChunksByOffsets(rom: Uint8Array, offset1: number, o
     const chunkCode3 = getStaticChunkCodeByOffsets(rom, offset1, offset2 + 3);
     return `${chunkCode0},${chunkCode1},${chunkCode2},${chunkCode3}`;
 }
+
+export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, layer: LayerOrder = LayerOrder.STANDARD_OBJECTS): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    if (lo.dimX === undefined || lo.dimY === undefined) {
+        console.error("LevelObject does not have 2D dimensions:", lo);
+        return result;
+    }
+    for (let y = 0; y < lo.dimY+1; y++) {
+        for (let x = 0; x < lo.dimX+1; x++) {
+            result.push({
+                offsetX: x,
+                offsetY: y,
+                renderCodes: chunkCodes,
+                layer: layer,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    }
+    return result;
+}

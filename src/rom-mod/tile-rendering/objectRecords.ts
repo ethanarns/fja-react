@@ -1,7 +1,8 @@
 import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
-import { drawHorizontalItemWithEnds } from "./drawInstructionRetrieval/commonInstructions";
+import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
+import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -18,6 +19,14 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
     {
         objectType: "static",
         isExtended: false,
+        objectId: 0x3c,
+        instructionFunction: () => [],
+        prettyName: "Green Pipe Down Usable",
+        textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
+    },
+    {
+        objectType: "static",
+        isExtended: false,
         objectId: 0x63,
         instructionFunction: lo => drawHorizontalItemWithEnds(lo,
             "108c,108d,109c,109d",
@@ -31,10 +40,9 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
     {
         objectType: "static",
         isExtended: false,
-        objectId: 0x3c,
-        instructionFunction: () => [],
-        prettyName: "Green Pipe Down Usable",
-        textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
+        objectId: 0x68,
+        instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES,LayerOrder.COINS),
+        prettyName: "Yellow Coins - Single Spaced Rectangle"
     },
     {
         objectType: "static",

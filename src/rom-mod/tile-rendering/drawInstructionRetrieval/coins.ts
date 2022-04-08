@@ -1,0 +1,1 @@
+export const COIN_CHUNK_CODES = "YCTL,YCTR,YCBL,YCBR";

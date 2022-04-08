@@ -13,7 +13,7 @@ import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
-import { LayerOrder, RomData } from './rom-mod/RomInterfaces';
+import { RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
@@ -87,11 +87,11 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            screenPages[0].placeTileChunkData(8,8,{
-                objUuidFrom: "N/A",
-                chunkCode: "YCBL",
-                layer: LayerOrder.GUI
-            });
+            // screenPages[0].placeTileChunkData(8,8,{
+            //     objUuidFrom: "N/A",
+            //     chunkCode: "YCBL",
+            //     layer: LayerOrder.GUI
+            // });
             // console.log(screenPages[0]);
 
             // const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
