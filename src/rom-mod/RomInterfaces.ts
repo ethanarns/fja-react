@@ -67,6 +67,8 @@ export enum LayerOrder {
 
     PLATFORMS = 4,
 
+    GROUND = 3,
+
     /**
      * Stuff like Pipes, 
      */

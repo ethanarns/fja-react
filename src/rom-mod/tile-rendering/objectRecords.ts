@@ -1,8 +1,10 @@
 import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
-import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { DrawInstruction } from "./tile-construction-tile-keys";
-import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
 import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
+
+import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
+import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
+import { drawGardenGround } from "./drawInstructionRetrieval/ground/flowerGround";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -120,5 +122,12 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0xde,
         instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
         prettyName: "Big Blue Rock: 0xde"
+    },
+    {
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xe4,
+        instructionFunction: (lo) => drawGardenGround(lo),
+        prettyName: "Flower Ground - Rectangle"
     }
 ];
