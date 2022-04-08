@@ -105,25 +105,18 @@ function convertRgbToHex(rgb: string): number {
     return parseInt(strVal,16);
 }
 
-export function getBlankChunkGraphics(): Graphics {
-    const graphics = new Graphics();
-    graphics.beginFill(0xffffff);
-    graphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
-    graphics.endFill();
-    return graphics;
-}
-
-export function resetTextureCache(
-    textureCache: Record<string,RenderTexture>,
-    setTextureCache: Function,
-    pixiApp: Application
-): void {
-    Object.keys(textureCache).forEach(texKey => {
-        textureCache[texKey].destroy();
-    });
-    const graphics = getBlankChunkGraphics();
-    setTextureCache({
-        "WHTE": pixiApp.renderer.generateTexture(graphics)
-    });
-    graphics.destroy();
+export function getDefaultRenderTextures(pixiApp: Application): Record<string,RenderTexture> {
+    const blankWhiteGraphics = new Graphics();
+    blankWhiteGraphics.beginFill(0xffffff);
+    blankWhiteGraphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
+    blankWhiteGraphics.endFill();
+    const ret = {
+        "WHTE": pixiApp.renderer.generateTexture(blankWhiteGraphics),
+        "YCBL": RenderTexture.from("cached/yc_bottomLeft.png") as RenderTexture,
+        "YCBR": RenderTexture.from("cached/yc_bottomRight.png") as RenderTexture,
+        "YCTL": RenderTexture.from("cached/yc_topLeft.png") as RenderTexture,
+        "YCTR": RenderTexture.from("cached/yc_topRight.png") as RenderTexture
+    };
+    blankWhiteGraphics.destroy();
+    return ret;
 }

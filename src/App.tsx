@@ -12,8 +12,8 @@ import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
-import { getBlankChunkGraphics } from './rom-mod/tile-rendering/texture-generation';
-import { RomData } from './rom-mod/RomInterfaces';
+import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
+import { LayerOrder, RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 
@@ -32,10 +32,11 @@ function App() {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
         setCurLevelId(0);
-        const graphics = getBlankChunkGraphics();
-        setTextureCache({
-            "WHTE": newPixiApp!.renderer.generateTexture(graphics)
-        });
+        if (newPixiApp === null) {
+            console.log("PixiApp failed to initialize for graphics generation");
+            return;
+        }
+        setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
 
     const rerenderPages = () => {
@@ -86,11 +87,11 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
-            // screenPages[0].placeTileChunkData(0,1,{
-            //     objUuidFrom: "N/A",
-            //     chunkCode: "4980",
-            //     layer: LayerOrder.GUI
-            // });
+            screenPages[0].placeTileChunkData(8,8,{
+                objUuidFrom: "N/A",
+                chunkCode: "YCBL",
+                layer: LayerOrder.GUI
+            });
             // console.log(screenPages[0]);
 
             // const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
