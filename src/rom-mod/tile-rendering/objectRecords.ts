@@ -40,6 +40,30 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
     },{
         objectType: "static",
         isExtended: false,
+        objectId: 0x67,
+        instructionFunction: (lo, level) => {
+            const tileset = level.headers.tileset;
+            let chunkCodes = "Unknown ground";
+            // ground1_fill
+            const normalFill = "406f,407e,407f,406e";
+            // flower_ground_fill_1
+            const flowerGroundFill = "4500,4500,4500,4500";
+            switch (tileset) {
+                case 0xC:
+                    chunkCodes = flowerGroundFill;
+                    break;
+                case 0x7:
+                    chunkCodes = normalFill;
+                    break;
+                default:
+                    chunkCodes = normalFill;
+                    break;
+            }
+            return drawRepeatingRectangle(lo, chunkCodes, LayerOrder.GROUND_FILL);
+        }
+    },{
+        objectType: "static",
+        isExtended: false,
         objectId: 0x68,
         instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES,LayerOrder.COINS),
         prettyName: "Yellow Coins - Single Spaced Rectangle"

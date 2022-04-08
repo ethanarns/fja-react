@@ -69,6 +69,7 @@ export enum LayerOrder {
 
     ROCKS = 3.5,
 
+    GROUND_FILL = 3.2,
     GROUND = 3,
 
     /**

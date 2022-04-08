@@ -54,6 +54,7 @@ function App() {
         console.log("rerenderPages exec time in ms:", performance.now() - start);
     };
 
+    // Sprite callback
     (window as any).spriteClicked = (uuid: string) => {
         const foundObjects = romData!.levels[curLevelId].objects.filter(o => o.uuid === uuid);
         if (foundObjects.length === 1) {
