@@ -44,3 +44,57 @@ export function drawGardenGround(lo: LevelObject): DrawInstruction[] {
     }
     return result;
 }
+
+// 0xe5
+export function drawGardenSlope_downleft_30(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    const yLength = lo.dimY;
+    if (yLength === undefined || lo.dimX === undefined) {
+        console.error("drawGardenGround missing XY dims:",lo);
+        return [];
+    }
+    // Usually 0, which translates to x width of 1
+    const xLength = 0xff-lo.dimX;
+    let yOffset = 0;
+    for (let offsetX = 0; offsetX >= -1 * xLength; offsetX -= 2) {
+        result.push({
+            offsetX: offsetX,
+            offsetY: yOffset,
+            renderCodes: "4112,4113,4122,4123",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        result.push({
+            offsetX: offsetX,
+            offsetY: yOffset-1,
+            renderCodes: "40ee,40ee,4102,4103",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        result.push({
+            offsetX: offsetX-1,
+            offsetY: yOffset,
+            renderCodes: "4110,4111,4120,4121",
+            layer: LayerOrder.GROUND,
+            uniqueLevelObjectId: lo.uuid
+        });
+        for (let fillHeightIndex = yOffset+1; fillHeightIndex < yLength+1; fillHeightIndex++) {
+            result.push({
+                offsetX: offsetX,
+                offsetY: fillHeightIndex,
+                renderCodes: "4500,4500,4500,4500",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+            result.push({
+                offsetX: offsetX-1,
+                offsetY: fillHeightIndex,
+                renderCodes: "4500,4500,4500,4500",
+                layer: LayerOrder.GROUND,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+        yOffset++;
+    }
+    return result;
+}
