@@ -113,8 +113,7 @@ export function fullRender(
     pixiApp: Application,
     availableTextures: Record<string,RenderTexture>,
     setAvailableTextures: Function,
-    screenPageData: ScreenPageData[],
-    callback: Function
+    screenPageData: ScreenPageData[]
 ): void {
     if (!pixiApp) {
         console.error("Cannot render when pixiApp is not started");
@@ -185,7 +184,7 @@ export function fullRender(
         spr.x = x.globalPixelX;
         spr.y = x.globalPixelY;
         spr.on("pointerdown", () => {
-            callback(x.uuid);
+            (window as any).spriteClicked(x.uuid);
         });
         pixiApp.stage.addChild(spr);
     })

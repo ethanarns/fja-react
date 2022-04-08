@@ -50,13 +50,18 @@ function App() {
             return;
         }
         wipeTiles(pixiApp);
-        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData,spriteCallback);
+        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData);
         console.log("rerenderPages exec time in ms:", performance.now() - start);
     };
 
-    const spriteCallback = (uuid: string) => {
-        console.log(uuid);
-    }
+    (window as any).spriteClicked = (uuid: string) => {
+        const foundObjects = romData!.levels[curLevelId].objects.filter(o => o.uuid === uuid);
+        if (foundObjects.length === 1) {
+            console.log(foundObjects[0]);
+        } else {
+            console.warn("Unusual number of objects found:", foundObjects);
+        }
+    };
 
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
         if (!pixiApp) {
@@ -109,7 +114,7 @@ function App() {
             });
 
             // Can't do local rerender, parent objects not yet set
-            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages,spriteCallback);
+            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
 
             // Set up key controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
