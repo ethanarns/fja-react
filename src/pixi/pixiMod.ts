@@ -4,11 +4,11 @@
  * combining them
  */
 
-import { Application, RenderTexture, Sprite } from "pixi.js";
+import { Application, RenderTexture, Sprite, Rectangle } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
-import { TILEMAP_ID, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
+import { TILEMAP_ID, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
 import { LayerOrder, Level, LevelObject } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
@@ -116,8 +116,10 @@ export function fullRender(
                                 renderTexture = availableTextures[chunkCode];
                             } else {
                                 // Generate new ones
-                                const graphic = getGraphicFromChunkCode(chunkCode,curLevel)
-                                renderTexture = pixiApp.renderer.generateTexture(graphic)
+                                const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                                renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                                    region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                                });
                                 setAvailableTextures({
                                     chunkCode: renderTexture,
                                     ...availableTextures

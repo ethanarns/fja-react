@@ -39,6 +39,7 @@ function App() {
     },[]);
 
     const rerenderPages = () => {
+        const start = performance.now();
         if (!pixiApp) {
             console.error("PixiJS App not started");
             return;
@@ -48,7 +49,8 @@ function App() {
             return;
         }
         wipeTiles(pixiApp);
-        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData,spriteCallback)
+        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData,spriteCallback);
+        console.log("rerenderPages exec time in ms:", performance.now() - start);
     };
 
     const spriteCallback = (uuid: string) => {
@@ -84,6 +86,13 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
+            // screenPages[0].placeTileChunkData(0,1,{
+            //     objUuidFrom: "N/A",
+            //     chunkCode: "4980",
+            //     layer: LayerOrder.GUI
+            // });
+            // console.log(screenPages[0]);
+
             // const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
             // obj63.xPos = 5;
             // obj63.yPos = 2;
@@ -118,6 +127,18 @@ function App() {
                         break;
                     case "ArrowLeft":
                         pixiApp.stage.x += ARROW_MOVE_SPEED;
+                        break;
+                    case "[":
+                        pixiApp.stage.scale.x += 0.1;
+                        pixiApp.stage.scale.y += 0.1;
+                        break;
+                    case "]":
+                        pixiApp.stage.scale.x -= 0.1;
+                        pixiApp.stage.scale.y -= 0.1;
+                        break;
+                    case "0":
+                        pixiApp.stage.scale.x = 1;
+                        pixiApp.stage.scale.y = 1;
                         break;
                     default:
                         break;
