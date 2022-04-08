@@ -40,6 +40,7 @@ export const LEVEL_HEADER_LENGTHS = 0x00167766;
 export const TILE_BYTES = 0x20; // 32
 
 export const WHITE_SQUARE_RENDER_CODE = "WHTE";
+export const BLANK_SQUARE_RENDER_CODE = "BLNK";
 
 // Palette crap
 export const PALETTE_SPACER_LIST_PTR_MAYBE = 0x001671d8;

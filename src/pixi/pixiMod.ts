@@ -8,7 +8,7 @@ import { Application, RenderTexture, Sprite, Rectangle } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
-import { TILEMAP_ID, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
+import { BLANK_SQUARE_RENDER_CODE, TILEMAP_ID, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
 import { LayerOrder, Level, LevelObject } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
@@ -62,6 +62,16 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
         return objectRecord[0].instructionFunction(lo,level,romBuffer);
     } else if (objectRecord.length === 0) {
         console.debug("Object render data not found:", lo);
+        if (lo.objectType === "sprite") {
+            const tk = "S" + lo.objectId.toString(16).padStart(3,"0");
+            return [{
+                offsetX: 0,
+                offsetY: 0,
+                renderCodes: `${tk},${BLANK_SQUARE_RENDER_CODE},UNDL,UNDL`,
+                layer: LayerOrder.SPRITES,
+                uniqueLevelObjectId: lo.uuid
+            }];
+        }
         const blanks: string[] = [
             WHITE_SQUARE_RENDER_CODE,
             WHITE_SQUARE_RENDER_CODE,
