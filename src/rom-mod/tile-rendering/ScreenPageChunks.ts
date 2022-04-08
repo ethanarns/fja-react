@@ -170,14 +170,11 @@ export default class ScreenPageData {
             this.fillChunks();
             this.hasChunkData = true;
         }
-        // It's empty, add it
-        if (this.chunks[chunkY][chunkX] === null || this.chunks[chunkY][chunkX]!.length === 0) {
+        // It's null, make and add it
+        if (this.chunks[chunkY][chunkX] === null) {
             this.chunks[chunkY][chunkX] = [newChunk];
             return;
         }
-        //
-        // Do more checks here
-        //
         this.chunks[chunkY][chunkX]!.push(newChunk);
     }
 

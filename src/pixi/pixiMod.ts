@@ -91,6 +91,14 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
     }
 }
 
+interface TempRenderOrderData {
+    rt: RenderTexture;
+    globalPixelX: number;
+    globalPixelY: number;
+    uuid: string;
+    layer: LayerOrder;
+}
+
 /**
  * Goes through screenPageData and renders each found graphic
  * Does not wipe existing data
@@ -112,14 +120,16 @@ export function fullRender(
         console.error("Cannot render when pixiApp is not started");
         return;
     }
+    let toRender: TempRenderOrderData[] = [];
+    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     screenPageData.forEach(sp => {
         if (sp.hasChunkData) {
             for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
                 for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
                     const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
                     if (curChunkTileDataArray !== null) {
-                        curChunkTileDataArray.forEach(chunktileData => {
-                            const chunkCode = chunktileData.chunkCode;
+                        curChunkTileDataArray.forEach(chunkTileData => {
+                            const chunkCode = chunkTileData.chunkCode;
                             let renderTexture: RenderTexture | undefined = undefined;
                             if (availableTextures[chunkCode]) {
                                 // Already available in texture cache
@@ -139,32 +149,56 @@ export function fullRender(
                             }
                             // Place render texture
                             const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
-                            const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-                            tilemap.tile(renderTexture,
-                                pxCoords.globalPixelX,
-                                pxCoords.globalPixelY
-                            );
-                            const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
-                            spr.interactive = true;
-                            spr.buttonMode = true;
-                            spr.alpha = 0;
-                            spr.x = pxCoords.globalPixelX;
-                            spr.y = pxCoords.globalPixelY;
-                            spr.on("pointerdown", () => {
-                                callback(chunktileData.objUuidFrom);
+                            toRender.push({
+                                rt: renderTexture,
+                                globalPixelX: pxCoords.globalPixelX,
+                                globalPixelY: pxCoords.globalPixelY,
+                                uuid: chunkTileData.objUuidFrom,
+                                layer: chunkTileData.layer
                             });
-                            pixiApp.stage.addChild(spr);
-                        })
+                        });
                     }
                 }
             }
         }
     });
+    // Sort by layer
+    toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
+        if (x.layer > y.layer) {
+            return 1;
+        }
+        if (x.layer < y.layer) {
+            return -1;
+        }
+        return 0;
+    });
+    // Actually render
+    toRender.forEach(x => {
+        tilemap.tile(x.rt,
+            x.globalPixelX,
+            x.globalPixelY
+        );
+        const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
+        spr.interactive = true;
+        spr.buttonMode = true;
+        spr.alpha = 0;
+        spr.x = x.globalPixelX;
+        spr.y = x.globalPixelY;
+        spr.on("pointerdown", () => {
+            callback(x.uuid);
+        });
+        pixiApp.stage.addChild(spr);
+    })
 }
 
 export function wipeTiles(pixiApp: Application) {
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
+    // It makes multiple tilesets within it
+    tilemap.children.forEach(c => {
+        c.destroy();
+    });
+    tilemap.removeChildren();
     // Also clear the interactive overlays while you're at it
     const toRemove = pixiApp.stage.children.filter(c => c.name !== TILEMAP_ID);
     toRemove.forEach(ch => {

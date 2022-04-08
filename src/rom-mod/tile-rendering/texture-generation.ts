@@ -4,7 +4,7 @@
  * the RenderTextures (and Graphics used as intermediary canvases)
  */
 
-import { Level } from "../RomInterfaces";
+import { LayerOrder, Level } from "../RomInterfaces";
 import { Graphics, RenderTexture, Application, Text, TextStyle, Rectangle } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
@@ -107,12 +107,14 @@ function convertRgbToHex(rgb: string): number {
 
 export function getDefaultRenderTextures(pixiApp: Application): Record<string,RenderTexture> {
     const blankWhiteGraphics = new Graphics();
+    blankWhiteGraphics.zIndex = LayerOrder.STANDARD_OBJECTS;
     blankWhiteGraphics.beginFill(0xffffff);
     blankWhiteGraphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
     blankWhiteGraphics.endFill();
     const invisibleGraphics = new Graphics();
 
     const underlineGraphics = new Graphics();
+    underlineGraphics.zIndex = LayerOrder.STANDARD_OBJECTS;
     underlineGraphics.lineStyle(1, 0xFFFFFF, 1);
     underlineGraphics.moveTo(0,TILE_QUADRANT_DIMS_PX-1);
     underlineGraphics.lineTo(TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX-1);
@@ -143,6 +145,7 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         const text = i.toString(16).padStart(3,"0");
         const displayText = i.toString(16).padStart(2,"0");
         const pixiText = new Text(displayText,style);
+        pixiText.zIndex = LayerOrder.SPRITES;
         const key = "S" + text;
         if (key.length > 4) {
             console.error("Key too long:",key);

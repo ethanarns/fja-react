@@ -1,8 +1,10 @@
 import { Application, settings, SCALE_MODES } from "pixi.js";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID } from "../GLOBALS";
+import { settings as tsettings } from "@pixi/tilemap";
 
 export default function generatePixiApp(): Application | null {
     console.log("Starting PixiJS Application");
+    tsettings.use32bitIndex = true;
     const pixiApp = new Application({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
