@@ -43,18 +43,23 @@ function App() {
     },[]);
 
     const rerenderPages = () => {
-        const start = performance.now();
-        if (!pixiApp) {
-            console.error("PixiJS App not started");
-            return;
-        }
-        if (!romData) {
-            console.error("romData not retrieved");
-            return;
-        }
-        wipeTiles(pixiApp);
-        fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData);
-        console.log("rerenderPages exec time in ms:", performance.now() - start);
+        setLoading(true);
+        // Allow popup time to render
+        window.setTimeout(() => {
+            const start = performance.now();
+            if (!pixiApp) {
+                console.error("PixiJS App not started");
+                return;
+            }
+            if (!romData) {
+                console.error("romData not retrieved");
+                return;
+            }
+            wipeTiles(pixiApp);
+            fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData);
+            console.log("rerenderPages exec time in ms:", performance.now() - start);
+            setLoading(false);
+        },1);
     };
 
     // Sprite callback
@@ -96,23 +101,6 @@ function App() {
             // Create the ScreenPages
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
-
-            // screenPages[0].placeTileChunkData(8,8,{
-            //     objUuidFrom: "N/A",
-            //     chunkCode: "YCBL",
-            //     layer: LayerOrder.GUI
-            // });
-            // console.log(screenPages[0]);
-
-            // const obj63 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[0];
-            // obj63.xPos = 5;
-            // obj63.yPos = 2;
-            // placeLevelObject(obj63, loadedGameData.levels[curLevelId], screenPages, romBuffer);
-            // const obj63_2 = loadedGameData.levels[curLevelId].objects.filter(o => o.objectId === 0x63)[1];
-            // obj63_2.xPos = 14;
-            // obj63_2.yPos = 40;
-            // obj63_2.dimZ = 5;
-            // placeLevelObject(obj63_2, loadedGameData.levels[curLevelId], screenPages, romBuffer);
 
             loadedGameData.levels[curLevelId].objects.forEach(lobj => {
                 placeLevelObject(lobj, loadedGameData.levels[curLevelId], screenPages, new Uint8Array(result));
@@ -174,8 +162,8 @@ function App() {
                 }}>Loading...</div>
             </div>
             <section id="buttons">
-                <button onClick={rerenderPages}>Re-render</button>
-                { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
+                <button onClick={rerenderPages} disabled={loading || !inputLoaded}>Re-render</button>
+                { inputLoaded === false ? <input type="file" onInput={fileOpened} disabled={loading}/> : null }
             </section>
         </div>
     );
