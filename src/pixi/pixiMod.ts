@@ -61,7 +61,7 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
     if (objectRecord.length === 1) {
         return objectRecord[0].instructionFunction(lo,level,romBuffer);
     } else if (objectRecord.length === 0) {
-        console.debug("Object render data not found:", lo);
+        // console.debug("Object render data not found:", lo);
         if (lo.objectType === "sprite") {
             const tk = "S" + lo.objectId.toString(16).padStart(3,"0");
             return [{

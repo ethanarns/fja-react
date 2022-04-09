@@ -16,6 +16,8 @@ import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-gener
 import { RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
+import { } from "./rom-mod/tile-rendering/drawInstructionRetrieval/largeExtendedStatics";
+import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);

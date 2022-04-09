@@ -1,4 +1,4 @@
-import { readAddressFromArray, readWordFromArray } from "../../binaryUtils/binary-io";
+import { readAddressFromArray, readWord, readWordFromArray } from "../../binaryUtils/binary-io";
 import { LayerOrder, LevelObject } from "../../RomInterfaces";
 import { DrawInstruction } from "../tile-construction-tile-keys";
 
@@ -124,4 +124,31 @@ export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, laye
         }
     }
     return result;
+}
+
+/**
+ * Takes in a single tile code, and generates 4 from it
+ * @param romBuffer Uint8Array
+ * @param tileCode number, 2byte/word, stored in 0x02...
+ */
+ export function getTileRenderCodesFromTilecode(romBuffer: Uint8Array, tileCode: number): string {
+    const STATIC_TILES_BASE = 0x001bad20; // 081bad20
+    // << 2 multiplies it by 4 so it offsets the address right
+    // let firstOffset = (tileCode >> 0x8) << 0x2;
+    const paramArrayAddr = readAddressFromArray(romBuffer, STATIC_TILES_BASE, tileCode >> 0x8);
+
+    const paramsOffset = (tileCode % 0x100) << 0x3;
+    const firstWord = readWord(romBuffer,paramArrayAddr + paramsOffset).toString(16);
+    const second = readWord(romBuffer,paramArrayAddr + paramsOffset + 2).toString(16);
+    const third = readWord(romBuffer,paramArrayAddr + paramsOffset + 4).toString(16);
+    const fourth = readWord(romBuffer,paramArrayAddr + paramsOffset + 6).toString(16);
+    return `${
+        firstWord.padStart(4,"0")
+    },${
+        second.padStart(4,"0")
+    },${
+        third.padStart(4,"0")
+    },${
+        fourth.padStart(4,"0")
+    }`;
 }
