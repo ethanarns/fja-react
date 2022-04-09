@@ -26,6 +26,7 @@ function App() {
     const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
     const [romData, setRomData] = useState<RomData>();
     const [curLevelId, setCurLevelId] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
@@ -80,6 +81,7 @@ function App() {
             return;
         }
         const file: File = target.files[0];
+        setLoading(true);
         file.arrayBuffer().then(result => {
             // Load the ROM data
             const loadedGameData = loadRomFromArrayBuffer(result);
@@ -153,6 +155,7 @@ function App() {
                         break;
                 };
             });
+            setLoading(false);
         }).catch((err: any) => {
             console.error("Error caught when trying to load ROM:");
             console.error(err);
@@ -161,7 +164,15 @@ function App() {
     
     return (
         <div className="App">
-            <div id={DOM_CANVAS_ID}></div>
+            <div id={DOM_CANVAS_ID}>
+                <div style={{
+                    position: "absolute",
+                    top: 260,
+                    left: 300,
+                    fontSize: 40,
+                    display: loading ? "block" : "none"
+                }}>Loading...</div>
+            </div>
             <section id="buttons">
                 <button onClick={rerenderPages}>Re-render</button>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened}/> : null }
