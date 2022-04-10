@@ -83,7 +83,7 @@ function App() {
             wipeTiles(screenPageData);
             screenPageData.forEach(sp => {
                 renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
-            })
+            });
             setLoading(false);
             console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
         },1);
@@ -127,8 +127,10 @@ function App() {
             if (!found) {
                 return;
             }
-            const uuids = found.map(x => x.objUuidFrom);
-            console.log(uuids);
+            found.forEach(ch => {
+                const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
+                console.log(objects);
+            });
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
         }

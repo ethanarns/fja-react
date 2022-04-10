@@ -143,7 +143,7 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
     if (!sp.hasChunkData) {
         return;
     }
-    const perf = performance.now();
+    //const perf = performance.now();
     let toRender: TempRenderOrderData[] = [];
     for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
         for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
@@ -196,5 +196,5 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
             x.localPixelY
         );
     });
-    console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
+    //console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
 }
