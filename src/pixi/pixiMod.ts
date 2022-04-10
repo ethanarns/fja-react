@@ -140,40 +140,41 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
         console.error("Cannot render when pixiApp is not started");
         return;
     }
+    if (!sp.hasChunkData) {
+        return;
+    }
+    const perf = performance.now();
     let toRender: TempRenderOrderData[] = [];
-    //const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-    if (sp.hasChunkData) {
-        for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
-            for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
-                const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
-                if (curChunkTileDataArray !== null) {
-                    curChunkTileDataArray.forEach(chunkTileData => {
-                        const chunkCode = chunkTileData.chunkCode;
-                        let renderTexture: RenderTexture | undefined = undefined;
-                        if (availableTextures[chunkCode]) {
-                            // Already available in texture cache
-                            renderTexture = availableTextures[chunkCode];
-                        } else {
-                            // Generate new ones
-                            const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
-                            renderTexture = pixiApp.renderer.generateTexture(graphic, {
-                                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
-                            });
-                            availableTextures[chunkCode] = renderTexture;
-                            // Don't leave it lying around
-                            graphic.destroy();
-                        }
-
-                        toRender.push({
-                            rt: renderTexture,
-                            localPixelX: innerChunkX * 8,
-                            localPixelY: innerChunkY * 8,
-                            uuid: chunkTileData.objUuidFrom,
-                            layer: chunkTileData.layer,
-                            chunkCode: chunkCode
+    for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
+        for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
+            const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+            if (curChunkTileDataArray !== null) {
+                curChunkTileDataArray.forEach(chunkTileData => {
+                    const chunkCode = chunkTileData.chunkCode;
+                    let renderTexture: RenderTexture | undefined = undefined;
+                    if (availableTextures[chunkCode]) {
+                        // Already available in texture cache
+                        renderTexture = availableTextures[chunkCode];
+                    } else {
+                        // Generate new ones
+                        const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                        renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
                         });
+                        availableTextures[chunkCode] = renderTexture;
+                        // Don't leave it lying around
+                        graphic.destroy();
+                    }
+
+                    toRender.push({
+                        rt: renderTexture,
+                        localPixelX: innerChunkX * 8,
+                        localPixelY: innerChunkY * 8,
+                        uuid: chunkTileData.objUuidFrom,
+                        layer: chunkTileData.layer,
+                        chunkCode: chunkCode
                     });
-                }
+                });
             }
         }
     }
@@ -195,4 +196,5 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
             x.localPixelY
         );
     });
+    console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
 }
