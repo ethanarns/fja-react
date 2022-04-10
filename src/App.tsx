@@ -14,7 +14,7 @@ import { Application, RenderTexture, Sprite } from "pixi.js"
 import { } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
-import { placeLevelObject, renderScreen, wipeTiles } from "./pixi/pixiMod";
+import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
 import { pan, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
@@ -80,7 +80,6 @@ function App() {
                 return;
             }
             reapplyPagesObjects();
-            wipeTiles(screenPageData);
             screenPageData.forEach(sp => {
                 renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
             });
@@ -129,7 +128,9 @@ function App() {
             }
             found.forEach(ch => {
                 const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
-                console.log(objects);
+                objects[0].xPos++;
+                reapplyPagesObjects();
+                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
             });
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);

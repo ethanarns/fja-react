@@ -105,22 +105,6 @@ interface TempRenderOrderData {
 }
 
 /**
- * Wipes tilemap
- * @param pixiApp PixiJS Application
- */
-export function wipeTiles(screenPageData: ScreenPageData[]): void {
-    screenPageData.forEach(sp => {
-        const tilemap = sp.tilemap;
-        tilemap.clear();
-        // It makes multiple tilesets within it
-        tilemap.children.forEach(c => {
-            c.destroy();
-        });
-        tilemap.removeChildren();
-    });
-}
-
-/**
  * Goes through screenPageData and renders each found graphic
  * Does not wipe existing data
  * @param curLevel Level you are currently on
@@ -143,6 +127,14 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
     if (!sp.hasChunkData) {
         return;
     }
+    // Wipe it
+    sp.tilemap.clear();
+    // It makes multiple tilesets within it
+    sp.tilemap.children.forEach(c => {
+        c.destroy();
+    });
+    sp.tilemap.removeChildren();
+
     //const perf = performance.now();
     let toRender: TempRenderOrderData[] = [];
     for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {

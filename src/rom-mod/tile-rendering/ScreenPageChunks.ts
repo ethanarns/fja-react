@@ -105,7 +105,7 @@ export default class ScreenPageData {
      * Completely deletes all chunk data
      */
     public wipeChunks(): void {
-        this.chunks = [];
+        this.chunks = [[]];
         this.hasChunkData = false;
     }
 
