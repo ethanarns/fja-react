@@ -124,6 +124,7 @@ export function fullRender(
         console.error("Cannot render when pixiApp is not started");
         return;
     }
+    const globalPerf = performance.now();
     let toRender: TempRenderOrderData[] = [];
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     screenPageData.forEach(sp => {
@@ -151,7 +152,8 @@ export function fullRender(
                                 // Don't leave it lying around
                                 graphic.destroy();
                             }
-                            // Place render texture
+
+                            // Place render texture (super fast, like 0-1ms)
                             const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
                             toRender.push({
                                 rt: renderTexture,
@@ -176,7 +178,8 @@ export function fullRender(
         }
         return 0;
     });
-    // Actually render
+
+    // Actually place renders (takes like 345 ms)
     toRender.forEach(x => {
         tilemap.tile(x.rt,
             x.globalPixelX,
@@ -192,7 +195,8 @@ export function fullRender(
             (window as any).spriteClicked(x.uuid);
         });
         pixiApp.stage.addChild(spr);
-    })
+    });
+    console.log(`Full render complete in ${performance.now() - globalPerf} ms`);
 }
 
 export function wipeTiles(pixiApp: Application) {

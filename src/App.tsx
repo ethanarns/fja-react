@@ -45,7 +45,6 @@ function App() {
         setLoading(true);
         // Allow popup time to render
         window.setTimeout(() => {
-            const start = performance.now();
             if (!pixiApp) {
                 console.error("PixiJS App not started");
                 return;
@@ -56,7 +55,6 @@ function App() {
             }
             wipeTiles(pixiApp);
             fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData);
-            console.log("rerenderPages exec time in ms:", performance.now() - start);
             setLoading(false);
         },1);
     };
@@ -102,9 +100,12 @@ function App() {
             const screenPages = ScreenPageData.generateAllScreenPages()
             setScreenPageData(screenPages);
 
+            const tempLoadedUint8Array = new Uint8Array(result);
+            const perfObjectPlace = performance.now();
             loadedGameData.levels[curLevelId].objects.forEach(lobj => {
-                placeLevelObject(lobj, loadedGameData.levels[curLevelId], screenPages, new Uint8Array(result));
+                placeLevelObject(lobj, loadedGameData.levels[curLevelId], screenPages, tempLoadedUint8Array);
             });
+            console.log(`Placed objects in ${performance.now() - perfObjectPlace} ms`);
 
             // Can't do local rerender, parent objects not yet set
             fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
