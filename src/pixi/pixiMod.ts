@@ -40,7 +40,12 @@ function executeInstruction(instruction: DrawInstruction, lo: LevelObject, scree
     const tileScaleX = lo.xPos + instruction.offsetX;
     const tileScaleY = lo.yPos + instruction.offsetY;
     const screenPageId = ScreenPageData.getScreenPageIdFromTileCoords(tileScaleX,tileScaleY);
-    screenPages.filter(sx => sx.screenPageId === screenPageId)[0].tileInstruction(
+    const screenPageList = screenPages.filter(sx => sx.screenPageId === screenPageId);
+    if (screenPageList.length !== 1) {
+        console.error("Unusual positions?",lo, instruction, screenPageId);
+        return;
+    }
+    screenPageList[0].tileInstruction(
         tileScaleX % 0x10,
         tileScaleY % 0x10,
         instruction

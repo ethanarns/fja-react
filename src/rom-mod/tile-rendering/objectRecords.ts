@@ -5,6 +5,7 @@ import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
 import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
+import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -67,6 +68,18 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0x68,
         instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES,LayerOrder.COINS),
         prettyName: "Yellow Coins - Single Spaced Rectangle"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x6c,
+        instructionFunction: (lo,level,romBuffer) => generateStoneBlocks(lo, level, romBuffer, false),
+        prettyName: "Stone Blocks - Monocolored"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x6e,
+        instructionFunction: (lo,level,romBuffer) => generateStoneBlocks(lo, level, romBuffer, true),
+        prettyName: "Stone Blocks - Multicolored"
     },{
         objectType: "static",
         isExtended: true,
