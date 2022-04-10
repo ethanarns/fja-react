@@ -118,7 +118,6 @@ function App() {
             const sp = foundScreenPages[0];
             trueXpx -= sp.globalPixelX;
             trueYpx -= sp.globalPixelY;
-            console.log("local px", trueXpx, trueYpx);
             const found = sp.getTileChunkDataFromLocalCoords(
                 Math.floor(trueXpx / 8),
                 Math.floor(trueYpx / 8)
