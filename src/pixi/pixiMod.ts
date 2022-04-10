@@ -66,7 +66,6 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
     if (objectRecord.length === 1) {
         return objectRecord[0].instructionFunction(lo,level,romBuffer);
     } else if (objectRecord.length === 0) {
-        // console.debug("Object render data not found:", lo);
         if (lo.objectType === "sprite") {
             const tk = "S" + lo.objectId.toString(16).padStart(3,"0");
             return [{
@@ -98,95 +97,11 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
 
 interface TempRenderOrderData {
     rt: RenderTexture;
-    globalPixelX: number;
-    globalPixelY: number;
+    localPixelX: number;
+    localPixelY: number;
     uuid: string;
     layer: LayerOrder;
     chunkCode: string;
-}
-
-/**
- * Goes through screenPageData and renders each found graphic
- * Does not wipe existing data
- * @param curLevel Level you are currently on
- * @param pixiApp Application running
- * @param availableTextures RenderTexture cache map
- * @param setAvailableTextures Function to set updated textures
- * @param screenPageData ScreenPageData[] Screen Page data
- */
-export function fullRender(
-    curLevel: Level,
-    pixiApp: Application,
-    availableTextures: Record<string,RenderTexture>,
-    setAvailableTextures: Function,
-    screenPageData: ScreenPageData[]
-): void {
-    if (!pixiApp) {
-        console.error("Cannot render when pixiApp is not started");
-        return;
-    }
-    const globalPerf = performance.now();
-    let toRender: TempRenderOrderData[] = [];
-    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-    let tempAvTex: Record<string,RenderTexture> = Object.assign({},availableTextures);
-    screenPageData.forEach(sp => {
-        if (sp.hasChunkData) {
-            for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
-                for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
-                    const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
-                    if (curChunkTileDataArray !== null) {
-                        curChunkTileDataArray.forEach(chunkTileData => {
-                            const chunkCode = chunkTileData.chunkCode;
-                            let renderTexture: RenderTexture | undefined = undefined;
-                            if (tempAvTex[chunkCode]) {
-                                // Already available in texture cache
-                                renderTexture = tempAvTex[chunkCode];
-                            } else {
-                                // Generate new ones
-                                const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
-                                renderTexture = pixiApp.renderer.generateTexture(graphic, {
-                                    region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
-                                });
-                                tempAvTex[chunkCode] = renderTexture;
-                                // Don't leave it lying around
-                                graphic.destroy();
-                            }
-
-                            // Place render texture (super fast, like 0-1ms)
-                            const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
-                            toRender.push({
-                                rt: renderTexture,
-                                globalPixelX: pxCoords.globalPixelX,
-                                globalPixelY: pxCoords.globalPixelY,
-                                uuid: chunkTileData.objUuidFrom,
-                                layer: chunkTileData.layer,
-                                chunkCode: chunkCode
-                            });
-                        });
-                    }
-                }
-            }
-        }
-    });
-    setAvailableTextures(tempAvTex);
-    // Sort by layer
-    toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
-        if (x.layer > y.layer) {
-            return 1;
-        }
-        if (x.layer < y.layer) {
-            return -1;
-        }
-        return 0;
-    });
-    // Actually place renders (takes like 345 ms)
-    toRender.forEach(x => {
-        tilemap.tile(x.rt,
-            x.globalPixelX,
-            x.globalPixelY
-        );
-    });
-    console.log(`Full render complete in ${performance.now() - globalPerf} ms`);
 }
 
 /**
@@ -201,4 +116,82 @@ export function wipeTiles(pixiApp: Application): void {
         c.destroy();
     });
     tilemap.removeChildren();
+}
+
+/**
+ * Goes through screenPageData and renders each found graphic
+ * Does not wipe existing data
+ * @param curLevel Level you are currently on
+ * @param pixiApp Application running
+ * @param availableTextures RenderTexture cache map
+ * @param setAvailableTextures Function to set updated textures
+ * @param screenPageData ScreenPageData Screen Page data
+ */
+ export function renderScreen(
+    curLevel: Level,
+    pixiApp: Application,
+    availableTextures: Record<string,RenderTexture>,
+    setAvailableTextures: Function,
+    sp: ScreenPageData
+): void {
+    if (!pixiApp) {
+        console.error("Cannot render when pixiApp is not started");
+        return;
+    }
+    let toRender: TempRenderOrderData[] = [];
+    //const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+    let tempAvTex: Record<string,RenderTexture> = Object.assign({},availableTextures);
+    if (sp.hasChunkData) {
+        for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
+            for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
+                const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+                if (curChunkTileDataArray !== null) {
+                    curChunkTileDataArray.forEach(chunkTileData => {
+                        const chunkCode = chunkTileData.chunkCode;
+                        let renderTexture: RenderTexture | undefined = undefined;
+                        if (tempAvTex[chunkCode]) {
+                            // Already available in texture cache
+                            renderTexture = tempAvTex[chunkCode];
+                        } else {
+                            // Generate new ones
+                            const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                            renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                            });
+                            tempAvTex[chunkCode] = renderTexture;
+                            // Don't leave it lying around
+                            graphic.destroy();
+                        }
+
+                        toRender.push({
+                            rt: renderTexture,
+                            localPixelX: innerChunkX * 8,
+                            localPixelY: innerChunkY * 8,
+                            uuid: chunkTileData.objUuidFrom,
+                            layer: chunkTileData.layer,
+                            chunkCode: chunkCode
+                        });
+                    });
+                }
+            }
+        }
+    }
+    setAvailableTextures(tempAvTex);
+    // Sort by layer
+    toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
+        if (x.layer > y.layer) {
+            return 1;
+        }
+        if (x.layer < y.layer) {
+            return -1;
+        }
+        return 0;
+    });
+    // Actually place renders (takes like 345 ms)
+    toRender.forEach(x => {
+        sp.tilemap.tile(x.rt,
+            x.localPixelX,
+            x.localPixelY
+        );
+    });
 }

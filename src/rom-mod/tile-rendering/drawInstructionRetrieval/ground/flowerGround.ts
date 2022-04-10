@@ -325,7 +325,7 @@ export function drawGroundSides(lo: LevelObject): DrawInstruction[] {
             offsetX: 0,
             offsetY: 0,
             renderCodes: "4543,4542,4553,4552",
-            layer: LayerOrder.GROUND,
+            layer: LayerOrder.GROUND_FUZZ,
             uniqueLevelObjectId: lo.uuid
         });
         if (yLength === 0) {
@@ -336,7 +336,7 @@ export function drawGroundSides(lo: LevelObject): DrawInstruction[] {
                 offsetX: 0,
                 offsetY: yOffset,
                 renderCodes: "4563,4562,4573,4572",
-                layer: LayerOrder.GROUND,
+                layer: LayerOrder.GROUND_FUZZ,
                 uniqueLevelObjectId: lo.uuid
             });
         }
@@ -348,7 +348,7 @@ export function drawGroundSides(lo: LevelObject): DrawInstruction[] {
             offsetX: 0,
             offsetY: 0,
             renderCodes: "4142,4143,4152,4153",
-            layer: LayerOrder.GROUND,
+            layer: LayerOrder.GROUND_FUZZ,
             uniqueLevelObjectId: lo.uuid
         });
         for (let yOffset = 1; yOffset < yLength+1; yOffset++) {
@@ -356,7 +356,7 @@ export function drawGroundSides(lo: LevelObject): DrawInstruction[] {
                 offsetX: 0,
                 offsetY: yOffset,
                 renderCodes: "4162,4163,4172,4173",
-                layer: LayerOrder.GROUND,
+                layer: LayerOrder.GROUND_FUZZ,
                 uniqueLevelObjectId: lo.uuid
             });
         }

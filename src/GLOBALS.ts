@@ -27,7 +27,7 @@ export const FULL_TILE_DIM_COUNT = 0xff;
 
 export const DOM_CANVAS_ID = "dom-container";
 export const SCENE_ID = "render-scene";
-export const TILEMAP_ID = "base_tilemap";
+export const TILEMAP_ID = "screenTileMap_";
 
 export const LEVEL_DATA_LIST_BASE_PTR = 0x001ef1a4;
 export const LEVEL_DATA_OBJECT_OFFSET_LIST = 0x001c19d8;

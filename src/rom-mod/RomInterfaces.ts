@@ -71,6 +71,7 @@ export enum LayerOrder {
 
     GROUND_FILL = 3.2,
     GROUND = 3,
+    GROUND_FUZZ = 2.9,
 
     /**
      * Stuff like Pipes, 

@@ -1,5 +1,6 @@
+import { CompositeTilemap } from "@pixi/tilemap";
 import { Application } from "pixi.js";
-import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { FULL_TILE_DIMS_PX, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
@@ -48,6 +49,8 @@ export default class ScreenPageData {
      */
     public hasChunkData: boolean = false;
 
+    public tilemap: CompositeTilemap;
+
     private chunks: (ScreenPageTileChunk[] | null)[][] = [];
 
     constructor(screenPageId: number, pixiApp: Application) {
@@ -64,6 +67,14 @@ export default class ScreenPageData {
 
         this.globalPixelX = this.chunkX * 8;
         this.globalPixelY = this.chunkY * 8;
+
+        this.tilemap = new CompositeTilemap();
+        this.tilemap.name = TILEMAP_ID + screenPageId.toString(16);
+        this.tilemap.x = this.globalPixelX;
+        this.tilemap.y = this.globalPixelY;
+        this.tilemap.width = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
+        this.tilemap.height = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
+        pixiApp.stage.addChild(this.tilemap);
     }
 
     public getGlobalPixelCoordsFromChunkCoords(innerChunkX: number, innerChunkY: number): PixelCoordinates {

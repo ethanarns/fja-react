@@ -6,15 +6,15 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, TILEMAP_ID, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, RenderTexture, Sprite } from "pixi.js"
-import { CompositeTilemap } from "@pixi/tilemap";
+import { } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
-import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
+import { placeLevelObject, renderScreen, wipeTiles } from "./pixi/pixiMod";
 import { pan, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
@@ -81,7 +81,9 @@ function App() {
             }
             reapplyPagesObjects();
             wipeTiles(pixiApp);
-            fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPageData);
+            screenPageData.forEach(sp => {
+                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            })
             setLoading(false);
             console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
         },1);
@@ -153,11 +155,6 @@ function App() {
             setInputLoaded(true);
             setRomData(loadedGameData);
 
-            // Create the tilemap
-            const tilemap = new CompositeTilemap();
-            tilemap.name = TILEMAP_ID;
-            pixiApp.stage.addChild(tilemap);
-
             // Create the ScreenPages
             const screenPages = ScreenPageData.generateAllScreenPages(pixiApp);
             setScreenPageData(screenPages);
@@ -172,7 +169,9 @@ function App() {
             });
 
             // Can't do local rerender, parent objects not yet set
-            fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPages);
+            screenPages.forEach(sp => {
+                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            });
 
             // Add interactive overlay
             const interactiveSprite = Sprite.from(textureCache[WHITE_SQUARE_RENDER_CODE]);
