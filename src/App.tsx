@@ -15,6 +15,7 @@ import { CompositeTilemap } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
+import { zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 
@@ -128,17 +129,17 @@ function App() {
                     case "ArrowLeft":
                         pixiApp.stage.x += ARROW_MOVE_SPEED;
                         break;
-                    case "[":
-                        pixiApp.stage.scale.x += 0.1;
-                        pixiApp.stage.scale.y += 0.1;
-                        break;
                     case "]":
-                        pixiApp.stage.scale.x -= 0.1;
-                        pixiApp.stage.scale.y -= 0.1;
+                    case "=": // Is there + is, so they don't need to press shift
+                    case "+":
+                        zoom(pixiApp,"in");
+                        break;
+                    case "-":
+                    case "[":
+                        zoom(pixiApp, "out");
                         break;
                     case "0":
-                        pixiApp.stage.scale.x = 1;
-                        pixiApp.stage.scale.y = 1;
+                        zoom(pixiApp, "reset");
                         break;
                     default:
                         break;
