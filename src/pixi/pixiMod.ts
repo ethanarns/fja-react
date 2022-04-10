@@ -194,7 +194,6 @@ export function fullRender(
  * @param pixiApp PixiJS Application
  */
 export function wipeTiles(pixiApp: Application): void {
-    const wipePerf = performance.now();
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
     // It makes multiple tilesets within it
@@ -202,6 +201,4 @@ export function wipeTiles(pixiApp: Application): void {
         c.destroy();
     });
     tilemap.removeChildren();
-
-    console.log(`wipeTiles completed in ${performance.now() - wipePerf} ms`);
 }

@@ -168,11 +168,9 @@ function App() {
             if (!levelRef) {
                 return;
             }
-            const perfObjectPlace = performance.now();
             levelRef.objects.forEach(lobj => {
                 placeLevelObject(lobj, levelRef, screenPages, tempLoadedUint8Array);
             });
-            console.log(`Placed objects in ${performance.now() - perfObjectPlace} ms`);
 
             // Can't do local rerender, parent objects not yet set
             fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPages);
