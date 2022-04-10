@@ -29,7 +29,7 @@ function App() {
     const [curLevelId, setCurLevelId] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    const { loadRomFromArrayBuffer } = useContext(RomContext);
+    const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
 
     // Basically on load
     useEffect(() => {
@@ -43,7 +43,27 @@ function App() {
         setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
 
+    const reapplyPagesObjects = () => {
+        const reapplyPagesPerf = performance.now();
+        if (!romData) {
+            console.error("romData not retrieved");
+            return;
+        }
+        screenPageData.forEach(sp => {
+            sp.wipeChunks();
+        });
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            return;
+        }
+        levelRef.objects.forEach(lobj => {
+            placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
+        });
+        console.log(`reapplyPagesObjects completed in ${performance.now() - reapplyPagesPerf} ms`);
+    }
+
     const rerenderPages = () => {
+        const rerenderPerf = performance.now();
         setLoading(true);
         // Allow popup time to render
         window.setTimeout(() => {
@@ -55,13 +75,15 @@ function App() {
                 console.error("romData not retrieved");
                 return;
             }
-            wipeTiles(pixiApp);
             const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
             if (!levelRef) {
                 return;
             }
+            reapplyPagesObjects();
+            wipeTiles(pixiApp);
             fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPageData);
             setLoading(false);
+            console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
         },1);
     };
 

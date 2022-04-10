@@ -310,14 +310,14 @@ function loadSubLevelByLevelDataOffset(romBuffer: Uint8Array, subLevelLevelDataO
  * to the level with that ID (if found)
  * @param levels Level array to search through
  * @param id The level's LevelDataOffset ID
- * @returns Level if found, undefined if 0 or >1
+ * @returns Level if found, undefined if 0 (or >1, in which case something is REALLY wrong)
  */
 export function getLevelByOffsetId(levels: Level[], id: LevelDataOffset): Level | undefined {
     const levelRef = levels.filter(l => l.levelId === id);
     if (levelRef.length === 1) {
         return levelRef[0];
     } else {
-        console.error(`Level not found with id "${id}":`, levelRef);
+        console.error(`One Level not found with id "${id}":`, levelRef);
         return undefined;
     }
 }
