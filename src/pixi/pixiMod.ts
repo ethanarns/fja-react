@@ -142,7 +142,6 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
     }
     let toRender: TempRenderOrderData[] = [];
     //const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-    let tempAvTex: Record<string,RenderTexture> = Object.assign({},availableTextures);
     if (sp.hasChunkData) {
         for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
             for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
@@ -151,16 +150,16 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
                     curChunkTileDataArray.forEach(chunkTileData => {
                         const chunkCode = chunkTileData.chunkCode;
                         let renderTexture: RenderTexture | undefined = undefined;
-                        if (tempAvTex[chunkCode]) {
+                        if (availableTextures[chunkCode]) {
                             // Already available in texture cache
-                            renderTexture = tempAvTex[chunkCode];
+                            renderTexture = availableTextures[chunkCode];
                         } else {
                             // Generate new ones
                             const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
                             renderTexture = pixiApp.renderer.generateTexture(graphic, {
                                 region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
                             });
-                            tempAvTex[chunkCode] = renderTexture;
+                            availableTextures[chunkCode] = renderTexture;
                             // Don't leave it lying around
                             graphic.destroy();
                         }
@@ -178,7 +177,7 @@ export function wipeTiles(screenPageData: ScreenPageData[]): void {
             }
         }
     }
-    setAvailableTextures(tempAvTex);
+    setAvailableTextures(availableTextures);
     // Sort by layer
     toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
         if (x.layer > y.layer) {
