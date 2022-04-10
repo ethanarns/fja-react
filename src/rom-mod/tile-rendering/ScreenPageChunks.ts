@@ -1,3 +1,4 @@
+import { Application } from "pixi.js";
 import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
@@ -49,7 +50,7 @@ export default class ScreenPageData {
 
     private chunks: (ScreenPageTileChunk[] | null)[][] = [];
 
-    constructor(screenPageId: number) {
+    constructor(screenPageId: number, pixiApp: Application) {
         this.screenPageId = screenPageId;
 
         this.screenPageX = screenPageId % 0x10;
@@ -79,11 +80,11 @@ export default class ScreenPageData {
         return (tileY << 4) + tileX;
     }
 
-    public static generateAllScreenPages(): ScreenPageData[] {
+    public static generateAllScreenPages(pixiApp: Application): ScreenPageData[] {
         let ret: ScreenPageData[] = [];
 
         for ( let i = 0; i <= this.MAX_SCREEN_PAGE; i++) {
-            ret.push(new ScreenPageData(i));
+            ret.push(new ScreenPageData(i,pixiApp));
         }
 
         return ret;

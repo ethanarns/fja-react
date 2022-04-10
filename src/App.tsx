@@ -159,7 +159,7 @@ function App() {
             pixiApp.stage.addChild(tilemap);
 
             // Create the ScreenPages
-            const screenPages = ScreenPageData.generateAllScreenPages()
+            const screenPages = ScreenPageData.generateAllScreenPages(pixiApp);
             setScreenPageData(screenPages);
 
             const tempLoadedUint8Array = new Uint8Array(result);
