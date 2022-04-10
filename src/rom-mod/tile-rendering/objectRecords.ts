@@ -1,6 +1,6 @@
 import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
-import { COIN_CHUNK_CODES, RED_COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
+import { COIN_CHUNK_CODES, RED_COIN_CHUNK_CODES, yellowCoinRepeatingRightOneSpace } from "./drawInstructionRetrieval/coins";
 
 import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeExtendedStatics";
@@ -99,6 +99,12 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0x6e,
         instructionFunction: (lo,level,romBuffer) => generateStoneBlocks(lo, level, romBuffer, true),
         prettyName: "Stone Blocks - Multicolored"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0xc4,
+        instructionFunction: (lo) => yellowCoinRepeatingRightOneSpace(lo),
+        prettyName: "Yellow Coins - Single Spaced Array Right"
     },{
         objectType: "static",
         isExtended: true,
