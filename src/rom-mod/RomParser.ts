@@ -304,3 +304,20 @@ function loadSubLevelByLevelDataOffset(romBuffer: Uint8Array, subLevelLevelDataO
     l.palettes = palettes;
     return l;
 }
+
+/**
+ * Given a list of levels to look through, and a LevelDataOffset ID, return a reference
+ * to the level with that ID (if found)
+ * @param levels Level array to search through
+ * @param id The level's LevelDataOffset ID
+ * @returns Level if found, undefined if 0 or >1
+ */
+export function getLevelByOffsetId(levels: Level[], id: LevelDataOffset): Level | undefined {
+    const levelRef = levels.filter(l => l.levelId === id);
+    if (levelRef.length === 1) {
+        return levelRef[0];
+    } else {
+        console.error(`Level not found with id "${id}":`, levelRef);
+        return undefined;
+    }
+}

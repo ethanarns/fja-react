@@ -18,6 +18,7 @@ import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
 import { pan, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
+import { getLevelByOffsetId } from './rom-mod/RomParser';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -55,16 +56,29 @@ function App() {
                 return;
             }
             wipeTiles(pixiApp);
-            fullRender(romData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPageData);
+            const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+            if (!levelRef) {
+                return;
+            }
+            fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPageData);
             setLoading(false);
         },1);
     };
 
     // Sprite callback
     (window as any).spriteClicked = (uuid: string) => {
-        const foundObjects = romData!.levels[curLevelId].objects.filter(o => o.uuid === uuid);
+        if (!romData) {
+            console.error("No romData!");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            return;
+        }
+        const foundObjects = levelRef.objects.filter(o => o.uuid === uuid);
         if (foundObjects.length === 1) {
             const fo = foundObjects[0];
+            fo.xPos = fo.xPos + 1;
             console.log("0x"+fo.objectId.toString(16),fo);
         } else {
             console.warn("Unusual number of objects found:", foundObjects);
@@ -102,14 +116,18 @@ function App() {
             setScreenPageData(screenPages);
 
             const tempLoadedUint8Array = new Uint8Array(result);
+            const levelRef = getLevelByOffsetId(loadedGameData.levels,curLevelId);
+            if (!levelRef) {
+                return;
+            }
             const perfObjectPlace = performance.now();
-            loadedGameData.levels[curLevelId].objects.forEach(lobj => {
-                placeLevelObject(lobj, loadedGameData.levels[curLevelId], screenPages, tempLoadedUint8Array);
+            levelRef.objects.forEach(lobj => {
+                placeLevelObject(lobj, levelRef, screenPages, tempLoadedUint8Array);
             });
             console.log(`Placed objects in ${performance.now() - perfObjectPlace} ms`);
 
             // Can't do local rerender, parent objects not yet set
-            fullRender(loadedGameData.levels[curLevelId],pixiApp,textureCache,setTextureCache,screenPages);
+            fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPages);
 
             // Set up key controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
