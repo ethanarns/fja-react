@@ -206,6 +206,7 @@ export function fullRender(
 }
 
 export function wipeTiles(pixiApp: Application) {
+    const wipePerf = performance.now();
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
     // It makes multiple tilesets within it
@@ -213,10 +214,15 @@ export function wipeTiles(pixiApp: Application) {
         c.destroy();
     });
     tilemap.removeChildren();
-    // Also clear the interactive overlays while you're at it
+
     const toRemove = pixiApp.stage.children.filter(c => c.name !== TILEMAP_ID);
-    toRemove.forEach(ch => {
+    const removalLength = toRemove.length;
+    // For some reason this takes 400 ms?? When removed the above takes 1 ms
+    // It might literally be due to being 10k+ objects
+    for (let i = 0; i < removalLength; i++) {
+        const ch = toRemove[i];
         ch.destroy();
         pixiApp.stage.removeChild(ch);
-    });
+    }
+    console.log(`wipeTiles completed in ${performance.now() - wipePerf} ms`);
 }
