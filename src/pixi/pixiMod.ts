@@ -5,10 +5,10 @@
  */
 
 import { Application, RenderTexture, Rectangle } from "pixi.js";
-import { CompositeTilemap } from "@pixi/tilemap";
+import { } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
-import { BLANK_SQUARE_RENDER_CODE, TILEMAP_ID, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
+import { BLANK_SQUARE_RENDER_CODE, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
 import { LayerOrder, Level, LevelObject } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
@@ -108,14 +108,16 @@ interface TempRenderOrderData {
  * Wipes tilemap
  * @param pixiApp PixiJS Application
  */
-export function wipeTiles(pixiApp: Application): void {
-    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
-    tilemap.clear();
-    // It makes multiple tilesets within it
-    tilemap.children.forEach(c => {
-        c.destroy();
+export function wipeTiles(screenPageData: ScreenPageData[]): void {
+    screenPageData.forEach(sp => {
+        const tilemap = sp.tilemap;
+        tilemap.clear();
+        // It makes multiple tilesets within it
+        tilemap.children.forEach(c => {
+            c.destroy();
+        });
+        tilemap.removeChildren();
     });
-    tilemap.removeChildren();
 }
 
 /**

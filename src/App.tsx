@@ -80,7 +80,7 @@ function App() {
                 return;
             }
             reapplyPagesObjects();
-            wipeTiles(pixiApp);
+            wipeTiles(screenPageData);
             screenPageData.forEach(sp => {
                 renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
             })
