@@ -124,9 +124,6 @@ interface TempRenderOrderData {
         console.error("Cannot render when pixiApp is not started");
         return;
     }
-    if (!sp.hasChunkData) {
-        return;
-    }
     // Wipe it
     sp.tilemap.clear();
     // It makes multiple tilesets within it
@@ -134,7 +131,9 @@ interface TempRenderOrderData {
         c.destroy();
     });
     sp.tilemap.removeChildren();
-
+    if (!sp.hasChunkData) {
+        return;
+    }
     //const perf = performance.now();
     let toRender: TempRenderOrderData[] = [];
     for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
