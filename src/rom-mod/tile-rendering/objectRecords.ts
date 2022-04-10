@@ -3,7 +3,7 @@ import { DrawInstruction } from "./tile-construction-tile-keys";
 import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
 
 import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
-import { bigBlueRocks } from "./drawInstructionRetrieval/largeExtendedStatics";
+import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
 
@@ -146,6 +146,12 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0xde,
         instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
         prettyName: "Big Blue Rock: 0xde"
+    },{
+        objectType: "static",
+        isExtended: true,
+        objectId: 0xdf,
+        instructionFunction: (lo,level,romBuffer) => bigBlueRocks(lo,level,romBuffer),
+        prettyName: "Big Blue Rock: 0xdf"
     },{
         objectType: "static",
         isExtended: false,

@@ -1,7 +1,7 @@
-import { LayerOrder, Level, LevelObject } from "../../RomInterfaces";
-import { DrawInstruction } from "../tile-construction-tile-keys";
-import { readAddressFromArray, readByteFromArray, readWordFromArray } from "../../binaryUtils/binary-io";
-import { getTileRenderCodesFromTilecode } from "./commonInstructions";
+import { LayerOrder, Level, LevelObject } from "../../../RomInterfaces";
+import { DrawInstruction } from "../../tile-construction-tile-keys";
+import { readAddressFromArray, readByteFromArray, readWordFromArray } from "../../../binaryUtils/binary-io";
+import { getTileRenderCodesFromTilecode } from "./../commonInstructions";
 
 export function bigBlueRocks(lo: LevelObject, level: Level, romBuffer: Uint8Array): DrawInstruction[] {
     let ret: DrawInstruction[] = [];
