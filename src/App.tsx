@@ -6,7 +6,7 @@
  */
 
 import './App.css';
-import { ARROW_MOVE_SPEED, DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
+import { DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
@@ -15,7 +15,7 @@ import { CompositeTilemap } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
 import { fullRender, placeLevelObject, wipeTiles } from "./pixi/pixiMod";
-import { zoom } from "./pixi/pixiNav";
+import { pan, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 
@@ -118,16 +118,16 @@ function App() {
                 }
                 switch (ev.key) {
                     case "ArrowDown":
-                        pixiApp.stage.y -= ARROW_MOVE_SPEED;
+                        pan(pixiApp,"down");
                         break;
                     case "ArrowUp":
-                        pixiApp.stage.y += ARROW_MOVE_SPEED;
+                        pan(pixiApp,"up");
                         break;
                     case "ArrowRight":
-                        pixiApp.stage.x -= ARROW_MOVE_SPEED;
+                        pan(pixiApp,"right");
                         break;
                     case "ArrowLeft":
-                        pixiApp.stage.x += ARROW_MOVE_SPEED;
+                        pan(pixiApp,"left");
                         break;
                     case "]":
                     case "=": // Is there + is, so they don't need to press shift
