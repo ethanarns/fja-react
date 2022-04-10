@@ -102,6 +102,7 @@ interface TempRenderOrderData {
     globalPixelY: number;
     uuid: string;
     layer: LayerOrder;
+    chunkCode: string;
 }
 
 /**
@@ -158,7 +159,8 @@ export function fullRender(
                                 globalPixelX: pxCoords.globalPixelX,
                                 globalPixelY: pxCoords.globalPixelY,
                                 uuid: chunkTileData.objUuidFrom,
-                                layer: chunkTileData.layer
+                                layer: chunkTileData.layer,
+                                chunkCode: chunkCode
                             });
                         });
                     }
@@ -183,16 +185,22 @@ export function fullRender(
             x.globalPixelX,
             x.globalPixelY
         );
-        const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
-        spr.interactive = true;
-        spr.buttonMode = true;
-        spr.alpha = 0;
-        spr.x = x.globalPixelX;
-        spr.y = x.globalPixelY;
-        spr.on("pointerdown", () => {
-            (window as any).spriteClicked(x.uuid);
-        });
-        pixiApp.stage.addChild(spr);
+        let shouldCreateInteractive = true;
+        if (x.chunkCode === "40ff" || x.chunkCode === "60ff") {
+            shouldCreateInteractive = false;
+        }
+        if (shouldCreateInteractive) {
+            const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
+            spr.interactive = true;
+            spr.buttonMode = true;
+            spr.alpha = 0;
+            spr.x = x.globalPixelX;
+            spr.y = x.globalPixelY;
+            spr.on("pointerdown", () => {
+                (window as any).spriteClicked(x.uuid);
+            });
+            pixiApp.stage.addChild(spr);
+        }
     });
     console.log(`Full render complete in ${performance.now() - globalPerf} ms`);
 }
