@@ -129,7 +129,14 @@ export default class ScreenPageData {
             console.error(`Out of bounds attempt to retrieve data from ScreenPageChunk "${this.screenPageId}"`,chunkX,chunkY);
             return null;
         }
-        return this.chunks[chunkY][chunkX];
+        const ys = this.chunks[chunkY];
+        if (!ys) {
+            return null;
+        }
+        if (!ys[chunkX]) {
+            return null;
+        }
+        return ys[chunkX];
     }
 
     public wipeCheck(): void {

@@ -6,11 +6,11 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, TILEMAP_ID } from './GLOBALS';
+import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, TILEMAP_ID, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
-import { Application, RenderTexture } from "pixi.js"
+import { Application, RenderTexture, Sprite } from "pixi.js"
 import { CompositeTilemap } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
@@ -87,8 +87,14 @@ function App() {
         },1);
     };
 
-    // Sprite callback
-    (window as any).spriteClicked = (uuid: string) => {
+    /**
+     * Hack to fix annoying issue where this doesn't have access to member data normally
+     */
+    (window as any).spriteClicked = (e: any) => {
+        if (!pixiApp) {
+            console.error("No pixiApp!");
+            return;
+        }
         if (!romData) {
             console.error("No romData!");
             return;
@@ -97,13 +103,33 @@ function App() {
         if (!levelRef) {
             return;
         }
-        const foundObjects = levelRef.objects.filter(o => o.uuid === uuid);
-        if (foundObjects.length === 1) {
-            const fo = foundObjects[0];
-            fo.xPos = fo.xPos + 1;
-            console.log("0x"+fo.objectId.toString(16),fo);
+        if (!e || !e.data || !e.data.global) {
+            console.error("Bad event input:", e);
+            return;
+        }
+        const dims = e.data.global;
+        let trueXpx = dims.x - pixiApp.stage.x;
+        let trueYpx = dims.y - pixiApp.stage.y;
+        const tileX = Math.floor(trueXpx / FULL_TILE_DIMS_PX);
+        const tileY = Math.floor(trueYpx / FULL_TILE_DIMS_PX);
+        const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
+        const foundScreenPages = screenPageData.filter(sp => sp.screenPageId === spid);
+        if (foundScreenPages.length === 1) {
+            const sp = foundScreenPages[0];
+            trueXpx -= sp.globalPixelX;
+            trueYpx -= sp.globalPixelY;
+            console.log("local px", trueXpx, trueYpx);
+            const found = sp.getTileChunkDataFromLocalCoords(
+                Math.floor(trueXpx / 8),
+                Math.floor(trueYpx / 8)
+            );
+            if (!found) {
+                return;
+            }
+            const uuids = found.map(x => x.objUuidFrom);
+            console.log(uuids);
         } else {
-            console.warn("Unusual number of objects found:", foundObjects);
+            console.error("Unusual number of screen pages found:", foundScreenPages);
         }
     };
 
@@ -150,6 +176,20 @@ function App() {
 
             // Can't do local rerender, parent objects not yet set
             fullRender(levelRef,pixiApp,textureCache,setTextureCache,screenPages);
+
+            // Add interactive overlay
+            const interactiveSprite = Sprite.from(textureCache[WHITE_SQUARE_RENDER_CODE]);
+            interactiveSprite.interactive = true;
+            interactiveSprite.alpha = 0;
+            interactiveSprite.x = 0;
+            interactiveSprite.y = 0;
+            interactiveSprite.width = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
+            interactiveSprite.height = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
+            interactiveSprite.on("pointerdown", (event: any) => {
+                // Fixes annoying issue where it doesn't have access to any data
+                (window as any).spriteClicked(event);
+            });
+            pixiApp.stage.addChild(interactiveSprite);
 
             // Set up key controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {

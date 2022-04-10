@@ -4,7 +4,7 @@
  * combining them
  */
 
-import { Application, RenderTexture, Sprite, Rectangle } from "pixi.js";
+import { Application, RenderTexture, Rectangle } from "pixi.js";
 import { CompositeTilemap } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
@@ -185,27 +185,15 @@ export function fullRender(
             x.globalPixelX,
             x.globalPixelY
         );
-        let shouldCreateInteractive = true;
-        if (x.chunkCode === "40ff" || x.chunkCode === "60ff") {
-            shouldCreateInteractive = false;
-        }
-        if (shouldCreateInteractive) {
-            const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
-            spr.interactive = true;
-            spr.buttonMode = true;
-            spr.alpha = 0;
-            spr.x = x.globalPixelX;
-            spr.y = x.globalPixelY;
-            spr.on("pointerdown", () => {
-                (window as any).spriteClicked(x.uuid);
-            });
-            pixiApp.stage.addChild(spr);
-        }
     });
     console.log(`Full render complete in ${performance.now() - globalPerf} ms`);
 }
 
-export function wipeTiles(pixiApp: Application) {
+/**
+ * Wipes tilemap
+ * @param pixiApp PixiJS Application
+ */
+export function wipeTiles(pixiApp: Application): void {
     const wipePerf = performance.now();
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();
@@ -215,14 +203,5 @@ export function wipeTiles(pixiApp: Application) {
     });
     tilemap.removeChildren();
 
-    const toRemove = pixiApp.stage.children.filter(c => c.name !== TILEMAP_ID);
-    const removalLength = toRemove.length;
-    // For some reason this takes 400 ms?? When removed the above takes 1 ms
-    // It might literally be due to being 10k+ objects
-    for (let i = 0; i < removalLength; i++) {
-        const ch = toRemove[i];
-        ch.destroy();
-        pixiApp.stage.removeChild(ch);
-    }
     console.log(`wipeTiles completed in ${performance.now() - wipePerf} ms`);
 }
