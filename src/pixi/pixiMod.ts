@@ -199,6 +199,87 @@ export function fullRender(
     console.log(`Full render complete in ${performance.now() - globalPerf} ms`);
 }
 
+export function renderSpecificScreenPage(
+    curLevel: Level,
+    pixiApp: Application,
+    availableTextures: Record<string,RenderTexture>,
+    setAvailableTextures: Function,
+    sp: ScreenPageData
+): boolean {
+    if (!sp.hasChunkData) {
+        return false;
+    }
+    let toRender: TempRenderOrderData[] = [];
+    for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
+        for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
+            const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+            if (curChunkTileDataArray !== null) {
+                curChunkTileDataArray.forEach(chunkTileData => {
+                    const chunkCode = chunkTileData.chunkCode;
+                    let renderTexture: RenderTexture | undefined = undefined;
+                    if (availableTextures[chunkCode]) {
+                        // Already available in texture cache
+                        renderTexture = availableTextures[chunkCode];
+                    } else {
+                        // Generate new ones
+                        const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                        renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                        });
+                        setAvailableTextures({
+                            chunkCode: renderTexture,
+                            ...availableTextures
+                        });
+                        // Don't leave it lying around
+                        graphic.destroy();
+                    }
+
+                    // Place render texture (super fast, like 0-1ms)
+                    const pxCoords = sp.getGlobalPixelCoordsFromChunkCoords(innerChunkX,innerChunkY);
+                    toRender.push({
+                        rt: renderTexture,
+                        globalPixelX: pxCoords.globalPixelX,
+                        globalPixelY: pxCoords.globalPixelY,
+                        uuid: chunkTileData.objUuidFrom,
+                        layer: chunkTileData.layer
+                    });
+                });
+            }
+        }
+    }
+    // Sort by layer
+    toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
+        if (x.layer > y.layer) {
+            return 1;
+        }
+        if (x.layer < y.layer) {
+            return -1;
+        }
+        return 0;
+    });
+
+    const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
+
+    // Actually place renders (takes like 345 ms)
+    toRender.forEach(x => {
+        tilemap.tile(x.rt,
+            x.globalPixelX,
+            x.globalPixelY
+        );
+        const spr = Sprite.from(availableTextures[WHITE_SQUARE_RENDER_CODE]);
+        spr.interactive = true;
+        spr.buttonMode = true;
+        spr.alpha = 0;
+        spr.x = x.globalPixelX;
+        spr.y = x.globalPixelY;
+        spr.on("pointerdown", () => {
+            (window as any).spriteClicked(x.uuid);
+        });
+        pixiApp.stage.addChild(spr);
+    });
+    return true;
+}
+
 export function wipeTiles(pixiApp: Application) {
     const tilemap = pixiApp.stage.getChildByName(TILEMAP_ID) as CompositeTilemap;
     tilemap.clear();

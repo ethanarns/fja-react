@@ -147,7 +147,7 @@ export default class ScreenPageData {
             });
         });
         if (!shouldKeep) {
-            this.wipeCheck();
+            this.wipeChunks();
         }
     }
 
