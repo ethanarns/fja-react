@@ -1,9 +1,10 @@
 import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
-import { COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
+import { COIN_CHUNK_CODES, RED_COIN_CHUNK_CODES } from "./drawInstructionRetrieval/coins";
 
 import { drawHorizontalItemWithEnds, drawRepeatingRectangle } from "./drawInstructionRetrieval/commonInstructions";
 import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeExtendedStatics";
+import { redSign } from "./drawInstructionRetrieval/extendedStatics/smallExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
 
@@ -21,11 +22,29 @@ export interface ObjectRecord {
 export const OBJECT_RECORDS: ObjectRecord[] = [
     {
         objectType: "static",
+        isExtended: true,
+        objectId: 0x17,
+        instructionFunction: (lo: LevelObject) => [{
+            offsetX: 0,
+            offsetY: 0,
+            renderCodes: RED_COIN_CHUNK_CODES,
+            uniqueLevelObjectId: lo.uuid,
+            layer: LayerOrder.COINS
+        }],
+        prettyName: "Red Coin 1"
+    },{
+        objectType: "static",
         isExtended: false,
         objectId: 0x3c,
         instructionFunction: () => [],
         prettyName: "Green Pipe Down Usable",
         textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
+    },{
+        objectType: "static",
+        isExtended: true,
+        objectId: 0x50,
+        instructionFunction: (lo,level,romBuffer) => redSign(lo,level,romBuffer),
+        prettyName: "Red Arrow Sign - Right",
     },{
         objectType: "static",
         isExtended: false,

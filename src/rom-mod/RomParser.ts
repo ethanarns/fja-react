@@ -116,7 +116,8 @@ function loadMainLevelByOffset(romBuffer: Uint8Array, mainLevelDataOffset: MainL
         availableSpriteTiles: getCombinedSpriteTiles(romBuffer, headers.tileset),
         headers: headers,
         world: worldIndex,
-        exits: mainLevelStaticData.exits
+        exits: mainLevelStaticData.exits,
+        palettes: undefined
     }
     const palettes = getPaletteData(romBuffer,l);
     l.palettes = palettes;
@@ -299,5 +300,7 @@ function loadSubLevelByLevelDataOffset(romBuffer: Uint8Array, subLevelLevelDataO
         world: worldIndex,
         exits: mainLevelStaticData.exits
     }
+    const palettes = getPaletteData(romBuffer,l);
+    l.palettes = palettes;
     return l;
 }

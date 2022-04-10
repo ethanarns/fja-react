@@ -33,7 +33,7 @@ function App() {
     useEffect(() => {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
-        setCurLevelId(0);
+        setCurLevelId(0x0);
         if (newPixiApp === null) {
             console.log("PixiApp failed to initialize for graphics generation");
             return;
@@ -65,7 +65,8 @@ function App() {
     (window as any).spriteClicked = (uuid: string) => {
         const foundObjects = romData!.levels[curLevelId].objects.filter(o => o.uuid === uuid);
         if (foundObjects.length === 1) {
-            console.log(foundObjects[0]);
+            const fo = foundObjects[0];
+            console.log("0x"+fo.objectId.toString(16),fo);
         } else {
             console.warn("Unusual number of objects found:", foundObjects);
         }

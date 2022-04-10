@@ -152,3 +152,24 @@ export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, laye
         fourth.padStart(4,"0")
     }`;
 }
+
+export function getFixedDimsObject(lo: LevelObject, tileCodes: number[], height: number, width: number, romBuffer: Uint8Array, layer: LayerOrder): DrawInstruction[] {
+    if (tileCodes.length !== height * width) {
+        console.error("Tile codes list does not fit with fixed height/width",tileCodes,lo);
+        return [];
+    }
+    let ret: DrawInstruction[] = [];
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            const index = y*width + x;
+            ret.push({
+                offsetX: x,
+                offsetY: y,
+                renderCodes: getTileRenderCodesFromTilecode(romBuffer,tileCodes[index]),
+                layer: layer,
+                uniqueLevelObjectId: lo.uuid
+            });
+        }
+    }
+    return ret;
+}

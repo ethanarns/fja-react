@@ -125,10 +125,17 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
     let ret: Record<string,RenderTexture> = {
         "WHTE": pixiApp.renderer.generateTexture(blankWhiteGraphics),
         "BLNK": pixiApp.renderer.generateTexture(invisibleGraphics),
+        
         "YCBL": RenderTexture.from("cached/yc_bottomLeft.png") as RenderTexture,
         "YCBR": RenderTexture.from("cached/yc_bottomRight.png") as RenderTexture,
         "YCTL": RenderTexture.from("cached/yc_topLeft.png") as RenderTexture,
         "YCTR": RenderTexture.from("cached/yc_topRight.png") as RenderTexture,
+
+        "RCBL": RenderTexture.from("cached/rc_bottomLeft.png") as RenderTexture,
+        "RCBR": RenderTexture.from("cached/rc_bottomRight.png") as RenderTexture,
+        "RCTL": RenderTexture.from("cached/rc_topLeft.png") as RenderTexture,
+        "RCTR": RenderTexture.from("cached/rc_topRight.png") as RenderTexture,
+
         "UNDL": pixiApp.renderer.generateTexture(underlineGraphics, {
             region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
         })
