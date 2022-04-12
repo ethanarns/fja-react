@@ -109,8 +109,8 @@ function App() {
             return;
         }
         const dims = e.data.global;
-        let trueXpx = dims.x - pixiApp.stage.x;
-        let trueYpx = dims.y - pixiApp.stage.y;
+        let trueXpx = dims.x + pixiApp.stage.pivot.x - (CANVAS_WIDTH / 2);
+        let trueYpx = dims.y + pixiApp.stage.pivot.y - (CANVAS_HEIGHT / 2);
         const tileX = Math.floor(trueXpx / FULL_TILE_DIMS_PX);
         const tileY = Math.floor(trueYpx / FULL_TILE_DIMS_PX);
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
