@@ -6,7 +6,7 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
@@ -157,6 +157,10 @@ function App() {
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
             setRomData(loadedGameData);
+            pixiApp.stage.pivot.set(-1 * (CANVAS_WIDTH / 2), -1 * (CANVAS_HEIGHT / 2));
+            pixiApp.stage.x = (CANVAS_WIDTH / 2);
+            pixiApp.stage.y = (CANVAS_HEIGHT / 2);
+            pixiApp.stage.pivot.set((CANVAS_WIDTH / 2),(CANVAS_HEIGHT / 2));
 
             // Create the ScreenPages
             const screenPages = ScreenPageData.generateAllScreenPages(pixiApp);
@@ -188,9 +192,12 @@ function App() {
                 // Fixes annoying issue where it doesn't have access to any data
                 (window as any).spriteClicked(event);
             });
+            interactiveSprite.on("pointermove", (e: any) => {
+                (window as any).localCoords = e.data.global;
+            });
             pixiApp.stage.addChild(interactiveSprite);
 
-            // Set up key controls
+            // Set up controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
                 if (!pixiApp) {
                     return;
