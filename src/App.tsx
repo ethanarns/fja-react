@@ -6,16 +6,16 @@
  */
 
 import './App.css';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
-import { Application, RenderTexture, Sprite } from "pixi.js"
+import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { pan, zoom } from "./pixi/pixiNav";
+import { pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 import { getLevelByOffsetId } from './rom-mod/RomParser';
@@ -109,8 +109,9 @@ function App() {
             return;
         }
         const dims = e.data.global;
-        let trueXpx = dims.x + pixiApp.stage.pivot.x - (CANVAS_WIDTH / 2);
-        let trueYpx = dims.y + pixiApp.stage.pivot.y - (CANVAS_HEIGHT / 2);
+        const nav = pixiApp.stage.getChildByName(NAV_CONTAINER);
+        let trueXpx = dims.x + nav.pivot.x - (CANVAS_WIDTH / 2);
+        let trueYpx = dims.y + nav.pivot.y - (CANVAS_HEIGHT / 2);
         const tileX = Math.floor(trueXpx / FULL_TILE_DIMS_PX);
         const tileY = Math.floor(trueYpx / FULL_TILE_DIMS_PX);
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
@@ -157,10 +158,10 @@ function App() {
             const loadedGameData = loadRomFromArrayBuffer(result);
             setInputLoaded(true);
             setRomData(loadedGameData);
-            pixiApp.stage.pivot.set(-1 * (CANVAS_WIDTH / 2), -1 * (CANVAS_HEIGHT / 2));
-            pixiApp.stage.x = (CANVAS_WIDTH / 2);
-            pixiApp.stage.y = (CANVAS_HEIGHT / 2);
-            pixiApp.stage.pivot.set((CANVAS_WIDTH / 2),(CANVAS_HEIGHT / 2));
+
+            const navContainer = new Container();
+            navContainer.name = NAV_CONTAINER;
+            pixiApp.stage.addChild(navContainer);
 
             // Create the ScreenPages
             const screenPages = ScreenPageData.generateAllScreenPages(pixiApp);
@@ -195,7 +196,8 @@ function App() {
             interactiveSprite.on("pointermove", (e: any) => {
                 (window as any).localCoords = e.data.global;
             });
-            pixiApp.stage.addChild(interactiveSprite);
+            navContainer.addChild(interactiveSprite);
+            zeroNavObject(navContainer);
 
             // Set up controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
@@ -204,28 +206,28 @@ function App() {
                 }
                 switch (ev.key) {
                     case "ArrowDown":
-                        pan(pixiApp,"down");
+                        pan(navContainer,"down");
                         break;
                     case "ArrowUp":
-                        pan(pixiApp,"up");
+                        pan(navContainer,"up");
                         break;
                     case "ArrowRight":
-                        pan(pixiApp,"right");
+                        pan(navContainer,"right");
                         break;
                     case "ArrowLeft":
-                        pan(pixiApp,"left");
+                        pan(navContainer,"left");
                         break;
                     case "]":
                     case "=": // Is there + is, so they don't need to press shift
                     case "+":
-                        zoom(pixiApp,"in");
+                        zoom(navContainer,"in");
                         break;
                     case "-":
                     case "[":
-                        zoom(pixiApp, "out");
+                        zoom(navContainer, "out");
                         break;
                     case "0":
-                        zoom(pixiApp, "reset");
+                        zoom(navContainer, "reset");
                         break;
                     default:
                         break;

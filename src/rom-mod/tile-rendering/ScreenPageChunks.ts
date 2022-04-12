@@ -1,6 +1,6 @@
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Application } from "pixi.js";
-import { FULL_TILE_DIMS_PX, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { Application, Container } from "pixi.js";
+import { FULL_TILE_DIMS_PX, NAV_CONTAINER, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
@@ -74,7 +74,8 @@ export default class ScreenPageData {
         this.tilemap.y = this.globalPixelY;
         this.tilemap.width = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
         this.tilemap.height = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
-        pixiApp.stage.addChild(this.tilemap);
+        const navContainer = pixiApp.stage.getChildByName(NAV_CONTAINER) as Container;
+        navContainer.addChild(this.tilemap);
     }
 
     public getGlobalPixelCoordsFromChunkCoords(innerChunkX: number, innerChunkY: number): PixelCoordinates {
