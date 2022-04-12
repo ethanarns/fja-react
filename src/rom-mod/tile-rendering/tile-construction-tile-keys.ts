@@ -1,5 +1,3 @@
-import { LayerOrder } from "../RomInterfaces";
-
 export interface TileChunkPreRenderData {
     tileId: number;
     paletteId: number;
@@ -17,7 +15,7 @@ export interface DrawInstruction {
      */
     offsetY: number;
     uniqueLevelObjectId: string;
-    layer: LayerOrder;
+    layer: number;
     renderCodes: string;
 }
 

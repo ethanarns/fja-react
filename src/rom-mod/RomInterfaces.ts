@@ -46,7 +46,19 @@ export enum ScrollType {
 }
 
 /**
- * Helps order things when rendering
+ * Some objects automatically take priority over others. Just add them together
+ * so that the superobjects also order themselves
+ */
+export const ORDER_PRIORITY_STATIC  = 10000;
+
+/**
+ * Sprites always go over any static object, no matter what
+ */
+export const ORDER_PRIORITY_SPRITE = 100000;
+
+/**
+ * OBSOLETE: Order is done by load order, you can move objects forward or backwards
+ * manually in most editors. Preserve just in case its need comes about again
  */
 export enum LayerOrder {
     GUI = 15,
@@ -188,6 +200,7 @@ export interface LevelObject {
     yPos: number;
     originalOffset16?: string;
     uuid: string;
+    zIndex: number;
 }
 
 /**

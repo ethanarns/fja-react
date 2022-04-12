@@ -9,7 +9,7 @@ import { } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
 import { BLANK_SQUARE_RENDER_CODE, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
-import { LayerOrder, Level, LevelObject } from "../rom-mod/RomInterfaces";
+import { LayerOrder, Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
@@ -37,6 +37,15 @@ export function placeLevelObject(
 }
 
 function executeInstruction(instruction: DrawInstruction, lo: LevelObject, screenPages: ScreenPageData[]): void {
+    if (lo.zIndex === undefined) {
+        console.error("No zIndex!");
+        return;
+    }
+    // Overwrite the instruction
+    instruction.layer = lo.zIndex;
+    if (lo.objectType === "sprite") {
+        instruction.layer += ORDER_PRIORITY_SPRITE;
+    }
     const tileScaleX = lo.xPos + instruction.offsetX;
     const tileScaleY = lo.yPos + instruction.offsetY;
     const screenPageId = ScreenPageData.getScreenPageIdFromTileCoords(tileScaleX,tileScaleY);

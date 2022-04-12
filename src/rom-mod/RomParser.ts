@@ -1,6 +1,6 @@
 import { LEVEL_DATA_LIST_BASE_PTR, LEVEL_ENTRANCE_LIST_BASE_PTR, LEVEL_HEADER_LENGTHS, LEVEL_NAMES_BASE_PTR, LEVEL_SPRITES_BASE_PTR, MAX_LEVEL_ENTRANCE_ID, SKIP_RECURSION_LEVELS } from "../GLOBALS";
 import { readAddressFromArray } from "./binaryUtils/binary-io";
-import { Level, LevelDataOffset, LevelEntrance, LevelHeaders, LevelObject, MainLevelDataOffset, RomData } from "./RomInterfaces";
+import { Level, LevelDataOffset, LevelEntrance, LevelHeaders, LevelObject, MainLevelDataOffset, ORDER_PRIORITY_SPRITE, RomData } from "./RomInterfaces";
 import { getCombinedSpriteTiles } from "./binaryUtils/tile-utils";
 import { CHAR_TABLE } from "./SMA3-CHARS";
 import { getMainLevelDataOffsetByLevelIndex, getUuidv4 } from "../utility-functions";
@@ -159,7 +159,8 @@ function readSpriteObjects(romBuffer: Uint8Array, levelOffset: number): LevelObj
             yPos: yPos,
             xPos: romBuffer[index+2],
             originalOffset16: "0x08" + index.toString(16),
-            uuid: getUuidv4()
+            uuid: getUuidv4(),
+            zIndex: ORDER_PRIORITY_SPRITE
         };
         //console.log(lo.originalOffset16,byte2.toString(2),(byte2 % 0b10000).toString(2).padStart(4,"0"),(byte2 % 0b10).toString(2));
         levelSprites.push(lo);

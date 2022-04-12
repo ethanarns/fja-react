@@ -22,6 +22,7 @@ export function getStaticObjectsAndExits(romBuffer: Uint8Array, levelEntranceId:
 
     let index = levelAddr + 10; // Skip the header
     let levelObjects: LevelObject[] = [];
+    let zIndex = 0;
     for (let overflowIndex = 0; overflowIndex < 9999; overflowIndex++) {
         let curLevelObject: LevelObject = {
             objectId: -1,
@@ -30,7 +31,8 @@ export function getStaticObjectsAndExits(romBuffer: Uint8Array, levelEntranceId:
             xPos: -1,
             yPos: -1,
             originalOffset16: "0x08" + index.toString(16),
-            uuid: getUuidv4()
+            uuid: getUuidv4(),
+            zIndex: zIndex++
         };
         if (romBuffer[index] === 0xff) {
             //console.log(`Read ${levelObjects.length} objects`);

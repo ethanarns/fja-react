@@ -56,6 +56,7 @@ function App() {
         if (!levelRef) {
             return;
         }
+        // Performance wise, the above takes 0ms
         levelRef.objects.forEach(lobj => {
             placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
         });
