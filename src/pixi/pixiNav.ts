@@ -1,4 +1,4 @@
-import { Application, DisplayObject, Container } from "pixi.js";
+import { DisplayObject, Container } from "pixi.js";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX } from "../GLOBALS";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
