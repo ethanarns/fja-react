@@ -3,41 +3,33 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX } from "../GLOBALS";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
 
-export const ZOOM_SCALE: Record<number,number> = {
-    0: 0.5,
-    1: 1.0,
-    2: 1.5,
-    3: 2.0
-};
-export const MAX_ZOOM_KEY = Object.values(ZOOM_SCALE)[Object.values(ZOOM_SCALE).length - 1];
-
-let zoom_global_key = 1;
+let global_zoom = 1;
 
 export function zoom(navObject: Container, dir: "in" | "out" | "reset"): void {
     if (dir === "in") {
-        zoom_global_key++;
-        if (zoom_global_key > MAX_ZOOM_KEY) {
-            zoom_global_key = MAX_ZOOM_KEY;
+        global_zoom *= 1.1;
+        if (global_zoom > 3) {
+            global_zoom = 3;
         }
-        navObject.scale.x = ZOOM_SCALE[zoom_global_key];
-        navObject.scale.y = ZOOM_SCALE[zoom_global_key];
+        navObject.scale.x = global_zoom;
+        navObject.scale.y = global_zoom;
     } else if (dir === "out"){
-        zoom_global_key--;
-        if (zoom_global_key < 0) {
-            zoom_global_key = 0;
+        global_zoom *= 0.9;
+        if (global_zoom < 0) {
+            global_zoom = 0;
         }
-        navObject.scale.x = ZOOM_SCALE[zoom_global_key];
-        navObject.scale.y = ZOOM_SCALE[zoom_global_key];
+        navObject.scale.x = global_zoom;
+        navObject.scale.y = global_zoom;
     } else {
-        zoom_global_key = 1;
-        navObject.scale.x = ZOOM_SCALE[zoom_global_key];
-        navObject.scale.y = ZOOM_SCALE[zoom_global_key];
+        global_zoom = 1;
+        navObject.scale.x = global_zoom;
+        navObject.scale.y = global_zoom;
     }
     clampNav(navObject);
 }
 
 export function pan(navObject: Container, dir: "up" | "down" | "left" | "right"): void {
-    const scale = ZOOM_SCALE[zoom_global_key];
+    const scale = global_zoom;
     switch(dir) {
         case "up":
             navObject.pivot.y -= ARROW_MOVE_SPEED / scale;
@@ -64,7 +56,7 @@ function getTranslatedCoords(navObject: DisplayObject): {x: number, y: number} {
         y: -99999
     };
 
-    const scaleVal = ZOOM_SCALE[zoom_global_key];
+    const scaleVal = global_zoom;
     ret.x = navObject.pivot.x - (CANVAS_WIDTH / scaleVal / 2);
     ret.y = navObject.pivot.y - (CANVAS_HEIGHT / scaleVal / 2);
 
@@ -73,7 +65,7 @@ function getTranslatedCoords(navObject: DisplayObject): {x: number, y: number} {
 
 function clampNav(navObject: DisplayObject): void {
     const newCoords = getTranslatedCoords(navObject);
-    const scaleVal = ZOOM_SCALE[zoom_global_key];
+    const scaleVal = global_zoom;
     if (newCoords.x < 0) {
         navObject.pivot.x = 0 + (CANVAS_WIDTH / scaleVal / 2);
     }
