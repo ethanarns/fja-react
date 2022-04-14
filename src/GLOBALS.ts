@@ -49,3 +49,7 @@ export const PALETTE_SPACER_DISTANCE_MAYBE = 6;
 export const PALETTE_COMPRESSED_DATA_LIST_PTR = 0x002cf008;
 export const PALETTE_LEVEL_BASE_PTR = 0x001a8d2e;
 export const PALETTE_WORLD_LIST_BASE_PTR = 0x00164b7c;
+
+// Colors
+export const BG_COLOR = 0x676767;
+export const SCREEN_PAGE_LINE_COLOR = 0xeeeeee;

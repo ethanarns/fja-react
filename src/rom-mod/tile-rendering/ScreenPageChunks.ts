@@ -1,6 +1,6 @@
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Application, Container } from "pixi.js";
-import { FULL_TILE_DIMS_PX, NAV_CONTAINER, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { Application, Container, Graphics } from "pixi.js";
+import { BG_COLOR, FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
@@ -50,10 +50,13 @@ export default class ScreenPageData {
     public hasChunkData: boolean = false;
 
     public tilemap: CompositeTilemap;
+    private bg: Graphics;
 
     private chunks: (ScreenPageTileChunk[] | null)[][] = [];
 
     constructor(screenPageId: number, pixiApp: Application) {
+        const navContainer = pixiApp.stage.getChildByName(NAV_CONTAINER) as Container;
+
         this.screenPageId = screenPageId;
 
         this.screenPageX = screenPageId % 0x10;
@@ -68,13 +71,33 @@ export default class ScreenPageData {
         this.globalPixelX = this.chunkX * 8;
         this.globalPixelY = this.chunkY * 8;
 
+        this.bg = new Graphics();
+        // Draw white square BG
+        // this.bg.beginFill(SCREEN_PAGE_BG_COLOR);
+        // this.bg.drawRect(0, 0,
+        //     ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX,
+        //     ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX
+        // );
+        // this.bg.endFill();
+
+        // Draw bottom and right lines
+        this.bg.lineStyle(2, SCREEN_PAGE_LINE_COLOR);
+        const lineDim = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX-1;
+        this.bg.moveTo(0,lineDim);
+        this.bg.lineTo(lineDim,lineDim);
+        this.bg.lineTo(lineDim,0);
+
+        // Add to stage
+        this.bg.x = this.globalPixelX;
+        this.bg.y = this.globalPixelY;
+        navContainer.addChild(this.bg);
+
         this.tilemap = new CompositeTilemap();
         this.tilemap.name = TILEMAP_ID + screenPageId.toString(16);
         this.tilemap.x = this.globalPixelX;
         this.tilemap.y = this.globalPixelY;
         this.tilemap.width = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
         this.tilemap.height = ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX;
-        const navContainer = pixiApp.stage.getChildByName(NAV_CONTAINER) as Container;
         navContainer.addChild(this.tilemap);
     }
 

@@ -1,5 +1,5 @@
 import { Application, settings, SCALE_MODES } from "pixi.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID } from "../GLOBALS";
+import { BG_COLOR, CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID } from "../GLOBALS";
 import { settings as tsettings } from "@pixi/tilemap";
 
 export default function generatePixiApp(): Application | null {
@@ -9,7 +9,7 @@ export default function generatePixiApp(): Application | null {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
         antialias: false,
-        backgroundColor: 0x222222
+        backgroundColor: BG_COLOR
     });
     settings.SCALE_MODE = SCALE_MODES.NEAREST;
     const foundCanvas = document.getElementById(DOM_CANVAS_ID);
