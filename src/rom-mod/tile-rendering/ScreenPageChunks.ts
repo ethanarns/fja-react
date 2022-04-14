@@ -1,6 +1,6 @@
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Application, Container, Graphics } from "pixi.js";
-import { BG_COLOR, FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
