@@ -57,9 +57,10 @@ function App() {
             return;
         }
         // Performance wise, the above takes 0ms
-        levelRef.objects.forEach(lobj => {
-            placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
-        });
+        const objLen = levelRef.objects.length; // Use cached length for performance
+        for (let i = 0; i < objLen; i++) {
+            placeLevelObject(levelRef.objects[i], levelRef, screenPageData, romBuffer);
+        }
         console.log(`reapplyPagesObjects completed in ${performance.now() - reapplyPagesPerf} ms`);
     }
 

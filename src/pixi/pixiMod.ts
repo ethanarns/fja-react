@@ -31,9 +31,10 @@ export function placeLevelObject(
     romBuffer: Uint8Array
 ): void {
     const instructions = getDrawInstructionsForObject(lo, level, romBuffer);
-    instructions.forEach(i => {
-        executeInstruction(i, lo, screenPages);
-    });
+    const insLen = instructions.length; // cache for speed
+    for (let i = 0; i < insLen; i++) {
+        executeInstruction(instructions[i], lo, screenPages);
+    }
 }
 
 function executeInstruction(instruction: DrawInstruction, lo: LevelObject, screenPages: ScreenPageData[]): void {
@@ -49,16 +50,19 @@ function executeInstruction(instruction: DrawInstruction, lo: LevelObject, scree
     const tileScaleX = lo.xPos + instruction.offsetX;
     const tileScaleY = lo.yPos + instruction.offsetY;
     const screenPageId = ScreenPageData.getScreenPageIdFromTileCoords(tileScaleX,tileScaleY);
-    const screenPageList = screenPages.filter(sx => sx.screenPageId === screenPageId);
-    if (screenPageList.length !== 1) {
-        console.error("Unusual positions?",lo, instruction, screenPageId);
-        return;
+    // Switched to loop for less searches and earlier finishes
+    const screensLength = screenPages.length;
+    for (let i = 0; i < screensLength; i++) {
+        if (screenPages[i].screenPageId === screenPageId) {
+            screenPages[i].tileInstruction(
+                tileScaleX % 0x10,
+                tileScaleY % 0x10,
+                instruction
+            );
+            return;
+        }
     }
-    screenPageList[0].tileInstruction(
-        tileScaleX % 0x10,
-        tileScaleY % 0x10,
-        instruction
-    );
+    console.error("Screen page ID not found:", screenPageId);
 }
 
 export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBuffer: Uint8Array): DrawInstruction[] {

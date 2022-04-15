@@ -2,14 +2,15 @@ import { DisplayObject, Container } from "pixi.js";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX } from "../GLOBALS";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
+export const MAX_ZOOM_VALUE = 3;
 
 let global_zoom = 1;
 
 export function zoom(navObject: Container, dir: "in" | "out" | "reset"): void {
     if (dir === "in") {
         global_zoom *= 1.1;
-        if (global_zoom > 3) {
-            global_zoom = 3;
+        if (global_zoom > MAX_ZOOM_VALUE) {
+            global_zoom = MAX_ZOOM_VALUE;
         }
         navObject.scale.x = global_zoom;
         navObject.scale.y = global_zoom;
