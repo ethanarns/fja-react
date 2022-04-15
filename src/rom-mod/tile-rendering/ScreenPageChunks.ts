@@ -263,6 +263,29 @@ export default class ScreenPageData {
             } else {
                 console.error("Bad index in placeTile:",index);
             }
-        })
+        });
+    }
+
+    public getAllObjectIds(): string[] {
+        if (!this.hasChunkData) {
+            return [];
+        }
+        let ret: string[] = [];
+        const yLen = this.chunks.length;
+        const xLen = this.chunks[0].length;
+        for (let y = 0; y < yLen; y++) {
+            for (let x = 0; x < xLen; x++) {
+                const place = this.chunks[y][x];
+                if (place) {
+                    place.forEach(chunk => {
+                        const chunkId = chunk.objUuidFrom;
+                        if (!ret.includes(chunkId)) {
+                            ret.push(chunkId);
+                        }
+                    });
+                }
+            }
+        }
+        return ret;
     }
 }

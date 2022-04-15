@@ -44,7 +44,6 @@ function App() {
     },[]);
 
     const reapplyPagesObjects = () => {
-        const reapplyPagesPerf = performance.now();
         if (!romData) {
             console.error("romData not retrieved");
             return;
@@ -61,7 +60,6 @@ function App() {
         for (let i = 0; i < objLen; i++) {
             placeLevelObject(levelRef.objects[i], levelRef, screenPageData, romBuffer);
         }
-        console.log(`reapplyPagesObjects completed in ${performance.now() - reapplyPagesPerf} ms`);
     }
 
     const rerenderPages = () => {
