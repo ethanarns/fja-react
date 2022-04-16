@@ -74,8 +74,8 @@ function clampNav(navObject: DisplayObject): void {
         navObject.pivot.y = 0 + (CANVAS_HEIGHT / scaleVal / 2);
     }
 
-    if (newCoords.x + CANVAS_WIDTH / scaleVal > 0xff*16) {
-        navObject.pivot.x = 0xff*16 - (CANVAS_WIDTH / scaleVal / 2);
+    if (newCoords.x + CANVAS_WIDTH / scaleVal > (0xff*16 + 16)) {
+        navObject.pivot.x = (0xff*16 + 16) - (CANVAS_WIDTH / scaleVal / 2);
     }
     if (newCoords.y + CANVAS_HEIGHT / scaleVal > (0xff*16 / 2)) {
         navObject.pivot.y = (0xff*16 / 2) - (CANVAS_HEIGHT / scaleVal / 2);
