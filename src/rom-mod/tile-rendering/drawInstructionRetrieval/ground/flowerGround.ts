@@ -2,6 +2,7 @@ import { } from "../../../binaryUtils/binary-io";
 import { LayerOrder, LevelObject } from "../../../RomInterfaces";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 
+// 0xe4
 export function drawGardenGround(lo: LevelObject): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     const yLength = lo.dimY;

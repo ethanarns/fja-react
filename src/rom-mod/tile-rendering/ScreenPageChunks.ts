@@ -1,5 +1,5 @@
 import { CompositeTilemap } from "@pixi/tilemap";
-import { Application, Container, Graphics } from "pixi.js";
+import { Application, Container, Graphics, Text } from "pixi.js";
 import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
@@ -72,13 +72,6 @@ export default class ScreenPageData {
         this.globalPixelY = this.chunkY * 8;
 
         this.bg = new Graphics();
-        // Draw white square BG
-        // this.bg.beginFill(SCREEN_PAGE_BG_COLOR);
-        // this.bg.drawRect(0, 0,
-        //     ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX,
-        //     ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX
-        // );
-        // this.bg.endFill();
 
         // Draw bottom and right lines
         this.bg.lineStyle(2, SCREEN_PAGE_LINE_COLOR);
@@ -86,6 +79,16 @@ export default class ScreenPageData {
         this.bg.moveTo(0,lineDim);
         this.bg.lineTo(lineDim,lineDim);
         this.bg.lineTo(lineDim,0);
+
+        // Add ScreenPage ID
+        const spt = new Text("0x" + this.screenPageId.toString(16).padStart(2,"0"), {
+            fontSize: 16,
+            fill: ['#ffffff'],
+            align: "right"
+        });
+        spt.x = this.globalPixelX + (ScreenPageData.SCREEN_PAGE_TILE_DIMS * FULL_TILE_DIMS_PX) - 38;
+        spt.y = this.globalPixelY;
+        navContainer.addChild(spt);
 
         // Add to stage
         this.bg.x = this.globalPixelX;
@@ -286,6 +289,14 @@ export default class ScreenPageData {
                 }
             }
         }
+        return ret;
+    }
+
+    public static getSurroundingIdsFromId(pageId: number): number[] {
+        let ret: number[] = [
+            pageId - 0x10, // 1 above
+            pageId + 0x10 // 1 below
+        ];
         return ret;
     }
 }

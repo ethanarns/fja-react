@@ -43,7 +43,11 @@ function App() {
         setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
 
-    const reapplyPagesObjects = () => {
+    /**
+     * Wipes all screen page data, then places all objects from current level
+     * back onto them. Does not update rendering
+     */
+    const reapplyPagesObjects = (): void => {
         if (!romData) {
             console.error("romData not retrieved");
             return;
@@ -79,7 +83,6 @@ function App() {
             if (!levelRef) {
                 return;
             }
-            reapplyPagesObjects();
             screenPageData.forEach(sp => {
                 renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
             });
@@ -168,6 +171,7 @@ function App() {
             setScreenPageData(screenPages);
 
             const tempLoadedUint8Array = new Uint8Array(result);
+
             const levelRef = getLevelByOffsetId(loadedGameData.levels,curLevelId);
             if (!levelRef) {
                 return;
