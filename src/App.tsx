@@ -242,6 +242,9 @@ function App() {
     
     return (
         <div className="App">
+            <section id="infoPanel">
+                Object Info
+            </section>
             <div id={DOM_CANVAS_ID}>
                 <div style={{
                     position: "absolute",
