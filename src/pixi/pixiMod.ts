@@ -4,7 +4,7 @@
  * combining them
  */
 
-import { Application, RenderTexture, Rectangle } from "pixi.js";
+import { Application, RenderTexture, Rectangle, Container } from "pixi.js";
 import { } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
@@ -14,7 +14,7 @@ import { LayerOrder, Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mo
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
 import ScreenPageData, { ChunkEffect } from "../rom-mod/tile-rendering/ScreenPageChunks";
-import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-generation";
+import { getGraphicFromChunkCode, INVERT_CACHE } from "../rom-mod/tile-rendering/texture-generation";
 
 /**
  * Places chunk render codes for a LevelObject onto the Screen Pages. Note that
@@ -166,16 +166,28 @@ interface TempRenderOrderData {
                     } else {
                         // Generate new ones
                         const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
-                        const graphicI = getGraphicFromChunkCode(chunkCode,curLevel, {
-                            invert: true
-                        });
                         renderTexture = pixiApp.renderer.generateTexture(graphic, {
-                            // Multiply width by 2 to give a second blank section to dip into when animating
-                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*2,TILE_QUADRANT_DIMS_PX)
+                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
                         });
                         availableTextures[chunkCode] = renderTexture;
                         // Don't leave it lying around
                         graphic.destroy();
+                    }
+                    
+                    // Special effects
+                    if (chunkTileData.effect === "inverted") {
+                        if (INVERT_CACHE[chunkCode]) {
+                            renderTexture = INVERT_CACHE[chunkCode];
+                        } else {
+                            const graphicI = getGraphicFromChunkCode(chunkCode,curLevel, {
+                                invert: true
+                            });
+                            renderTexture = pixiApp.renderer.generateTexture(graphicI, {
+                                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                            });
+                            graphicI.destroy();
+                            INVERT_CACHE[chunkCode] = renderTexture;
+                        }
                     }
 
                     toRender.push({
@@ -203,14 +215,11 @@ interface TempRenderOrderData {
         }
         return 0;
     });
-    // How long does this take?
+    // Render
     toRender.forEach(x => {
         sp.tilemap.tile(x.rt,
             x.localPixelX,
             x.localPixelY
         );
-        if (x.effect === "highlighted") {
-            sp.tilemap.tileAnimX(16,2);
-        }
     });
 }

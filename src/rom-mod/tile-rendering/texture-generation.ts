@@ -9,6 +9,8 @@ import { Graphics, RenderTexture, Application, Text, TextStyle, Rectangle } from
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
 import { FULL_TILE_DIMS_PX, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 
+export let INVERT_CACHE: Record<string,RenderTexture> = {};
+
 /**
  * Goes through all known chunk codes and returns the unique, valid ones
  * @returns A list of every known Chunk code

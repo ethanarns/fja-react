@@ -69,27 +69,23 @@ function App() {
 
     const rerenderPages = () => {
         const rerenderPerf = performance.now();
-        setLoading(true);
-        // Allow popup time to render
-        window.setTimeout(() => {
-            if (!pixiApp) {
-                console.error("PixiJS App not started");
-                return;
-            }
-            if (!romData) {
-                console.error("romData not retrieved");
-                return;
-            }
-            const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
-            if (!levelRef) {
-                return;
-            }
-            screenPageData.forEach(sp => {
-                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
-            });
-            setLoading(false);
-            console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
-        },1);
+        if (!pixiApp) {
+            console.error("PixiJS App not started");
+            return;
+        }
+        if (!romData) {
+            console.error("romData not retrieved");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            return;
+        }
+        screenPageData.forEach(sp => {
+            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+        });
+        setLoading(false);
+        console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
 
     const rerenderSurroundingPages = (pageId: number) => {
@@ -167,8 +163,18 @@ function App() {
                 })
             });
             console.log("clicked objects:", foundObjects);
-            sp.setEffectByObjUuid(foundObjects[0].uuid, "highlighted");
-            rerenderSurroundingPages(sp.screenPageId);
+            let selectedObject: LevelObject = foundObjects[0];
+            if (foundObjects.length > 1) {
+                let highestLayer = -9999999999;
+                foundObjects.forEach(fo => {
+                    if (fo.zIndex > highestLayer) {
+                        highestLayer = fo.zIndex;
+                    }
+                });
+                selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
+            }
+            ScreenPageData.selectObjectIdEffects(selectedObject.uuid, screenPageData);
+            rerenderPages();
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
         }

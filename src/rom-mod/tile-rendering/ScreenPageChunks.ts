@@ -4,7 +4,7 @@ import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, T
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
-export type ChunkEffect = "normal" | "highlighted";
+export type ChunkEffect = "normal" | "inverted";
 
 export interface ScreenPageTileChunk {
     objUuidFrom: string;
@@ -320,7 +320,6 @@ export default class ScreenPageData {
         if (!this.hasChunkData) {
             return;
         }
-        let ret: string[] = [];
         const yLen = this.chunks.length;
         const xLen = this.chunks[0].length;
         for (let y = 0; y < yLen; y++) {
@@ -335,5 +334,34 @@ export default class ScreenPageData {
                 }
             }
         }
+    }
+
+    public removeAllEffectsByEffect(effect: ChunkEffect): void {
+        if (!this.hasChunkData) {
+            return;
+        }
+        const yLen = this.chunks.length;
+        const xLen = this.chunks[0].length;
+        for (let y = 0; y < yLen; y++) {
+            for (let x = 0; x < xLen; x++) {
+                const place = this.chunks[y][x];
+                if (place) {
+                    place.forEach(chunk => {
+                        if (chunk.effect === effect) {
+                            chunk.effect = "normal";
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    public static selectObjectIdEffects(uuid: string, screenPageData: ScreenPageData[]): void {
+        screenPageData.forEach(sp1 => {
+            sp1.removeAllEffectsByEffect("inverted");
+        });
+        screenPageData.forEach(sp2 => {
+            sp2.setEffectByObjUuid(uuid,"inverted");
+        });
     }
 }
