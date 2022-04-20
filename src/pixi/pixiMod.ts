@@ -166,6 +166,9 @@ interface TempRenderOrderData {
                     } else {
                         // Generate new ones
                         const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                        const graphicI = getGraphicFromChunkCode(chunkCode,curLevel, {
+                            invert: true
+                        });
                         renderTexture = pixiApp.renderer.generateTexture(graphic, {
                             // Multiply width by 2 to give a second blank section to dip into when animating
                             region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*2,TILE_QUADRANT_DIMS_PX)

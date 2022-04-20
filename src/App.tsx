@@ -6,7 +6,7 @@
  */
 
 import './App.css';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';

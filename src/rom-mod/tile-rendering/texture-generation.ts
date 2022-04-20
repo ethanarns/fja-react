@@ -7,7 +7,7 @@
 import { LayerOrder, Level } from "../RomInterfaces";
 import { Graphics, RenderTexture, Application, Text, TextStyle, Rectangle } from "pixi.js";
 import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } from "./tile-construction-tile-keys";
-import { TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { FULL_TILE_DIMS_PX, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 
 /**
  * Goes through all known chunk codes and returns the unique, valid ones
@@ -53,16 +53,20 @@ function getChunkFromNumber(tileAttr: number): TileChunkPreRenderData {
     return result;
 }
 
-export function getGraphicFromChunkCode(code: string, level: Level): Graphics {
+export interface ChunkRenderOptions {
+    invert: boolean;
+}
+
+export function getGraphicFromChunkCode(code: string, level: Level, opts?: ChunkRenderOptions): Graphics {
     const chunkNum = parseInt(code, 16);
     if (code.length !== 4 || isNaN(chunkNum)) {
         console.error("Bad code passed to addTextureFromChunk:", code);
         return new Graphics();
     }
-    return getGraphicFromChunkData(getChunkFromNumber(chunkNum),level);
+    return getGraphicFromChunkData(getChunkFromNumber(chunkNum),level,opts);
 }
 
-export function getGraphicFromChunkData(chunkPreRenderData: TileChunkPreRenderData, level: Level): Graphics {
+export function getGraphicFromChunkData(chunkPreRenderData: TileChunkPreRenderData, level: Level, opts?: ChunkRenderOptions): Graphics {
     const pixiGraphic = new Graphics();
     if (!level.palettes) {
         console.error("Level does not have valid palettes:",level);
@@ -76,8 +80,11 @@ export function getGraphicFromChunkData(chunkPreRenderData: TileChunkPreRenderDa
             const pixelValue = spritePixels[pixelValueIndex];
             pixelValueIndex++;
             if (pixelValue !== 0) {
-                const color = palette[pixelValue];
-                pixiGraphic.beginFill(convertRgbToHex(color));
+                let color = convertRgbToHex(palette[pixelValue]);
+                if (opts && opts.invert) {
+                    color = 0xffffff - color;
+                }
+                pixiGraphic.beginFill(color);
                 let xPos = chunkPreRenderData.flipH ? (8-x-1) : x;
                 let yPos = chunkPreRenderData.flipV ? (8-y-1) : y;
                 let rectX = xPos;
@@ -156,11 +163,11 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         pixiText.zIndex = LayerOrder.SPRITES;
         const key = "S" + text;
         if (key.length > 4) {
-            console.error("Key too long:",key);
+            console.error("Key too long:", key);
         } else {
             ret[key] = pixiApp.renderer.generateTexture(pixiText, {
                 // Multiply width by 2 to give a blank secondary area
-                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*4,TILE_QUADRANT_DIMS_PX*2)
+                region: new Rectangle(0,0,FULL_TILE_DIMS_PX*2,FULL_TILE_DIMS_PX)
             })
         }
         pixiText.destroy();
