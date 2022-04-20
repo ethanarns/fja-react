@@ -13,9 +13,9 @@ import generatePixiApp from './pixi/getPixiApp';
 import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { } from "@pixi/tilemap";
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
-import { RomData } from './rom-mod/RomInterfaces';
+import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { getTranslatedCoords, global_zoom, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 import { getLevelByOffsetId } from './rom-mod/RomParser';
@@ -137,8 +137,9 @@ function App() {
         }
         const dims = e.data.global;
         const nav = pixiApp.stage.getChildByName(NAV_CONTAINER);
-        let trueXpx = dims.x + nav.pivot.x - (CANVAS_WIDTH / 2);
-        let trueYpx = dims.y + nav.pivot.y - (CANVAS_HEIGHT / 2);
+        const navCoords = getTranslatedCoords(nav);
+        let trueXpx = dims.x / global_zoom + navCoords.x;
+        let trueYpx = dims.y / global_zoom + navCoords.y;
         const tileX = Math.floor(trueXpx / FULL_TILE_DIMS_PX);
         const tileY = Math.floor(trueYpx / FULL_TILE_DIMS_PX);
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
@@ -154,7 +155,17 @@ function App() {
             if (!found) {
                 return;
             }
-            rerenderSurroundingPages(sp.screenPageId);
+            let foundObjects: LevelObject[] = [];
+            found.forEach(ch => {
+                const chObs = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
+                chObs.forEach(chob => {
+                    if (!foundObjects.includes(chob)) {
+                        foundObjects.push(chob);
+                    }
+                })
+            });
+            console.log(foundObjects);
+            // rerenderSurroundingPages(sp.screenPageId);
             // found.forEach(ch => {
             //     const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
             //     objects[0].xPos++;

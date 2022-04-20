@@ -4,7 +4,7 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX } from "../GLOBALS";
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
 export const MAX_ZOOM_VALUE = 3;
 
-let global_zoom = 1;
+export let global_zoom = 1;
 
 export function zoom(navObject: Container, dir: "in" | "out" | "reset"): void {
     if (dir === "in") {
@@ -51,7 +51,7 @@ export function pan(navObject: Container, dir: "up" | "down" | "left" | "right")
     clampNav(navObject);
 }
 
-function getTranslatedCoords(navObject: DisplayObject): {x: number, y: number} {
+export function getTranslatedCoords(navObject: DisplayObject): {x: number, y: number} {
     let ret = {
         x: -99999,
         y: -99999
