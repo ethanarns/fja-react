@@ -30,11 +30,14 @@ export function placeLevelObject(
     screenPages: ScreenPageData[],
     romBuffer: Uint8Array
 ): void {
+    const perf = performance.now();
     const instructions = getDrawInstructionsForObject(lo, level, romBuffer);
     const insLen = instructions.length; // cache for speed
     for (let i = 0; i < insLen; i++) {
         executeInstruction(instructions[i], lo, screenPages);
     }
+    const perfRes = performance.now() - perf;
+    if (perfRes > 0.5) console.log(`Object 0x${lo.objectId.toString(16)} took ${perfRes} ms`);
 }
 
 function executeInstruction(instruction: DrawInstruction, lo: LevelObject, screenPages: ScreenPageData[]): void {
@@ -147,7 +150,7 @@ interface TempRenderOrderData {
     if (!sp.hasChunkData) {
         return;
     }
-    //const perf = performance.now();
+    const perf = performance.now();
     let toRender: TempRenderOrderData[] = [];
     for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
         for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
@@ -182,6 +185,7 @@ interface TempRenderOrderData {
             }
         }
     }
+    console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
     setAvailableTextures(availableTextures);
     // Sort by layer
     toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
@@ -200,5 +204,4 @@ interface TempRenderOrderData {
             x.localPixelY
         );
     });
-    //console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
 }

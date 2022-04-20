@@ -293,10 +293,22 @@ export default class ScreenPageData {
     }
 
     public static getSurroundingIdsFromId(pageId: number): number[] {
-        let ret: number[] = [
-            pageId - 0x10, // 1 above
-            pageId + 0x10 // 1 below
-        ];
+        let ret: number[] = [];
+        // Are we not on the top row?
+        if (pageId > 0x0f) {
+            ret.push(pageId - 0x10);
+        }
+        if (pageId < 0x70) {
+            ret.push(pageId + 0x10);
+        }
+        // Not leftmost?
+        if (pageId % 0x10 !== 0) {
+            ret.push(pageId - 1);
+        }
+        // Not rightmost?
+        if ((pageId + 1) % 0x10 !== 0) {
+            ret.push(pageId + 1);
+        }
         return ret;
     }
 }

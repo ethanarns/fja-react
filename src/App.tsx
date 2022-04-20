@@ -91,6 +91,30 @@ function App() {
         },1);
     };
 
+    const rerenderSurroundingPages = (pageId: number) => {
+        //const rerenderPerf = performance.now();
+        if (!pixiApp) {
+            console.error("PixiJS App not started");
+            return;
+        }
+        //pixiApp.stop();
+        if (!romData) {
+            console.error("romData not retrieved");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            return;
+        }
+        const pageIds = ScreenPageData.getSurroundingIdsFromId(pageId);
+        pageIds.forEach(pageId => {
+            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,screenPageData[pageId]);
+        });
+        //const res = performance.now() - rerenderPerf;
+        // console.log(`rerenderSurroundingPages completed in ${res} ms`);
+        // pixiApp.start();
+    }
+
     /**
      * Hack to fix annoying issue where this doesn't have access to member data normally
      */
@@ -130,12 +154,14 @@ function App() {
             if (!found) {
                 return;
             }
-            found.forEach(ch => {
-                const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
-                objects[0].xPos++;
-                reapplyPagesObjects();
-                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
-            });
+            rerenderSurroundingPages(sp.screenPageId);
+            // found.forEach(ch => {
+            //     const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
+            //     objects[0].xPos++;
+            //     reapplyPagesObjects();
+            //     renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            //     //renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            // });
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
         }
