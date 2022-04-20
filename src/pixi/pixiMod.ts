@@ -4,7 +4,7 @@
  * combining them
  */
 
-import { Application, RenderTexture, Rectangle, Container } from "pixi.js";
+import { Application, RenderTexture, Rectangle } from "pixi.js";
 import { } from "@pixi/tilemap";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";

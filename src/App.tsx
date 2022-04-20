@@ -29,6 +29,7 @@ function App() {
     const [romData, setRomData] = useState<RomData>();
     const [curLevelId, setCurLevelId] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
 
     const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
 
@@ -43,29 +44,6 @@ function App() {
         }
         setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
-
-    /**
-     * Wipes all screen page data, then places all objects from current level
-     * back onto them. Does not update rendering
-     */
-    const reapplyPagesObjects = (): void => {
-        if (!romData) {
-            console.error("romData not retrieved");
-            return;
-        }
-        screenPageData.forEach(sp => {
-            sp.wipeChunks();
-        });
-        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
-        if (!levelRef) {
-            return;
-        }
-        // Performance wise, the above takes 0ms
-        const objLen = levelRef.objects.length; // Use cached length for performance
-        for (let i = 0; i < objLen; i++) {
-            placeLevelObject(levelRef.objects[i], levelRef, screenPageData, romBuffer);
-        }
-    }
 
     const rerenderPages = () => {
         const rerenderPerf = performance.now();
@@ -87,31 +65,6 @@ function App() {
         setLoading(false);
         console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
-
-    const rerenderSurroundingPages = (pageId: number) => {
-        //const rerenderPerf = performance.now();
-        if (!pixiApp) {
-            console.error("PixiJS App not started");
-            return;
-        }
-        //pixiApp.stop();
-        if (!romData) {
-            console.error("romData not retrieved");
-            return;
-        }
-        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
-        if (!levelRef) {
-            return;
-        }
-        const pageIds = ScreenPageData.getSurroundingIdsFromId(pageId);
-        pageIds.push(pageId); // Also do page it is currently on
-        pageIds.forEach(pageId => {
-            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,screenPageData[pageId]);
-        });
-        //const res = performance.now() - rerenderPerf;
-        // console.log(`rerenderSurroundingPages completed in ${res} ms`);
-        // pixiApp.start();
-    }
 
     /**
      * Hack to fix annoying issue where this doesn't have access to member data normally
@@ -174,6 +127,7 @@ function App() {
                 selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
             }
             ScreenPageData.selectObjectIdEffects(selectedObject.uuid, screenPageData);
+            setCurSelectedObject(selectedObject);
             rerenderPages();
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
@@ -264,7 +218,7 @@ function App() {
                         pan(navContainer,"left");
                         break;
                     case "]":
-                    case "=": // Is there + is, so they don't need to press shift
+                    case "=": // Is where + is, so they don't need to press shift
                     case "+":
                         zoom(navContainer,"in");
                         break;
