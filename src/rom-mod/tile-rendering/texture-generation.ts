@@ -137,7 +137,8 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         "RCTR": RenderTexture.from("cached/rc_topRight.png") as RenderTexture,
 
         "UNDL": pixiApp.renderer.generateTexture(underlineGraphics, {
-            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+            // Multiply width by 2 to give a blank secondary area
+            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*2,TILE_QUADRANT_DIMS_PX)
         })
     };
     const style = new TextStyle({
@@ -157,7 +158,10 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         if (key.length > 4) {
             console.error("Key too long:",key);
         } else {
-            ret[key] = pixiApp.renderer.generateTexture(pixiText)
+            ret[key] = pixiApp.renderer.generateTexture(pixiText, {
+                // Multiply width by 2 to give a blank secondary area
+                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*4,TILE_QUADRANT_DIMS_PX*2)
+            })
         }
         pixiText.destroy();
     }

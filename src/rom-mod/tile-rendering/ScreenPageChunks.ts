@@ -1,13 +1,17 @@
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Application, Container, Graphics, Text } from "pixi.js";
+import { GetEffectiveTypeRootsHost } from "typescript";
 import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
+
+export type ChunkEffect = "normal" | "highlighted";
 
 export interface ScreenPageTileChunk {
     objUuidFrom: string;
     chunkCode: string;
     layer: LayerOrder;
+    effect: ChunkEffect;
 }
 
 export interface PixelCoordinates {
@@ -241,7 +245,8 @@ export default class ScreenPageData {
             const newChunk: ScreenPageTileChunk = {
                 objUuidFrom: instruction.uniqueLevelObjectId,
                 chunkCode: code,
-                layer: instruction.layer
+                layer: instruction.layer,
+                effect: "normal"
             };
             if (index === 0) {
                 this.placeTileChunkData(
@@ -310,5 +315,26 @@ export default class ScreenPageData {
             ret.push(pageId + 1);
         }
         return ret;
+    }
+
+    public setEffectByObjUuid(objUuid: string, effect: ChunkEffect): void {
+        if (!this.hasChunkData) {
+            return;
+        }
+        let ret: string[] = [];
+        const yLen = this.chunks.length;
+        const xLen = this.chunks[0].length;
+        for (let y = 0; y < yLen; y++) {
+            for (let x = 0; x < xLen; x++) {
+                const place = this.chunks[y][x];
+                if (place) {
+                    place.forEach(chunk => {
+                        if (chunk.objUuidFrom === objUuid) {
+                            chunk.effect = effect;
+                        }
+                    });
+                }
+            }
+        }
     }
 }

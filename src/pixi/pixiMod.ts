@@ -13,7 +13,7 @@ import { LayerOrder, Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mo
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
-import ScreenPageData from "../rom-mod/tile-rendering/ScreenPageChunks";
+import ScreenPageData, { ChunkEffect } from "../rom-mod/tile-rendering/ScreenPageChunks";
 import { getGraphicFromChunkCode } from "../rom-mod/tile-rendering/texture-generation";
 
 /**
@@ -118,6 +118,7 @@ interface TempRenderOrderData {
     uuid: string;
     layer: LayerOrder;
     chunkCode: string;
+    effect: ChunkEffect;
 }
 
 /**
@@ -166,7 +167,8 @@ interface TempRenderOrderData {
                         // Generate new ones
                         const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
                         renderTexture = pixiApp.renderer.generateTexture(graphic, {
-                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                            // Multiply width by 2 to give a second blank section to dip into when animating
+                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*2,TILE_QUADRANT_DIMS_PX)
                         });
                         availableTextures[chunkCode] = renderTexture;
                         // Don't leave it lying around
@@ -179,7 +181,8 @@ interface TempRenderOrderData {
                         localPixelY: innerChunkY * 8,
                         uuid: chunkTileData.objUuidFrom,
                         layer: chunkTileData.layer,
-                        chunkCode: chunkCode
+                        chunkCode: chunkCode,
+                        effect: chunkTileData.effect
                     });
                 });
             }
@@ -197,11 +200,14 @@ interface TempRenderOrderData {
         }
         return 0;
     });
-    // Actually place renders (takes like 345 ms)
+    // How long does this take?
     toRender.forEach(x => {
         sp.tilemap.tile(x.rt,
             x.localPixelX,
             x.localPixelY
         );
+        if (x.effect === "highlighted") {
+            sp.tilemap.tileAnimX(16,2);
+        }
     });
 }

@@ -19,6 +19,7 @@ import { getTranslatedCoords, global_zoom, pan, zeroNavObject, zoom } from "./pi
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 import { getLevelByOffsetId } from './rom-mod/RomParser';
+import { tick } from './pixi/pixiTick';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -107,6 +108,7 @@ function App() {
             return;
         }
         const pageIds = ScreenPageData.getSurroundingIdsFromId(pageId);
+        pageIds.push(pageId); // Also do page it is currently on
         pageIds.forEach(pageId => {
             renderScreen(levelRef,pixiApp,textureCache,setTextureCache,screenPageData[pageId]);
         });
@@ -164,15 +166,9 @@ function App() {
                     }
                 })
             });
-            console.log(foundObjects);
-            // rerenderSurroundingPages(sp.screenPageId);
-            // found.forEach(ch => {
-            //     const objects = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
-            //     objects[0].xPos++;
-            //     reapplyPagesObjects();
-            //     renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
-            //     //renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
-            // });
+            console.log("clicked objects:", foundObjects);
+            sp.setEffectByObjUuid(foundObjects[0].uuid, "highlighted");
+            rerenderSurroundingPages(sp.screenPageId);
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
         }
@@ -220,6 +216,9 @@ function App() {
             // Can't do local rerender, parent objects not yet set
             screenPages.forEach(sp => {
                 renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            });
+            pixiApp.ticker.add(delta => {
+                tick(pixiApp,delta);
             });
 
             // Add interactive overlay
