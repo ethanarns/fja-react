@@ -20,6 +20,7 @@ import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
+import LeftPanel from './components/LeftPanel';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -31,7 +32,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
 
-    const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
+    const { loadRomFromArrayBuffer } = useContext(RomContext);
 
     // Basically on load
     useEffect(() => {
@@ -242,9 +243,7 @@ function App() {
     
     return (
         <div className="App">
-            <section id="infoPanel">
-                Object Info
-            </section>
+            <LeftPanel selectedLevelObject={curSelectedObject}/>
             <div id={DOM_CANVAS_ID}>
                 <div style={{
                     position: "absolute",
