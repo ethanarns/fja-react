@@ -10,6 +10,7 @@ import { RenderedTileDataName, RENDERED_TILE_DEFAULTS, TileChunkPreRenderData } 
 import { FULL_TILE_DIMS_PX, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
 
 export let INVERT_CACHE: Record<string,RenderTexture> = {};
+export let BUILTIN_CHUNK_CODES: string[] = [];
 
 /**
  * Goes through all known chunk codes and returns the unique, valid ones
@@ -150,6 +151,7 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
             region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX*2,TILE_QUADRANT_DIMS_PX)
         })
     };
+    BUILTIN_CHUNK_CODES = Object.keys(ret);
     const style = new TextStyle({
         fontSize: 9,
         stroke: '#FFFFFF',

@@ -14,7 +14,7 @@ import { LayerOrder, Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mo
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
 import ScreenPageData, { ChunkEffect } from "../rom-mod/tile-rendering/ScreenPageChunks";
-import { getGraphicFromChunkCode, INVERT_CACHE } from "../rom-mod/tile-rendering/texture-generation";
+import { BUILTIN_CHUNK_CODES, getGraphicFromChunkCode, INVERT_CACHE } from "../rom-mod/tile-rendering/texture-generation";
 
 /**
  * Places chunk render codes for a LevelObject onto the Screen Pages. Note that
@@ -178,6 +178,10 @@ interface TempRenderOrderData {
                     if (chunkTileData.effect === "inverted") {
                         if (INVERT_CACHE[chunkCode]) {
                             renderTexture = INVERT_CACHE[chunkCode];
+                        } else if (BUILTIN_CHUNK_CODES.includes(chunkCode)) {
+                            // Built in
+                        } else if (chunkCode.toUpperCase().startsWith("S")){
+                            // Sprite
                         } else {
                             const graphicI = getGraphicFromChunkCode(chunkCode,curLevel, {
                                 invert: true
