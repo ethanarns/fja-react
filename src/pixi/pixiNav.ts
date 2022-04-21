@@ -104,24 +104,46 @@ export function zeroNavObject(navObject: DisplayObject) {
 let isDragging = false;
 let dragStartX = -1;
 let dragStartY = -1;
+let objectDragStartX = -1;
+let objectDragStartY = -1;
 
-export function handlePointerMove(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
-    if (isDragging) {
+/**
+ * Deals
+ * @param pixiApp Application
+ * @param dims object with x and y coords that are local
+ * @param curSelectedObject LevelObject, may be null
+ * @returns true if object was moved, false if not
+ */
+export function handleDragMove(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null): boolean {
+    if (isDragging && curSelectedObject !== null) {
         const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
         const offsetX = globalDims.x - dragStartX;
         const offsetY = globalDims.y - dragStartY;
         const tileOffsetX = Math.floor(offsetX / FULL_TILE_DIMS_PX);
         const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
-        console.log(curSelectedObject, tileOffsetX, tileOffsetY);
+        curSelectedObject.xPos = tileOffsetX + objectDragStartX;
+        curSelectedObject.yPos = tileOffsetY + objectDragStartY;
+        console.log(
+            curSelectedObject.objectId.toString(16),
+            curSelectedObject.xPos.toString(16),
+            curSelectedObject.yPos.toString(16)
+        );
+        return true;
     }
+    return false;
 }
 
-export function handlePointerDown(pixiApp: Application, dims: any) {
+export function handlePointerDown(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
+    if (curSelectedObject === null) {
+        return;
+    }
     isDragging = true;
 
     const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
     dragStartX = globalDims.x;
     dragStartY = globalDims.y;
+    objectDragStartX = curSelectedObject.xPos + 0;
+    objectDragStartY = curSelectedObject.yPos + 0;
 }
 
 export function handlePointerUp(pixiApp: Application) {

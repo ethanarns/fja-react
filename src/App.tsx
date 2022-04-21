@@ -14,7 +14,7 @@ import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { handlePointerDown, handlePointerMove, handlePointerUp, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { handlePointerDown, handleDragMove, handlePointerUp, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
@@ -31,7 +31,7 @@ function App() {
     const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
     const [interactiveSprite, setInteractiveSprite] = useState<Sprite | undefined>(undefined);
 
-    const { loadRomFromArrayBuffer } = useContext(RomContext);
+    const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
 
     // OnInit
     useEffect(() => {
@@ -53,11 +53,20 @@ function App() {
         if (!pixiApp) {
             return;
         }
+        if (!romData) {
+            console.error("No romData found");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            console.error("No levelRef found");
+            return;
+        }
 
         interactiveSprite.off("pointerdown");
         interactiveSprite.on("pointerdown", (event: any) => {
             (window as any).spriteClicked(event);
-            handlePointerDown(pixiApp, event.data.global);
+            handlePointerDown(pixiApp, event.data.global, curSelectedObject);
         });
 
         interactiveSprite.off("pointerup");
@@ -72,9 +81,20 @@ function App() {
 
         interactiveSprite.off("pointermove");
         interactiveSprite.on("pointermove", (e: any) => {
-            handlePointerMove(pixiApp, e.data.global, curSelectedObject);
+            const didMove = handleDragMove(pixiApp, e.data.global, curSelectedObject);
+            if (didMove) {
+                // Wipe all chunks
+                screenPageData.forEach(sp => {
+                    sp.wipeChunks();
+                });
+                levelRef.objects.forEach(lobj => {
+                    placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
+                });
+                rerenderPages();
+            }
         });
-    },[curSelectedObject,interactiveSprite,pixiApp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[curSelectedObject, curLevelId, romData, interactiveSprite]);
 
     /**
      * Rerenders every single ScreenPage
@@ -182,6 +202,34 @@ function App() {
         }
     };
 
+    /**
+     * Deletes, then replacing all LevelObjects as chunks. Does not handle any
+     * rendering/tilemap at all
+     */
+    const replaceAllChunks = () => {
+        console.log("replaceAllChunks");
+        if (!romData) {
+            console.error("No romData found");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            console.error("No levelRef found");
+            return;
+        }
+        screenPageData.forEach(sp => {
+            sp.wipeChunks();
+        });
+        levelRef.objects.forEach(lobj => {
+            placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
+        });
+    }
+
+    /**
+     * This function runs when the GBA ROM file is loaded. It functions as a
+     * general loader for everything as well
+     * @param event FormEvent<HTMLInputElement>
+     */
     const fileOpened = (event: FormEvent<HTMLInputElement>) => {
         if (!pixiApp) {
             console.error("PIXI App not loaded when file opened");
@@ -298,6 +346,7 @@ function App() {
             </div>
             <section id="buttons">
                 <button onClick={rerenderPages} disabled={loading || !inputLoaded}>Re-render</button>
+                <button onClick={replaceAllChunks} disabled={loading || !inputLoaded}>Replace Objects</button>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened} disabled={loading}/> : null }
             </section>
         </div>
