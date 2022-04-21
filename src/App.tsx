@@ -105,7 +105,6 @@ function App() {
                 Math.floor(trueYpx / 8)
             );
             if (!found) {
-                console.log("Nothing clicked");
                 setCurSelectedObject(null);
                 // Remove all inverted effects
                 screenPageData.forEach(screenPageToWipeFX => {
@@ -132,6 +131,10 @@ function App() {
                     }
                 });
                 selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
+            }
+            if (curSelectedObject && curSelectedObject.uuid === selectedObject.uuid) {
+                // Nothing new was selected, don't do anything
+                return;
             }
             ScreenPageData.applyEffectToSingleObject(selectedObject.uuid, screenPageData, "inverted");
             setCurSelectedObject(selectedObject);
