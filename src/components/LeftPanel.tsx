@@ -49,16 +49,17 @@ export default function LeftPanel(props: LeftPanelProps) {
                         width: LEFT_PANEL_WIDTH - 50
                     }}/>
                     <li className="description">
-                        {curObjectData.textDescription ? curObjectData.textDescription : "Not documented"}
+                        {curObjectData.textDescription ? curObjectData.textDescription : ""}
+                        {" [0x" + curObjectData.objectId.toString(16) + "]"}
                     </li>
                     <hr style={{
                         margin: 5,
                         width: LEFT_PANEL_WIDTH - 50
                     }}/>
-                    <li>{"Dimensions: "}
-                        {props.selectedLevelObject.dimX ? props.selectedLevelObject.dimX + "x, " : ""}
-                        {props.selectedLevelObject.dimY ? props.selectedLevelObject.dimY + "y" : ""}
-                        {props.selectedLevelObject.dimZ ? props.selectedLevelObject.dimZ + "z" : ""}</li>
+                    <li>{"Raw Dimensions: "}
+                        {props.selectedLevelObject.dimX !== undefined ? "x" + props.selectedLevelObject.dimX + " " : ""}
+                        {props.selectedLevelObject.dimY !== undefined ? "y" + props.selectedLevelObject.dimY + " " : ""}
+                        {props.selectedLevelObject.dimZ !== undefined ? "z" + props.selectedLevelObject.dimZ + " " : ""}</li>
                 </ul>
             )}
         </div>
