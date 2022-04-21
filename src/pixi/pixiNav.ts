@@ -1,5 +1,5 @@
-import { DisplayObject, Container } from "pixi.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX } from "../GLOBALS";
+import { DisplayObject, Container, Application } from "pixi.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX, NAV_CONTAINER } from "../GLOBALS";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
 export const MAX_ZOOM_VALUE = 3;
@@ -62,6 +62,17 @@ export function getTranslatedCoords(navObject: DisplayObject): {x: number, y: nu
     ret.y = navObject.pivot.y - (CANVAS_HEIGHT / scaleVal / 2);
 
     return ret;
+}
+
+export function localDimsToGlobalX(pixiApp: Application, localPixelX: number, localPixelY: number): {x: number, y: number} {
+    const nav = pixiApp.stage.getChildByName(NAV_CONTAINER);
+    const navCoords = getTranslatedCoords(nav);
+    let trueXpx = localPixelX / global_zoom + navCoords.x;
+    let trueYpx = localPixelY / global_zoom + navCoords.y;
+    return {
+        x: trueXpx,
+        y: trueYpx
+    };
 }
 
 function clampNav(navObject: DisplayObject): void {

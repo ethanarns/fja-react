@@ -14,11 +14,15 @@ import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { getTranslatedCoords, global_zoom, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
+
+let isDragging = false;
+let dragStartX = -1;
+let dragStartY = -1;
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -86,10 +90,9 @@ function App() {
             return;
         }
         const dims = e.data.global;
-        const nav = pixiApp.stage.getChildByName(NAV_CONTAINER);
-        const navCoords = getTranslatedCoords(nav);
-        let trueXpx = dims.x / global_zoom + navCoords.x;
-        let trueYpx = dims.y / global_zoom + navCoords.y;
+        const globalPxDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+        let trueXpx = globalPxDims.x;
+        let trueYpx = globalPxDims.y;
         const tileX = Math.floor(trueXpx / FULL_TILE_DIMS_PX);
         const tileY = Math.floor(trueYpx / FULL_TILE_DIMS_PX);
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
@@ -200,9 +203,29 @@ function App() {
             interactiveSprite.on("pointerdown", (event: any) => {
                 // Fixes annoying issue where it doesn't have access to any data
                 (window as any).spriteClicked(event);
+                isDragging = true;
+
+                const dims = event.data.global;
+                const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+                dragStartX = globalDims.x;
+                dragStartY = globalDims.y;
             });
+            interactiveSprite.on("pointerup", (e: any) => {
+                isDragging = false;
+            });
+            interactiveSprite.on("pointerupoutside", () => {
+                isDragging = false;
+            })
             interactiveSprite.on("pointermove", (e: any) => {
-                (window as any).localCoords = e.data.global;
+                if (isDragging) {
+                    const dims = e.data.global;
+                    const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+                    const offsetX = globalDims.x - dragStartX;
+                    const offsetY = globalDims.y - dragStartY;
+                    const tileOffsetX = Math.floor(offsetX / FULL_TILE_DIMS_PX);
+                    const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
+                    console.log("offset",tileOffsetX,tileOffsetY);
+                }
             });
             navContainer.addChild(interactiveSprite);
             zeroNavObject(navContainer);
