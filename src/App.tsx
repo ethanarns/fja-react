@@ -14,15 +14,11 @@ import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { handlePointerDown, handlePointerMove, handlePointerUp, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
-
-let isDragging = false;
-let dragStartX = -1;
-let dragStartY = -1;
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -106,6 +102,10 @@ function App() {
                 Math.floor(trueYpx / 8)
             );
             if (!found) {
+                if (curSelectedObject === null) {
+                    // No need to rerender if nothing is selected, and nothing is selected
+                    return;
+                }
                 setCurSelectedObject(null);
                 // Remove all inverted effects
                 screenPageData.forEach(screenPageToWipeFX => {
@@ -200,32 +200,19 @@ function App() {
             interactiveSprite.y = 0;
             interactiveSprite.width = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
             interactiveSprite.height = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
-            interactiveSprite.on("pointerdown", (event: any) => {
-                // Fixes annoying issue where it doesn't have access to any data
-                (window as any).spriteClicked(event);
-                isDragging = true;
 
-                const dims = event.data.global;
-                const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
-                dragStartX = globalDims.x;
-                dragStartY = globalDims.y;
+            interactiveSprite.on("pointerdown", (event: any) => {
+                (window as any).spriteClicked(event);
+                handlePointerDown(pixiApp, event.data.global, curSelectedObject);
             });
             interactiveSprite.on("pointerup", (e: any) => {
-                isDragging = false;
+                handlePointerUp(pixiApp);
             });
             interactiveSprite.on("pointerupoutside", () => {
-                isDragging = false;
+                handlePointerUp(pixiApp);
             })
             interactiveSprite.on("pointermove", (e: any) => {
-                if (isDragging) {
-                    const dims = e.data.global;
-                    const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
-                    const offsetX = globalDims.x - dragStartX;
-                    const offsetY = globalDims.y - dragStartY;
-                    const tileOffsetX = Math.floor(offsetX / FULL_TILE_DIMS_PX);
-                    const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
-                    console.log("offset",tileOffsetX,tileOffsetY);
-                }
+                handlePointerMove(pixiApp, e.data.global, curSelectedObject);
             });
             navContainer.addChild(interactiveSprite);
             zeroNavObject(navContainer);

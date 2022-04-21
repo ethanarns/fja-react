@@ -1,5 +1,6 @@
 import { DisplayObject, Container, Application } from "pixi.js";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX, NAV_CONTAINER } from "../GLOBALS";
+import { LevelObject } from "../rom-mod/RomInterfaces";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
 export const MAX_ZOOM_VALUE = 3;
@@ -98,4 +99,31 @@ export function zeroNavObject(navObject: DisplayObject) {
     navObject.x = (CANVAS_WIDTH / 2);
     navObject.y = (CANVAS_HEIGHT / 2);
     navObject.pivot.set((CANVAS_WIDTH / 2),(CANVAS_HEIGHT / 2));
+}
+
+let isDragging = false;
+let dragStartX = -1;
+let dragStartY = -1;
+
+export function handlePointerMove(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
+    if (isDragging) {
+        const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+        const offsetX = globalDims.x - dragStartX;
+        const offsetY = globalDims.y - dragStartY;
+        const tileOffsetX = Math.floor(offsetX / FULL_TILE_DIMS_PX);
+        const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
+        console.log(curSelectedObject, tileOffsetX, tileOffsetY);
+    }
+}
+
+export function handlePointerDown(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
+    isDragging = true;
+
+    const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+    dragStartX = globalDims.x;
+    dragStartY = globalDims.y;
+}
+
+export function handlePointerUp(pixiApp: Application) {
+    isDragging = false;
 }
