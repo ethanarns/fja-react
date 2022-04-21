@@ -79,9 +79,10 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
             && (lo.objectStorage === "s4byte") === x.isExtended
             && lo.objectId === x.objectId;
     })
-    if (objectRecord.length === 1) {
-        return objectRecord[0].instructionFunction(lo,level,romBuffer);
-    } else if (objectRecord.length === 0) {
+    if (objectRecord.length <= 1) {
+        if (objectRecord.length === 1 && objectRecord[0].instructionFunction) {
+            return objectRecord[0].instructionFunction(lo,level,romBuffer);
+        }
         if (lo.objectType === "sprite") {
             const tk = "S" + lo.objectId.toString(16).padStart(3,"0");
             return [{

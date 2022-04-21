@@ -14,7 +14,7 @@ export interface ObjectRecord {
     objectType: LevelObjectType;
     isExtended: boolean;
     objectId: number;
-    instructionFunction: InstructionGenerator;
+    instructionFunction?: InstructionGenerator;
     prettyName?: string;
     textDescription?: string;
     iconTileCode?: string;
@@ -37,7 +37,6 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectType: "static",
         isExtended: false,
         objectId: 0x3c,
-        instructionFunction: () => [],
         prettyName: "Green Pipe Down Usable",
         textDescription: "This green pipe does not require an additional object to enable its transportation property. Its destination is affected by its quadrant position. You can flip it upside down by setting the Z dimension to a negative number."
     },{
