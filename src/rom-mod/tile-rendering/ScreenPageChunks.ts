@@ -356,12 +356,12 @@ export default class ScreenPageData {
         }
     }
 
-    public static selectObjectIdEffects(uuid: string, screenPageData: ScreenPageData[]): void {
+    public static applyEffectToSingleObject(uuid: string, screenPageData: ScreenPageData[], fx: ChunkEffect): void {
         screenPageData.forEach(sp1 => {
-            sp1.removeAllEffectsByEffect("inverted");
+            sp1.removeAllEffectsByEffect(fx);
         });
         screenPageData.forEach(sp2 => {
-            sp2.setEffectByObjUuid(uuid,"inverted");
+            sp2.setEffectByObjUuid(uuid,fx);
         });
     }
 }

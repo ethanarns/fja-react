@@ -105,6 +105,13 @@ function App() {
                 Math.floor(trueYpx / 8)
             );
             if (!found) {
+                console.log("Nothing clicked");
+                setCurSelectedObject(null);
+                // Remove all inverted effects
+                screenPageData.forEach(screenPageToWipeFX => {
+                    screenPageToWipeFX.removeAllEffectsByEffect("inverted");
+                });
+                rerenderPages();
                 return;
             }
             let foundObjects: LevelObject[] = [];
@@ -116,7 +123,6 @@ function App() {
                     }
                 })
             });
-            console.log("clicked objects:", foundObjects);
             let selectedObject: LevelObject = foundObjects[0];
             if (foundObjects.length > 1) {
                 let highestLayer = -9999999999;
@@ -127,7 +133,7 @@ function App() {
                 });
                 selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
             }
-            ScreenPageData.selectObjectIdEffects(selectedObject.uuid, screenPageData);
+            ScreenPageData.applyEffectToSingleObject(selectedObject.uuid, screenPageData, "inverted");
             setCurSelectedObject(selectedObject);
             rerenderPages();
         } else {
