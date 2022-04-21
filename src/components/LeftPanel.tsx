@@ -18,6 +18,7 @@ export default function LeftPanel(props: LeftPanelProps) {
     useEffect(() => {
         const lo = props.selectedLevelObject;
         if (lo === null) {
+            setCurObjectData(null);
             return;
         }
         const objectRecord = OBJECT_RECORDS.filter( x => {
@@ -30,7 +31,13 @@ export default function LeftPanel(props: LeftPanelProps) {
         } else if (objectRecord.length > 1) {
             console.error("DUPLICATE OBJECT RECORDS FOUND");
         } else {
-            setCurObjectData(null);
+            setCurObjectData({
+                objectType: lo.objectType,
+                isExtended: lo.objectStorage === "s4byte",
+                objectId: lo.objectId,
+                textDescription: "Not documented",
+                prettyName: "Not documented"
+            });
         }
     },[props.selectedLevelObject]);
 
