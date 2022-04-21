@@ -160,22 +160,23 @@ interface TempRenderOrderData {
                 curChunkTileDataArray.forEach(chunkTileData => {
                     const chunkCode = chunkTileData.chunkCode;
                     let renderTexture: RenderTexture | undefined = undefined;
-                    if (availableTextures[chunkCode]) {
-                        // Already available in texture cache
-                        renderTexture = availableTextures[chunkCode];
-                    } else {
-                        // Generate new ones
-                        const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
-                        renderTexture = pixiApp.renderer.generateTexture(graphic, {
-                            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
-                        });
-                        availableTextures[chunkCode] = renderTexture;
-                        // Don't leave it lying around
-                        graphic.destroy();
-                    }
-                    
-                    // Special effects
-                    if (chunkTileData.effect === "inverted") {
+                    // No effects, render normally //
+                    if (chunkTileData.effect === "normal") {
+                        if (availableTextures[chunkCode]) {
+                            // Already available in texture cache
+                            renderTexture = availableTextures[chunkCode];
+                        } else {
+                            // Generate new ones
+                            const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
+                            renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                            });
+                            availableTextures[chunkCode] = renderTexture;
+                            // Don't leave it lying around
+                            graphic.destroy();
+                        }
+                    // Inverted effect (usually selection), do special //
+                    } else if (chunkTileData.effect === "inverted") {
                         if (INVERT_CACHE[chunkCode]) {
                             renderTexture = INVERT_CACHE[chunkCode];
                         } else if (BUILTIN_CHUNK_CODES.includes(chunkCode)) {
@@ -194,15 +195,18 @@ interface TempRenderOrderData {
                         }
                     }
 
-                    toRender.push({
-                        rt: renderTexture,
-                        localPixelX: innerChunkX * 8,
-                        localPixelY: innerChunkY * 8,
-                        uuid: chunkTileData.objUuidFrom,
-                        layer: chunkTileData.layer,
-                        chunkCode: chunkCode,
-                        effect: chunkTileData.effect
-                    });
+                    // If its successful, pass it off to be rendered
+                    if (renderTexture !== undefined) {
+                        toRender.push({
+                            rt: renderTexture,
+                            localPixelX: innerChunkX * 8,
+                            localPixelY: innerChunkY * 8,
+                            uuid: chunkTileData.objUuidFrom,
+                            layer: chunkTileData.layer,
+                            chunkCode: chunkCode,
+                            effect: chunkTileData.effect
+                        });
+                    }
                 });
             }
         }
