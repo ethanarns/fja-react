@@ -121,6 +121,7 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
     blankWhiteGraphics.beginFill(0xffffff);
     blankWhiteGraphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
     blankWhiteGraphics.endFill();
+
     const invisibleGraphics = new Graphics();
 
     const underlineGraphics = new Graphics();
@@ -171,13 +172,13 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         } else {
             ret[key] = pixiApp.renderer.generateTexture(pixiText, {
                 // Multiply width by 2 to give a blank secondary area
-                region: new Rectangle(0,0,FULL_TILE_DIMS_PX*2,FULL_TILE_DIMS_PX)
-            })
+                region: new Rectangle(0,0,FULL_TILE_DIMS_PX,FULL_TILE_DIMS_PX)
+            });
         }
         pixiText.destroy();
     }
 
-    // Inverted
+    // Inverted underline
     const underlineGraphicsInv = new Graphics();
     underlineGraphicsInv.zIndex = LayerOrder.STANDARD_OBJECTS;
     underlineGraphicsInv.lineStyle(1, 0xff9966, 1);
@@ -191,5 +192,18 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
     });
     underlineGraphicsInv.destroy();
+
+    // Inverted blank white
+    const blankGreyGraphics = new Graphics();
+    blankGreyGraphics.zIndex = LayerOrder.STANDARD_OBJECTS;
+    blankGreyGraphics.beginFill(0x99ccff);
+    blankGreyGraphics.drawRect(0, 0, TILE_QUADRANT_DIMS_PX, TILE_QUADRANT_DIMS_PX);
+    blankGreyGraphics.endFill();
+    INVERT_CACHE["WHTE"] = pixiApp.renderer.generateTexture(blankGreyGraphics, {
+        // Multiply width by 2 to give a blank secondary area
+        region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+    });
+    blankGreyGraphics.destroy();
+
     return ret;
 }

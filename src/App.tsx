@@ -302,9 +302,6 @@ function App() {
 
             // Set up controls
             document.addEventListener("keydown", (ev: KeyboardEvent) => {
-                if (!pixiApp) {
-                    return;
-                }
                 switch (ev.key) {
                     case "ArrowDown":
                         pan(navContainer,"down");

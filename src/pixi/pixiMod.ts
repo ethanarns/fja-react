@@ -183,7 +183,8 @@ interface TempRenderOrderData {
                         } else if (BUILTIN_CHUNK_CODES.includes(chunkCode)) {
                             // Built in
                         } else if (chunkCode.toUpperCase().startsWith("S")){
-                            // Sprite
+                            // Sprite (all prebuilt)
+                            renderTexture = availableTextures[chunkCode];
                         } else {
                             const graphicI = getGraphicFromChunkCode(chunkCode,curLevel, {
                                 invert: true
