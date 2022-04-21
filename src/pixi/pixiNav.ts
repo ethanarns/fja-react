@@ -116,7 +116,7 @@ export function handlePointerMove(pixiApp: Application, dims: any, curSelectedOb
     }
 }
 
-export function handlePointerDown(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
+export function handlePointerDown(pixiApp: Application, dims: any) {
     isDragging = true;
 
     const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);

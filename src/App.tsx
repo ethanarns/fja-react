@@ -29,10 +29,11 @@ function App() {
     const [curLevelId, setCurLevelId] = useState(0);
     const [loading, setLoading] = useState(false);
     const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
+    const [interactiveSprite, setInteractiveSprite] = useState<Sprite | undefined>(undefined);
 
     const { loadRomFromArrayBuffer } = useContext(RomContext);
 
-    // Basically on load
+    // OnInit
     useEffect(() => {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
@@ -44,6 +45,42 @@ function App() {
         setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
 
+    // Update interactive sprite data
+    useEffect(() => {
+        if (!interactiveSprite) {
+            return;
+        }
+        if (!pixiApp) {
+            return;
+        }
+
+        interactiveSprite.off("pointerdown");
+        interactiveSprite.on("pointerdown", (event: any) => {
+            (window as any).spriteClicked(event);
+            handlePointerDown(pixiApp, event.data.global);
+        });
+
+        interactiveSprite.off("pointerup");
+        interactiveSprite.on("pointerup", (e: any) => {
+            handlePointerUp(pixiApp);
+        });
+
+        interactiveSprite.off("pointerupoutside");
+        interactiveSprite.on("pointerupoutside", () => {
+            handlePointerUp(pixiApp);
+        })
+
+        interactiveSprite.off("pointermove");
+        interactiveSprite.on("pointermove", (e: any) => {
+            handlePointerMove(pixiApp, e.data.global, curSelectedObject);
+        });
+    },[curSelectedObject,interactiveSprite,pixiApp]);
+
+    /**
+     * Rerenders every single ScreenPage
+     * 
+     * Does not reapply objects chunks
+     */
     const rerenderPages = () => {
         const rerenderPerf = performance.now();
         if (!pixiApp) {
@@ -201,20 +238,9 @@ function App() {
             interactiveSprite.width = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
             interactiveSprite.height = FULL_TILE_DIM_COUNT * FULL_TILE_DIMS_PX;
 
-            interactiveSprite.on("pointerdown", (event: any) => {
-                (window as any).spriteClicked(event);
-                handlePointerDown(pixiApp, event.data.global, curSelectedObject);
-            });
-            interactiveSprite.on("pointerup", (e: any) => {
-                handlePointerUp(pixiApp);
-            });
-            interactiveSprite.on("pointerupoutside", () => {
-                handlePointerUp(pixiApp);
-            })
-            interactiveSprite.on("pointermove", (e: any) => {
-                handlePointerMove(pixiApp, e.data.global, curSelectedObject);
-            });
+            setInteractiveSprite(interactiveSprite);
             navContainer.addChild(interactiveSprite);
+
             zeroNavObject(navContainer);
 
             // Set up controls
