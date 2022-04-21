@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CANVAS_HEIGHT } from "../GLOBALS";
-import { LevelObject } from "../rom-mod/RomInterfaces";
+import { getObjectTypePretty, LevelObject } from "../rom-mod/RomInterfaces";
 import { ObjectRecord, OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
 import "./LeftPanel.css";
@@ -50,7 +50,9 @@ export default function LeftPanel(props: LeftPanelProps) {
                     }}/>
                     <li className="description">
                         {curObjectData.textDescription ? curObjectData.textDescription : ""}
-                        {" [0x" + curObjectData.objectId.toString(16) + "]"}
+                        {` [0x${curObjectData.objectId.toString(16)} ${
+                            getObjectTypePretty(props.selectedLevelObject.objectStorage,props.selectedLevelObject.objectType)
+                        }]`}
                     </li>
                     <hr style={{
                         margin: 5,
@@ -59,7 +61,12 @@ export default function LeftPanel(props: LeftPanelProps) {
                     <li>{"Raw Dimensions: "}
                         {props.selectedLevelObject.dimX !== undefined ? "x" + props.selectedLevelObject.dimX + " " : ""}
                         {props.selectedLevelObject.dimY !== undefined ? "y" + props.selectedLevelObject.dimY + " " : ""}
-                        {props.selectedLevelObject.dimZ !== undefined ? "z" + props.selectedLevelObject.dimZ + " " : ""}</li>
+                        {props.selectedLevelObject.dimZ !== undefined ? "z" + props.selectedLevelObject.dimZ + " " : ""}
+                        {
+                            (props.selectedLevelObject.dimZ === undefined &&
+                            props.selectedLevelObject.dimY === undefined &&
+                            props.selectedLevelObject.dimZ === undefined) ? "N/A" : ""
+                        }</li>
                 </ul>
             )}
         </div>

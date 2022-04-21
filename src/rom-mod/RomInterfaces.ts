@@ -24,6 +24,20 @@ export type TilePixelData = number[];
 export type ObjectStorageType = "4byte" | "s4byte" | "5byte";
 export type LevelObjectType = "static" | "sprite";
 
+export function getObjectTypePretty(st: ObjectStorageType, lot: LevelObjectType): string {
+    if (lot === "sprite") {
+        return "Sprite";
+    } else {
+        if (st === "s4byte") {
+            return "Extended";
+        } else if (st === "4byte") {
+            return "Static 4byte";
+        } else {
+            return "Static 5byte";
+        }
+    }
+}
+
 /**
  * A list of 16 colors, bg and fg each have 16 of these
  */
