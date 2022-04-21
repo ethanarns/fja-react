@@ -81,8 +81,8 @@ function readLevelHeaders(romBuffer: Uint8Array, levelDataOffset: LevelDataOffse
         spriteSet: resultArray[7],
         spritePalette: resultArray[8],
         layerOrderingProperty: resultArray[9],
-        // index 10 is unknown
-        // index 11 is unknown
+        index10: resultArray[10],
+        index11: resultArray[11],
         foregroundPosition: resultArray[12],
         music: resultArray[13],
         middleRingNumber: resultArray[14]      

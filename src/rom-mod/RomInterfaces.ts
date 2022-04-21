@@ -242,6 +242,8 @@ export interface LevelHeaders {
     spriteSet: number;
     spritePalette: number;
     layerOrderingProperty: number;
+    index10: number;
+    index11: number;
     foregroundPosition: number;
     music: number;
     middleRingNumber: number;
