@@ -327,6 +327,10 @@ function App() {
                     case "0":
                         zoom(navContainer, "reset");
                         break;
+                    case "Delete":
+                    case "Backspace":
+                        console.log("Doing delete");
+                        break;
                     default:
                         break;
                 };
