@@ -121,7 +121,7 @@ function App() {
             renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
         });
         setLoading(false);
-        console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
+        console.debug(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
 
     const _reapplySelect = () => {
@@ -216,7 +216,7 @@ function App() {
      * rendering/tilemap at all
      */
     const replaceAllChunks = () => {
-        console.log("replaceAllChunks");
+        console.debug("replaceAllChunks");
         if (!romData) {
             console.error("No romData found");
             return;

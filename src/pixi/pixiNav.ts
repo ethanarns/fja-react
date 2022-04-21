@@ -124,7 +124,7 @@ export function handleDragMove(pixiApp: Application, dims: any, curSelectedObjec
         const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
         curSelectedObject.xPos = tileOffsetX + objectDragStartX;
         curSelectedObject.yPos = tileOffsetY + objectDragStartY;
-        console.log(
+        console.debug(
             curSelectedObject.objectId.toString(16),
             curSelectedObject.xPos.toString(16),
             curSelectedObject.yPos.toString(16)

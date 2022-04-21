@@ -359,7 +359,7 @@ export default class ScreenPageData {
     }
 
     public static applyEffectToSingleObject(uuid: string, screenPageData: ScreenPageData[], fx: ChunkEffect): void {
-        console.log("applyEffectToSingleObject", uuid);
+        console.debug("applyEffectToSingleObject", uuid);
         screenPageData.forEach(sp1 => {
             sp1.removeAllEffectsByEffect(fx);
         });
