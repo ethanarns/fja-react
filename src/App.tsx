@@ -14,7 +14,7 @@ import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { handlePointerDown, handleDragMove, handlePointerUp, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { handlePointerDown, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
@@ -71,12 +71,18 @@ function App() {
 
         interactiveSprite.off("pointerup");
         interactiveSprite.on("pointerup", (e: any) => {
-            handlePointerUp(pixiApp);
+            const didMove = handleDragEnd(pixiApp, curSelectedObject, screenPageData);
+            if (didMove) {
+                rerenderPages();
+            }
         });
 
         interactiveSprite.off("pointerupoutside");
         interactiveSprite.on("pointerupoutside", () => {
-            handlePointerUp(pixiApp);
+            const didMove = handleDragEnd(pixiApp, curSelectedObject, screenPageData);
+            if (didMove) {
+                rerenderPages();
+            }
         })
 
         interactiveSprite.off("pointermove");
@@ -84,15 +90,11 @@ function App() {
             const didMove = handleDragMove(pixiApp, e.data.global, curSelectedObject);
             if (didMove) {
                 // Wipe all chunks
-                screenPageData.forEach(sp => {
-                    sp.wipeChunks();
-                });
-                levelRef.objects.forEach(lobj => {
-                    placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
-                });
+                replaceAllChunks();
                 rerenderPages();
             }
         });
+    // What the fuck is the purpose of this even? Don't you WANT custom dependencies??
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[curSelectedObject, curLevelId, romData, interactiveSprite]);
 
@@ -121,6 +123,13 @@ function App() {
         setLoading(false);
         console.log(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
+
+    const _reapplySelect = () => {
+        if (!curSelectedObject) {
+            return;
+        }
+        ScreenPageData.applyEffectToSingleObject(curSelectedObject.uuid, screenPageData, "inverted");
+    }
 
     /**
      * Hack to fix annoying issue where this doesn't have access to member data normally
@@ -347,6 +356,7 @@ function App() {
             <section id="buttons">
                 <button onClick={rerenderPages} disabled={loading || !inputLoaded}>Re-render</button>
                 <button onClick={replaceAllChunks} disabled={loading || !inputLoaded}>Replace Objects</button>
+                <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened} disabled={loading}/> : null }
             </section>
         </div>

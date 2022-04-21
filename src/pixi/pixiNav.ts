@@ -1,6 +1,7 @@
 import { DisplayObject, Container, Application } from "pixi.js";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX, NAV_CONTAINER } from "../GLOBALS";
 import { LevelObject } from "../rom-mod/RomInterfaces";
+import ScreenPageData from "../rom-mod/tile-rendering/ScreenPageChunks";
 
 export const ARROW_MOVE_SPEED = FULL_TILE_DIMS_PX;
 export const MAX_ZOOM_VALUE = 3;
@@ -146,6 +147,22 @@ export function handlePointerDown(pixiApp: Application, dims: any, curSelectedOb
     objectDragStartY = curSelectedObject.yPos + 0;
 }
 
-export function handlePointerUp(pixiApp: Application) {
+/**
+ * 
+ * @param pixiApp Application
+ * @param curSelectedObject LevelObject | null
+ * @param screenPageData ScreenPageData[]
+ * @returns true if dragged successfully, false if not
+ */
+export function handleDragEnd(pixiApp: Application, curSelectedObject: LevelObject | null, screenPageData: ScreenPageData[]): boolean {
+    if (isDragging) {
+        isDragging = false;
+        if (!curSelectedObject) {
+            return false;
+        }
+        ScreenPageData.applyEffectToSingleObject(curSelectedObject.uuid, screenPageData, "inverted");
+        return true;
+    }
     isDragging = false;
+    return false;
 }
