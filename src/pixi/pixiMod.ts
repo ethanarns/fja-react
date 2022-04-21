@@ -8,7 +8,7 @@ import { Application, RenderTexture, Rectangle, filters, Sprite } from "pixi.js"
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
 import { BLANK_SQUARE_RENDER_CODE, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
-import { LayerOrder, Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mod/RomInterfaces";
+import { Level, LevelObject, ORDER_PRIORITY_SPRITE } from "../rom-mod/RomInterfaces";
 
 import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
@@ -90,7 +90,7 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
                 offsetX: 0,
                 offsetY: 0,
                 renderCodes: `${tk},${BLANK_SQUARE_RENDER_CODE},UNDL,UNDL`,
-                layer: LayerOrder.SPRITES,
+                layer: lo.zIndex,
                 uniqueLevelObjectId: lo.uuid
             }];
         }
@@ -104,7 +104,7 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
             offsetX: 0,
             offsetY: 0,
             renderCodes: blanks.join(","),
-            layer: LayerOrder.STANDARD_OBJECTS,
+            layer: lo.zIndex,
             uniqueLevelObjectId: lo.uuid
         }];
     } else {
@@ -118,7 +118,7 @@ interface TempRenderOrderData {
     localPixelX: number;
     localPixelY: number;
     uuid: string;
-    layer: LayerOrder;
+    layer: number;
     chunkCode: string;
     effect: ChunkEffect;
 }

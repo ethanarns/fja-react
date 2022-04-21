@@ -1,4 +1,4 @@
-import { LayerOrder, Level, LevelObject } from "../../../RomInterfaces";
+import { Level, LevelObject } from "../../../RomInterfaces";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 import { readAddressFromArray, readByteFromArray, readWordFromArray } from "../../../binaryUtils/binary-io";
 import { getTileRenderCodesFromTilecode } from "./../commonInstructions";
@@ -23,7 +23,7 @@ export function bigBlueRocks(lo: LevelObject, level: Level, romBuffer: Uint8Arra
                 offsetX: widthIndex,
                 offsetY: heightIndex,
                 uniqueLevelObjectId: lo.uuid,
-                layer: LayerOrder.ROCKS,
+                layer: lo.zIndex,
                 renderCodes: getTileRenderCodesFromTilecode(romBuffer,tileValue)
             });
         }

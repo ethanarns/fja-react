@@ -1,4 +1,4 @@
-import { LayerOrder, Level, LevelObject, LevelObjectType } from "../RomInterfaces";
+import { Level, LevelObject, LevelObjectType } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 import { COIN_CHUNK_CODES, RED_COIN_CHUNK_CODES, yellowCoinRepeatingRightOneSpace } from "./drawInstructionRetrieval/coins";
 
@@ -30,7 +30,7 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
             offsetY: 0,
             renderCodes: RED_COIN_CHUNK_CODES,
             uniqueLevelObjectId: lo.uuid,
-            layer: LayerOrder.COINS
+            layer: lo.zIndex
         }],
         prettyName: "Red Coin 1"
     },{
@@ -52,8 +52,7 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         instructionFunction: lo => drawHorizontalItemWithEnds(lo,
             "108c,108d,109c,109d",
             "108d,108d,109d,109d",
-            "108d,108e,109d,109e",
-            LayerOrder.PLATFORMS
+            "108d,108e,109d,109e"
         ),
         prettyName: "Platform Brown Zig-Zag",
         textDescription: "A common platform, it is decorated with a brown zig-zag pattern."
@@ -79,13 +78,13 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
                     chunkCodes = normalFill;
                     break;
             }
-            return drawRepeatingRectangle(lo, chunkCodes, LayerOrder.GROUND_FILL);
+            return drawRepeatingRectangle(lo, chunkCodes);
         }
     },{
         objectType: "static",
         isExtended: false,
         objectId: 0x68,
-        instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES,LayerOrder.COINS),
+        instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES),
         prettyName: "Yellow Coins - Single Spaced Rectangle"
     },{
         objectType: "static",

@@ -57,43 +57,6 @@ export const ORDER_PRIORITY_STATIC  = 10000;
 export const ORDER_PRIORITY_SPRITE = 100000;
 
 /**
- * OBSOLETE: Order is done by load order, you can move objects forward or backwards
- * manually in most editors. Preserve just in case its need comes about again
- */
-export enum LayerOrder {
-    GUI = 15,
-    SELECTION = 14,
-    HIGHLIGHTS = 13,
-    /**
-     * Sprites, formerly known as Dynamics, will always go over static objects
-     */
-    SPRITES = 10,
-
-    /**
-     * These basically act as sprites, despite often being statics
-     */
-    COINS = 9,
-
-    BREAKABLE_ROCK_WIPE = 7.1,
-    BREAKABLE_ROCK = 7,
-
-    PLATFORMS = 4,
-
-    ROCKS = 3.5,
-
-    GROUND_FILL = 3.2,
-    GROUND = 3,
-    GROUND_FUZZ = 2.9,
-
-    /**
-     * Stuff like Pipes, 
-     */
-    STANDARD_OBJECTS = 1,
-
-    SCREEN_PAGE_LINES = -10,
-}
-
-/**
  * Ones above 0xA are theorized to be Bandit Minigames, but
  * seem to fail when using pipes to go
  */

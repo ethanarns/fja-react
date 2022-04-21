@@ -1,8 +1,8 @@
 import { readAddressFromArray, readWord, readWordFromArray } from "../../binaryUtils/binary-io";
-import { LayerOrder, LevelObject } from "../../RomInterfaces";
+import { LevelObject } from "../../RomInterfaces";
 import { DrawInstruction } from "../tile-construction-tile-keys";
 
-export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: string, bottom: string, layer?: LayerOrder): DrawInstruction[] {
+export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: string, bottom: string): DrawInstruction[] {
     let result: DrawInstruction[] = [];
 
     if (lo.dimZ === undefined) {
@@ -11,7 +11,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: s
     }
     // Length of zero means only source
     const length = lo.dimZ;
-    const trueLayer = layer ? layer : LayerOrder.STANDARD_OBJECTS;
+    const trueLayer = lo.zIndex;
 
     // Top
     result.push({
@@ -47,7 +47,7 @@ export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: s
     return result
 }
 
-export function drawHorizontalItemWithEnds(lo: LevelObject, left: string, middle: string, right: string, layer?: LayerOrder): DrawInstruction[] {
+export function drawHorizontalItemWithEnds(lo: LevelObject, left: string, middle: string, right: string): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     if (lo.dimZ === undefined) {
         console.error("No DimZ:",lo);
@@ -55,7 +55,7 @@ export function drawHorizontalItemWithEnds(lo: LevelObject, left: string, middle
     }
     // Length of zero means only source
     const length = lo.dimZ;
-    const trueLayer = layer ? layer : LayerOrder.STANDARD_OBJECTS;
+    const trueLayer = lo.zIndex;
 
     // Do source
     result.push({
@@ -106,7 +106,7 @@ export function getStaticTileChunksByOffsets(rom: Uint8Array, offset1: number, o
     return `${chunkCode0},${chunkCode1},${chunkCode2},${chunkCode3}`;
 }
 
-export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, layer: LayerOrder = LayerOrder.STANDARD_OBJECTS): DrawInstruction[] {
+export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     if (lo.dimX === undefined || lo.dimY === undefined) {
         console.error("LevelObject does not have 2D dimensions:", lo);
@@ -118,7 +118,7 @@ export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, laye
                 offsetX: x,
                 offsetY: y,
                 renderCodes: chunkCodes,
-                layer: layer,
+                layer: lo.zIndex,
                 uniqueLevelObjectId: lo.uuid
             });
         }
@@ -153,7 +153,7 @@ export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string, laye
     }`;
 }
 
-export function getFixedDimsObject(lo: LevelObject, tileCodes: number[], height: number, width: number, romBuffer: Uint8Array, layer: LayerOrder): DrawInstruction[] {
+export function getFixedDimsObject(lo: LevelObject, tileCodes: number[], height: number, width: number, romBuffer: Uint8Array): DrawInstruction[] {
     if (tileCodes.length !== height * width) {
         console.error("Tile codes list does not fit with fixed height/width",tileCodes,lo);
         return [];
@@ -166,7 +166,7 @@ export function getFixedDimsObject(lo: LevelObject, tileCodes: number[], height:
                 offsetX: x,
                 offsetY: y,
                 renderCodes: getTileRenderCodesFromTilecode(romBuffer,tileCodes[index]),
-                layer: layer,
+                layer: lo.zIndex,
                 uniqueLevelObjectId: lo.uuid
             });
         }

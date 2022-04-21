@@ -1,4 +1,4 @@
-import { LayerOrder, Level, LevelObject } from "../../../RomInterfaces";
+import { Level, LevelObject } from "../../../RomInterfaces";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 import { } from "../../../binaryUtils/binary-io";
 import { getFixedDimsObject } from "./../commonInstructions";
@@ -31,5 +31,5 @@ export function redSign(lo: LevelObject, level: Level, romBuffer: Uint8Array): D
     //     tiles[2] = 0x000c;
     //     tiles[3] = 0x000d;
     // }
-    return getFixedDimsObject(lo,tiles,2,2,romBuffer,LayerOrder.STANDARD_OBJECTS)
+    return getFixedDimsObject(lo,tiles,2,2,romBuffer);
 }

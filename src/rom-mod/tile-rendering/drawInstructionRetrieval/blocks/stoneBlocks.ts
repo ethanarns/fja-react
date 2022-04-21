@@ -1,5 +1,5 @@
 import { readWordFromArray } from "../../../binaryUtils/binary-io";
-import { LayerOrder, Level, LevelObject } from "../../../RomInterfaces";
+import { Level, LevelObject } from "../../../RomInterfaces";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 import { getTileRenderCodesFromTilecode } from "./../commonInstructions";
 
@@ -21,7 +21,7 @@ export function generateStoneBlocks(lo: LevelObject, level: Level, romBuffer: Ui
                 offsetX: yPos,
                 offsetY: xPos,
                 uniqueLevelObjectId: lo.uuid,
-                layer: LayerOrder.PLATFORMS,
+                layer: lo.zIndex,
                 renderCodes: getTileRenderCodesFromTilecode(romBuffer, tileCode)
             });
         }

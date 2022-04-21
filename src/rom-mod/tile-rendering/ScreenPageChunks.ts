@@ -1,7 +1,6 @@
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Application, Container, Graphics, Text } from "pixi.js";
 import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
-import { LayerOrder } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
 export type ChunkEffect = "normal" | "inverted";
@@ -9,7 +8,7 @@ export type ChunkEffect = "normal" | "inverted";
 export interface ScreenPageTileChunk {
     objUuidFrom: string;
     chunkCode: string;
-    layer: LayerOrder;
+    layer: number;
     effect: ChunkEffect;
 }
 

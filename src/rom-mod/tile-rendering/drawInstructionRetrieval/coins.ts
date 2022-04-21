@@ -1,4 +1,4 @@
-import { LayerOrder, LevelObject } from "../../RomInterfaces";
+import { LevelObject } from "../../RomInterfaces";
 import { DrawInstruction } from "../tile-construction-tile-keys";
 
 export const COIN_CHUNK_CODES = "YCTL,YCTR,YCBL,YCBR";
@@ -15,7 +15,7 @@ export function yellowCoinRepeatingRightOneSpace(lo: LevelObject): DrawInstructi
             offsetY: 0,
             renderCodes: COIN_CHUNK_CODES,
             uniqueLevelObjectId: lo.uuid,
-            layer: LayerOrder.COINS
+            layer: lo.zIndex
         });
     }
     return ret;
