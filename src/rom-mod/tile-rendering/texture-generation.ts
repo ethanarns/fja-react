@@ -176,5 +176,20 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
         }
         pixiText.destroy();
     }
+
+    // Inverted
+    const underlineGraphicsInv = new Graphics();
+    underlineGraphicsInv.zIndex = LayerOrder.STANDARD_OBJECTS;
+    underlineGraphicsInv.lineStyle(1, 0xff9966, 1);
+    underlineGraphicsInv.moveTo(0,TILE_QUADRANT_DIMS_PX-1);
+    underlineGraphicsInv.lineTo(TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX-1);
+    underlineGraphicsInv.lineStyle(1, 0xFF0000, 1);
+    underlineGraphicsInv.moveTo(0,TILE_QUADRANT_DIMS_PX);
+    underlineGraphicsInv.lineTo(TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX);
+    INVERT_CACHE["UNDL"] = pixiApp.renderer.generateTexture(underlineGraphicsInv, {
+        // Multiply width by 2 to give a blank secondary area
+        region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+    });
+    underlineGraphicsInv.destroy();
     return ret;
 }
