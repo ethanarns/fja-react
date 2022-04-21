@@ -22,6 +22,12 @@ export interface ObjectRecord {
 
 export const OBJECT_RECORDS: ObjectRecord[] = [
     {
+        objectType: "sprite",
+        isExtended: false,
+        objectId: 0x0d,
+        prettyName: "Goal Ring",
+        textDescription: "Jump through this to complete the level"
+    },{
         objectType: "static",
         isExtended: true,
         objectId: 0x17,
@@ -33,6 +39,14 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
             layer: lo.zIndex
         }],
         prettyName: "Red Coin 1"
+    },{
+        objectType: "sprite",
+        isExtended: false,
+        objectId: 0x1e,
+        prettyName: "Spawn Shy Guy Single",
+        textDescription: "Spawns a single Shy Guy, a basic, edible enemy that wanders. " +
+            "It can either be placed on the ground, or put inside the top left corner of " +
+            "a green pipe (0xf4/0x3c) to make it spit out Shy Guys automatically."
     },{
         objectType: "static",
         isExtended: false,
@@ -85,7 +99,9 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         isExtended: false,
         objectId: 0x68,
         instructionFunction: (lo) => drawRepeatingRectangle(lo,COIN_CHUNK_CODES),
-        prettyName: "Yellow Coins - Single Spaced Rectangle"
+        prettyName: "Yellow Coins - Single Spaced Rectangle",
+        textDescription: "This 2D object creates a \"block\" of coins with the " +
+            "specified dimensions. There are no gaps between each coin."
     },{
         objectType: "static",
         isExtended: false,

@@ -57,7 +57,7 @@ export default function LeftPanel(props: LeftPanelProps) {
                     }}/>
                     <li className="description">
                         {curObjectData.textDescription ? curObjectData.textDescription : ""}
-                        {` [0x${curObjectData.objectId.toString(16)} ${
+                        {` [0x${curObjectData.objectId.toString(16)}-${
                             getObjectTypePretty(props.selectedLevelObject.objectStorage,props.selectedLevelObject.objectType)
                         }]`}
                     </li>
