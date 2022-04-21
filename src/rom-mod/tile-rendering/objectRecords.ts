@@ -17,6 +17,7 @@ export interface ObjectRecord {
     instructionFunction: InstructionGenerator;
     prettyName?: string;
     textDescription?: string;
+    iconTileCode?: string;
 };
 
 export const OBJECT_RECORDS: ObjectRecord[] = [
