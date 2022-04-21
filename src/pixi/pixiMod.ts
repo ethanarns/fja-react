@@ -4,8 +4,7 @@
  * combining them
  */
 
-import { Application, RenderTexture, Rectangle } from "pixi.js";
-import { } from "@pixi/tilemap";
+import { Application, RenderTexture, Rectangle, filters, Sprite } from "pixi.js";
 
 import { DrawInstruction } from "../rom-mod/tile-rendering/tile-construction-tile-keys";
 import { BLANK_SQUARE_RENDER_CODE, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from "../GLOBALS";
@@ -15,6 +14,8 @@ import { OBJECT_RECORDS } from "../rom-mod/tile-rendering/objectRecords";
 
 import ScreenPageData, { ChunkEffect } from "../rom-mod/tile-rendering/ScreenPageChunks";
 import { BUILTIN_CHUNK_CODES, getGraphicFromChunkCode, INVERT_CACHE } from "../rom-mod/tile-rendering/texture-generation";
+
+const colorMatrixFilter = new filters.ColorMatrixFilter();
 
 /**
  * Places chunk render codes for a LevelObject onto the Screen Pages. Note that
@@ -181,7 +182,15 @@ interface TempRenderOrderData {
                         if (INVERT_CACHE[chunkCode]) {
                             renderTexture = INVERT_CACHE[chunkCode];
                         } else if (BUILTIN_CHUNK_CODES.includes(chunkCode)) {
-                            // Built in
+                            // Built in, generate on the fly
+                            const tempSprite = new Sprite(availableTextures[chunkCode]);
+                            tempSprite.filters = [colorMatrixFilter];
+                            colorMatrixFilter.negative(false);
+                            renderTexture = pixiApp.renderer.generateTexture(tempSprite, {
+                                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+                            });
+                            tempSprite.destroy();
+                            INVERT_CACHE[chunkCode] = renderTexture;
                         } else if (chunkCode.toUpperCase().startsWith("S")){
                             // Sprite (all prebuilt)
                             renderTexture = availableTextures[chunkCode];
