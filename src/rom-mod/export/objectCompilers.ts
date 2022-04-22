@@ -45,6 +45,8 @@ export function static5toArray(so: LevelObject): number[] {
  * Takes in LevelExits and outputs them in a format that the game understands.
  * Note that this may be 1 byte longer, since it automatically adds 0xff
  * 
+ * Confirmed works on 1-1!
+ * 
  * @param ls LevelExit[] array, usually taken from Level.exits
  * @returns A Number array representing bytes recreating the original storage
  */
@@ -79,6 +81,15 @@ export function spriteToArray(sprite: LevelObject): number[] {
     return objArray;
 }
 
+/**
+ * Takes in the LevelHeader object, and outputs a byte array
+ * 
+ * @todo Do this with bit shifting, not string parsing
+ * 
+ * @param headers LevelHeaders, usually taken from LevelObject.headers
+ * @param romBuffer Uint8Array
+ * @returns number array representing the bytes generated
+ */
 export function compileLevelHeadersToArray(headers: LevelHeaders, romBuffer: Uint8Array): number[] {
     console.debug("Recompiling headers:", headers);
     let ret: number[] = [];
@@ -118,7 +129,6 @@ export function compileLevelHeadersToArray(headers: LevelHeaders, romBuffer: Uin
     } while(romBuffer[LEVEL_HEADER_LENGTHS+headerIndexOffset] !== 0);
     
     // Turn them into 8 bit/byte array
-    // TODO: Do this by bit shifting instead
     for (let stringIndex = 0; stringIndex < resString.length; stringIndex += 8) {
         const strSlice = resString.slice(stringIndex,stringIndex + 8);
         ret.push(parseInt(strSlice,2));

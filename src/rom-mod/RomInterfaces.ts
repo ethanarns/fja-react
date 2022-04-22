@@ -128,7 +128,7 @@ export enum LevelEntryAnimation {
  * level ID in question.
  * 
  * Note that this means you can only have 1 entrance in each section
- * @todo Make check to see if multiple entrances in one screen page seciton
+ * @todo Make check to see if multiple entrances in one screen page section
  */
  export interface LevelExit {
     /**
