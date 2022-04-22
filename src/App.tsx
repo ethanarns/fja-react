@@ -19,6 +19,8 @@ import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
+import { writeLevel } from './rom-mod/export/compileManager';
+import { compileLevelData } from './rom-mod/export/compiler';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -379,6 +381,25 @@ function App() {
             setLoading(false);
         },10);
     }
+
+    const exportClicked = () => {
+        if (!romData) {
+            console.error("Cannot export without romData");
+            return;
+        }
+        romData.levels.forEach(level => {
+            const compiledLevel = compileLevelData(level,romBuffer);
+            writeLevel(romBuffer,level,compiledLevel);
+        });
+        const blob = new Blob([romBuffer],{type: "application/octet-stream"});
+
+        const downloadLink = document.createElement("a");
+        downloadLink.id = "autoDownloadAnchor";
+        downloadLink.download = "yoshis_island_mod.gba";
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.click();
+        URL.revokeObjectURL(downloadLink.href);
+    }
     
     return (
         <div className="App">
@@ -396,6 +417,8 @@ function App() {
                 <button onClick={() => {rerenderPages(true)}} disabled={loading || !inputLoaded}>Re-render</button>
                 <button onClick={replaceAllChunks} disabled={loading || !inputLoaded}>Replace Objects</button>
                 <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
+                <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
+
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (
                         <option value={le.levelId} key={le.levelId}>{le.levelTitle}</option>

@@ -18,7 +18,7 @@ export function compileLevelData(level: Level, romBuffer: Uint8Array): CompiledL
     };
 }
 
-export function compileSpritesToArray(level: Level): number[] {
+function compileSpritesToArray(level: Level): number[] {
     let ret: number[] = [];
     const objects = level.objects.filter(lo => lo.objectType === "sprite");
     for (let objIndex = 0; objIndex < objects.length; objIndex++) {
@@ -34,7 +34,7 @@ export function compileSpritesToArray(level: Level): number[] {
     return ret;
 }
 
-export function compileStaticstoArray(level: Level): number[] {
+function compileStaticstoArray(level: Level): number[] {
     let ret: number[] = [];
     const objects = level.objects.filter(lo => lo.objectType === "static");
     if (!objects) {
