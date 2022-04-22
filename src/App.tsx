@@ -375,7 +375,6 @@ function App() {
             levelRef.objects.forEach(lobj => {
                 placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
             });
-            
             rerenderPages(true);
             setLoading(false);
         },10);

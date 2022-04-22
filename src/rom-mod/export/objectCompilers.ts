@@ -1,4 +1,6 @@
-import { LevelExit, LevelObject } from "../RomInterfaces";
+import { LEVEL_HEADER_LENGTHS } from "../../GLOBALS";
+import { readByteFromArray } from "../binaryUtils/binary-io";
+import { LevelExit, LevelHeaders, LevelObject, LEVEL_HEADERS_KEY_LENGTH } from "../RomInterfaces";
 
 export function static4sToArray(so: LevelObject): number[] {
     let retArray: number[] = [0,-1,-1,-1];
@@ -75,4 +77,51 @@ export function spriteToArray(sprite: LevelObject): number[] {
     objArray[1] = (sprite.yPos << 1) + firstDigitId;
     objArray[2] = sprite.xPos;
     return objArray;
+}
+
+export function compileLevelHeadersToArray(headers: LevelHeaders, romBuffer: Uint8Array): number[] {
+    console.debug("Recompiling headers:", headers);
+    let ret: number[] = [];
+    if (!headers) {
+        console.error("Headers to export are undefined");
+        return [];
+    }
+    const headerKeys = Object.keys(headers);
+    const headerValues: number[] = Object.values(headers);
+    if (headerKeys.length !== LEVEL_HEADERS_KEY_LENGTH) {
+        console.error("Bad number of header keys to export:", headerKeys.length);
+        return [];
+    }
+    let headerIndexOffset = 0;
+    let _killIndex = 0;
+    // Ugh, fine, do a stupid hack
+    let resString = "";
+    const _killMax = LEVEL_HEADERS_KEY_LENGTH;
+    do { // This terminates when the headerLength list reaches its nullterm of 0
+        if (_killIndex > _killMax) {
+            console.error("ERROR: Too many header keys!", _killIndex, headers);
+            return [];
+        }
+        _killIndex++;
+        const curHeaderLength = readByteFromArray(romBuffer,LEVEL_HEADER_LENGTHS,headerIndexOffset);
+        if (curHeaderLength === undefined) {
+            console.error("ERROR: curHeaderLength was undefined!");
+            return [];
+        }
+        if (curHeaderLength !== 0) {
+            const value = headerValues[headerIndexOffset];
+            // You can do better than this man. Seriously.
+            const binaryStr = value.toString(2).padStart(curHeaderLength,"0");
+            resString += binaryStr;
+        }
+        headerIndexOffset++;
+    } while(romBuffer[LEVEL_HEADER_LENGTHS+headerIndexOffset] !== 0);
+    
+    // Turn them into 8 bit/byte array
+    // TODO: Do this by bit shifting instead
+    for (let stringIndex = 0; stringIndex < resString.length; stringIndex += 8) {
+        const strSlice = resString.slice(stringIndex,stringIndex + 8);
+        ret.push(parseInt(strSlice,2));
+    }
+    return ret;
 }

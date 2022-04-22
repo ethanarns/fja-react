@@ -36,7 +36,7 @@ export const LEVEL_SPRITES_BASE_PTR = 0x001ef57c;
 export const MESSAGE_BASE_PTR = 0x002f5e18;
 export const LEVEL_NAMES_BASE_PTR = 0x002f9888;
 export const LEVEL_ENTRANCE_LIST_BASE_PTR = 0x001ef08c;
-export const LEVEL_HEADER_LENGTHS = 0x00167766;
+export const LEVEL_HEADER_LENGTHS = 0x00167766; // 0x08167766
 
 export const TILE_BYTES = 0x20; // 32
 
@@ -53,3 +53,5 @@ export const PALETTE_WORLD_LIST_BASE_PTR = 0x00164b7c;
 // Colors
 export const BG_COLOR = 0x676767;
 export const SCREEN_PAGE_LINE_COLOR = 0xeeeeee;
+
+export const ROM_ADDRESS_OFFSET = 0x08000000;

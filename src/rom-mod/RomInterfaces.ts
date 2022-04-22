@@ -204,6 +204,8 @@ export interface RomData {
     levels: Level[];
 }
 
+export const LEVEL_HEADERS_KEY_LENGTH = 15;
+// Order is VERY IMPORTANT here
 export interface LevelHeaders {
     backgroundColor: number; // See if this is a special object and not an index
     /**
