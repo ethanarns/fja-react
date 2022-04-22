@@ -6,7 +6,7 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, MAX_LEVEL_ENTRANCE_ID, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
@@ -103,7 +103,7 @@ function App() {
      * 
      * Does not reapply objects chunks
      */
-    const rerenderPages = () => {
+    const rerenderPages = (noCache: boolean = false) => {
         const rerenderPerf = performance.now();
         if (!pixiApp) {
             console.error("PixiJS App not started");
@@ -118,9 +118,8 @@ function App() {
             return;
         }
         screenPageData.forEach(sp => {
-            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp,noCache);
         });
-        setLoading(false);
         console.debug(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
 
@@ -341,6 +340,46 @@ function App() {
             console.error(err);
         });
     }
+
+    const changeLevel = (e: any) => {
+        if (!pixiApp) {
+            return;
+        }
+        if (!romData) {
+            return;
+        }
+        const levelTargetId = Number(e.target.value);
+        if (isNaN(levelTargetId)) {
+            console.error(`Invalid target value "${e.target.value}"`,e);
+            return;
+        }
+        console.log(`Selected level ID "0x${levelTargetId.toString(16)}"`);
+        if (levelTargetId < 0 || levelTargetId > MAX_LEVEL_ENTRANCE_ID) {
+            console.error("Selected out of bounds ID");
+            return;
+        }
+        setLoading(true);
+        window.setTimeout(() => {
+            // Actually set level ID
+            setCurLevelId(levelTargetId);
+
+            setCurSelectedObject(null);
+            screenPageData.forEach(sp => {
+                sp.wipeChunks();
+            });
+            // Place level objects
+            const levelRef = getLevelByOffsetId(romData.levels,levelTargetId);
+            if (!levelRef) {
+                return;
+            }
+            levelRef.objects.forEach(lobj => {
+                placeLevelObject(lobj, levelRef, screenPageData, romBuffer);
+            });
+            
+            rerenderPages(true);
+            setLoading(false);
+        },10);
+    }
     
     return (
         <div className="App">
@@ -355,9 +394,14 @@ function App() {
                 }}>Loading...</div>
             </div>
             <section id="buttons">
-                <button onClick={rerenderPages} disabled={loading || !inputLoaded}>Re-render</button>
+                <button onClick={() => {rerenderPages(true)}} disabled={loading || !inputLoaded}>Re-render</button>
                 <button onClick={replaceAllChunks} disabled={loading || !inputLoaded}>Replace Objects</button>
                 <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
+                <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
+                    {romData ? romData.levels.map(le => (
+                        <option value={le.levelId} key={le.levelId}>{le.levelTitle}</option>
+                    )) : null}
+                </select>
                 { inputLoaded === false ? <input type="file" onInput={fileOpened} disabled={loading}/> : null }
             </section>
         </div>
