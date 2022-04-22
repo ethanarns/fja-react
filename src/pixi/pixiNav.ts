@@ -103,10 +103,10 @@ export function zeroNavObject(navObject: DisplayObject) {
 }
 
 let isDragging = false;
-let dragStartX = -1;
-let dragStartY = -1;
-let objectDragStartX = -1;
-let objectDragStartY = -1;
+let dragStartX: number | undefined = undefined;
+let dragStartY: number | undefined = undefined;
+let objectDragStartX: number | undefined = undefined;
+let objectDragStartY: number | undefined = undefined;
 
 /**
  * Deals
@@ -117,6 +117,14 @@ let objectDragStartY = -1;
  */
 export function handleDragMove(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null): boolean {
     if (isDragging && curSelectedObject !== null) {
+        if (dragStartX === undefined || dragStartY === undefined) {
+            console.error("Drag dims undefined!");
+            return false;
+        }
+        if (objectDragStartX === undefined || objectDragStartY === undefined) {
+            console.log("Object drag dims undefined!");
+            return false;
+        }
         const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
         const offsetX = globalDims.x - dragStartX;
         const offsetY = globalDims.y - dragStartY;
@@ -134,17 +142,47 @@ export function handleDragMove(pixiApp: Application, dims: any, curSelectedObjec
     return false;
 }
 
-export function handlePointerDown(pixiApp: Application, dims: any, curSelectedObject: LevelObject | null) {
+export function handleDragStart(
+    pixiApp: Application,
+    dims: any,
+    curSelectedObject: LevelObject | null,
+    screenPages: ScreenPageData[]
+) {
     if (curSelectedObject === null) {
         return;
     }
-    isDragging = true;
 
-    const globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
-    dragStartX = globalDims.x;
-    dragStartY = globalDims.y;
+    let globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
+    dragStartX = globalDims.x + 0;
+    dragStartY = globalDims.y + 0;
+
+    const tileX = Math.floor(globalDims.x / FULL_TILE_DIMS_PX);
+    const tileY = Math.floor(globalDims.y / FULL_TILE_DIMS_PX);
+    const spid = ScreenPageData.getScreenPageIdFromTileCoords(tileX,tileY);
+
+    const foundScreenPages = screenPages.filter(sp => sp.screenPageId === spid);
+    if (foundScreenPages.length === 1) {
+        const sp = foundScreenPages[0];
+        globalDims.x -= sp.globalPixelX;
+        globalDims.y -= sp.globalPixelY;
+        const found = sp.getTileChunkDataFromLocalCoords(
+            Math.floor(globalDims.x / 8),
+            Math.floor(globalDims.y / 8)
+        );
+        if (found) {
+            // One ore more tiles here
+            if (!found.map(x => x.objUuidFrom).includes(curSelectedObject.uuid)) {
+                dragStartX = undefined;
+                dragStartY = undefined;
+                return;
+            }
+        }
+    }
+
     objectDragStartX = curSelectedObject.xPos + 0;
     objectDragStartY = curSelectedObject.yPos + 0;
+
+    isDragging = true;
 }
 
 /**
@@ -157,6 +195,10 @@ export function handlePointerDown(pixiApp: Application, dims: any, curSelectedOb
 export function handleDragEnd(pixiApp: Application, curSelectedObject: LevelObject | null, screenPageData: ScreenPageData[]): boolean {
     if (isDragging) {
         isDragging = false;
+        dragStartX = undefined;
+        dragStartY = undefined;
+        objectDragStartX = undefined;
+        objectDragStartY = undefined;
         if (!curSelectedObject) {
             return false;
         }

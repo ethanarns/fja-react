@@ -14,7 +14,7 @@ import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
-import { handlePointerDown, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
+import { handleDragStart, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
 import { tick } from './pixi/pixiTick';
@@ -68,7 +68,7 @@ function App() {
         interactiveSprite.off("pointerdown");
         interactiveSprite.on("pointerdown", (event: any) => {
             (window as any).spriteClicked(event);
-            handlePointerDown(pixiApp, event.data.global, curSelectedObject);
+            handleDragStart(pixiApp, event.data.global, curSelectedObject, screenPageData);
         });
 
         interactiveSprite.off("pointerup");
