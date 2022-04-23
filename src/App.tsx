@@ -356,8 +356,8 @@ function App() {
                         break;
                     case "Delete":
                     case "Backspace":
-                        console.log("Doing delete");
-                        deleteSelected();
+                        //deleteSelected(); // This doesn't work because React is stupid
+                        document.getElementById("deleteButton")!.click();
                         break;
                     default:
                         break;
@@ -456,7 +456,7 @@ function App() {
                 <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
                 <button onClick={saveLevel} disabled={loading || !inputLoaded}>Save Level</button>
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
-                <button onClick={deleteSelected} disabled={loading || !inputLoaded}>Delete</button>
+                <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (
