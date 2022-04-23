@@ -251,3 +251,27 @@ interface TempRenderOrderData {
         );
     });
 }
+
+/**
+ * Deletes level object by uuid. Does not replace tiles or rerender, only
+ * modifies the Level
+ * 
+ * @param objectUuid UUID of object to delete
+ * @param level Level
+ */
+export function deleteObject(objectUuid: string, level: Level): void {
+    if (!objectUuid) {
+        console.error("Cannot delete, no uuid", objectUuid);
+        return;
+    }
+    if (!level || !level.objects) {
+        console.error("No levelObjects to delete", level);
+        return;
+    }
+    const delIndex = level.objects.map(x => x.uuid).indexOf(objectUuid);
+    if (delIndex === -1) {
+        console.warn("No object with uuid found:", objectUuid);
+    } else {
+        level.objects.splice(delIndex,1);
+    }
+}

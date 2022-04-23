@@ -13,7 +13,7 @@ import generatePixiApp from './pixi/getPixiApp';
 import { Application, Container, RenderTexture, Sprite } from "pixi.js"
 import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
-import { placeLevelObject, renderScreen } from "./pixi/pixiMod";
+import { deleteObject, placeLevelObject, renderScreen } from "./pixi/pixiMod";
 import { handleDragStart, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
 import ScreenPageData from "./rom-mod/tile-rendering/ScreenPageChunks";
 import { getLevelByOffsetId } from './rom-mod/RomParser';
@@ -47,7 +47,7 @@ function App() {
         setTextureCache(getDefaultRenderTextures(newPixiApp));
     },[]);
 
-    // Update interactive sprite data
+    // Set up interactivity with correct references
     useEffect(() => {
         if (!interactiveSprite) {
             return;
@@ -241,6 +241,26 @@ function App() {
         });
     }
 
+    const deleteSelected = () => {
+        if (!romData) {
+            console.error("Can't delete, no romData");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            console.error("Invalid level",curLevelId);
+            return;
+        }
+        if (!curSelectedObject) {
+            console.warn("No object selected, can't delete",curSelectedObject);
+            return;
+        }
+        deleteObject(curSelectedObject.uuid, levelRef);
+        replaceAllChunks();
+        // Don't rerender cache, no need
+        rerenderPages(false);
+    }
+
     /**
      * This function runs when the GBA ROM file is loaded. It functions as a
      * general loader for everything as well
@@ -337,6 +357,7 @@ function App() {
                     case "Delete":
                     case "Backspace":
                         console.log("Doing delete");
+                        deleteSelected();
                         break;
                     default:
                         break;
@@ -410,6 +431,7 @@ function App() {
         }
         const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
         if (!levelRef) {
+            console.error("Can't save, no valid level ref");
             return;
         }
         const compiledLevel = compileLevelData(levelRef,romBuffer);
@@ -434,6 +456,7 @@ function App() {
                 <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
                 <button onClick={saveLevel} disabled={loading || !inputLoaded}>Save Level</button>
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
+                <button onClick={deleteSelected} disabled={loading || !inputLoaded}>Delete</button>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (
