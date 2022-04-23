@@ -52,7 +52,7 @@ export function readAddressFromArray(rom: Uint8Array, address: number, index: nu
 
 export function writeArrayToIndex(rom: Uint8Array, address: number, data: number[]): void {
     for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
-        rom[address+dataIndex] = data[dataIndex];
+        rom[address+dataIndex] = data[dataIndex] + 0;
     }
 }
 

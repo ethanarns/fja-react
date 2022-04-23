@@ -393,10 +393,6 @@ function App() {
             console.error("Cannot export without romData");
             return;
         }
-        romData.levels.forEach(level => {
-            const compiledLevel = compileLevelData(level,romBuffer);
-            writeLevel(romBuffer,level,compiledLevel);
-        });
         const blob = new Blob([romBuffer],{type: "application/octet-stream"});
 
         const downloadLink = document.createElement("a");
@@ -405,6 +401,19 @@ function App() {
         downloadLink.href = URL.createObjectURL(blob);
         downloadLink.click();
         URL.revokeObjectURL(downloadLink.href);
+    }
+
+    const saveLevel = () => {
+        if (!romData) {
+            console.error("Cannot save, no romData");
+            return;
+        }
+        const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!levelRef) {
+            return;
+        }
+        const compiledLevel = compileLevelData(levelRef,romBuffer);
+        writeLevel(romBuffer,levelRef,compiledLevel);
     }
     
     return (
@@ -423,6 +432,7 @@ function App() {
                 <button onClick={() => {rerenderPages(true)}} disabled={loading || !inputLoaded}>Re-render</button>
                 <button onClick={replaceAllChunks} disabled={loading || !inputLoaded}>Replace Objects</button>
                 <button onClick={_reapplySelect} disabled={loading || !inputLoaded}>Reapply Select</button>
+                <button onClick={saveLevel} disabled={loading || !inputLoaded}>Save Level</button>
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
