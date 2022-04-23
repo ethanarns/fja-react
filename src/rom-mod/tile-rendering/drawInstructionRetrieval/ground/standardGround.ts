@@ -1,6 +1,7 @@
 import { LevelObject } from "../../../RomInterfaces";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 
+// 0x1
 export function drawGround(lo: LevelObject): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     const yLength = lo.dimY;
@@ -40,6 +41,66 @@ export function drawGround(lo: LevelObject): DrawInstruction[] {
                 uniqueLevelObjectId: lo.uuid
             });
         }
+    }
+    return result;
+}
+
+// 0x2
+export function drawGroundEdge2(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    const zLength = lo.dimZ;
+    if (zLength === undefined) {
+        console.error("drawGroundEdge2 is missing z dimension:",lo);
+        return [];
+    }
+    // Base
+    result.push({
+        offsetY: 0,
+        offsetX: 0,
+        renderCodes: "4054,4055,4063,4065",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    // Topfuzz
+    result.push({
+        offsetY: -1,
+        offsetX: 0,
+        renderCodes: "40ff,40ff,4046,4047",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    // Topfuzz corner
+    result.push({
+        offsetY: -1,
+        offsetX: -1,
+        renderCodes: "40ff,40ff,40ff,4042",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    // Left tuft
+    result.push({
+        offsetY: 0,
+        offsetX: -1,
+        renderCodes: "40ff,4052,40ff,4062",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    // First below base
+    result.push({
+        offsetY: 1,
+        offsetX: 0,
+        renderCodes: "4043,4076,405d,407f",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    for (let downOffset = 0; downOffset < zLength-1; downOffset++) {
+        result.push({
+            offsetY: 2+downOffset,
+            offsetX: 0,
+            renderCodes: "406d,406e,406d,407f",
+            layer: lo.zIndex,
+            uniqueLevelObjectId: lo.uuid
+        });
     }
     return result;
 }

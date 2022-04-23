@@ -7,7 +7,7 @@ import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeEx
 import { redSign } from "./drawInstructionRetrieval/extendedStatics/smallExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
-import { drawGround } from "./drawInstructionRetrieval/ground/standardGround";
+import { drawGround, drawGroundEdge2 } from "./drawInstructionRetrieval/ground/standardGround";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -29,6 +29,14 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         prettyName: "Ground",
         textDescription: "Common, mostly level-agnostic ground. Flat.",
         instructionFunction: (lo: LevelObject) => drawGround(lo)
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x2,
+        prettyName: "Ground - Left Corner",
+        textDescription: "Basic ground's left overhang/edge. Doesn't work in some palettes, " +
+        "such as flower garden, but works in most.",
+        instructionFunction: (lo: LevelObject) => drawGroundEdge2(lo)
     },{
         objectType: "sprite",
         isExtended: false,
