@@ -7,6 +7,7 @@ import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeEx
 import { redSign } from "./drawInstructionRetrieval/extendedStatics/smallExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
+import { drawGround } from "./drawInstructionRetrieval/ground/standardGround";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -22,6 +23,13 @@ export interface ObjectRecord {
 
 export const OBJECT_RECORDS: ObjectRecord[] = [
     {
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x1,
+        prettyName: "Ground",
+        textDescription: "Common, mostly level-agnostic ground. Flat.",
+        instructionFunction: (lo: LevelObject) => drawGround(lo)
+    },{
         objectType: "sprite",
         isExtended: false,
         objectId: 0x0d,
