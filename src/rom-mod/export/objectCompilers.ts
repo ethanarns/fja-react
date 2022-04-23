@@ -3,6 +3,9 @@ import { readByteFromArray } from "../binaryUtils/binary-io";
 import { LevelExit, LevelHeaders, LevelObject, LEVEL_HEADERS_KEY_LENGTH } from "../RomInterfaces";
 
 export function static4sToArray(so: LevelObject): number[] {
+    if (so.objectStorage !== "s4byte") {
+        console.error("Not an s4byte!", so);
+    }
     let retArray: number[] = [0,-1,-1,-1];
     retArray[3] = so.objectId;
     const y1 = so.yPos >> 4;
@@ -15,6 +18,9 @@ export function static4sToArray(so: LevelObject): number[] {
 }
 
 export function static4toArray(so: LevelObject): number[] {
+    if (so.objectStorage !== "4byte") {
+        console.error("Not a 4byte!", so);
+    }
     let retArray: number[] = [-1,-1,-1,-1];
     retArray[0] = so.objectId;
     const y1 = so.yPos >> 4;
