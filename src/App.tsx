@@ -155,11 +155,8 @@ function App() {
         if (!levelRef) {
             return;
         }
-        if (noCache) {
-
-        }
         screenPageData.forEach(sp => {
-            renderScreen(levelRef,pixiApp,textureCache,sp,noCache);
+            renderScreen(levelRef,pixiApp,textureCache,sp);
         });
         console.debug(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };

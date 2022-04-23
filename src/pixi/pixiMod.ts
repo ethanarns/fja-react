@@ -129,16 +129,13 @@ interface TempRenderOrderData {
  * @param curLevel Level you are currently on
  * @param pixiApp Application running
  * @param availableTextures RenderTexture cache map
- * @param setAvailableTextures Function to set updated textures
  * @param sp ScreenPageData Screen Page data
- * @param noCache boolean if true, when a cached object is found, rerender
  */
  export function renderScreen(
     curLevel: Level,
     pixiApp: Application,
     availableTextures: Record<string,RenderTexture>,
-    sp: ScreenPageData,
-    noCache: boolean = false
+    sp: ScreenPageData
 ): void {
     if (!pixiApp) {
         console.error("Cannot render when pixiApp is not started");
@@ -165,17 +162,10 @@ interface TempRenderOrderData {
                     let renderTexture: RenderTexture | undefined = undefined;
                     // No effects, render normally //
                     if (chunkTileData.effect === "normal") {
-                        let shouldRerender = false;
-                        if (noCache && !(BUILTIN_CHUNK_CODES.includes(chunkCode) || chunkCode.startsWith("S"))) {
-                            shouldRerender = true;
-                        }
                         if (availableTextures[chunkCode]) {
                             // Already available in texture cache
                             renderTexture = availableTextures[chunkCode];
                         } else {
-                            if (shouldRerender && availableTextures[chunkCode]) {
-                                availableTextures[chunkCode].destroy();
-                            }
                             // Generate new ones
                             const graphic = getGraphicFromChunkCode(chunkCode,curLevel);
                             renderTexture = pixiApp.renderer.generateTexture(graphic, {
