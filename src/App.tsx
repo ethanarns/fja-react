@@ -21,6 +21,7 @@ import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
 import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
+import { addActionToUndo, undoClicked } from './rom-mod/undoManager';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -255,7 +256,14 @@ function App() {
             console.warn("No object selected, can't delete",curSelectedObject);
             return;
         }
+        const preDeleteCache = JSON.stringify(levelRef);
         deleteObject(curSelectedObject.uuid, levelRef);
+        addActionToUndo({
+            formerLevelDataStr: preDeleteCache,
+            newLevelDataStr: JSON.stringify(levelRef),
+            levelIdOn: curLevelId,
+            actionType: "deleteLevelObject"
+        });
         replaceAllChunks();
         // Don't rerender cache, no need
         rerenderPages(false);
@@ -437,6 +445,17 @@ function App() {
         const compiledLevel = compileLevelData(levelRef,romBuffer);
         writeLevel(romBuffer,levelRef,compiledLevel);
     }
+
+    const undo = () => {
+        if (!romData) {
+            console.error("Can't undo, no romData");
+            return;
+        }
+        undoClicked(romData);
+        replaceAllChunks();
+        // Don't rerender cache, no need
+        rerenderPages(false);
+    }
     
     return (
         <div className="App">
@@ -457,6 +476,7 @@ function App() {
                 <button onClick={saveLevel} disabled={loading || !inputLoaded}>Save Level</button>
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
                 <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
+                <button onClick={undo} disabled={loading || !inputLoaded} id="undoButton">Undo</button>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (

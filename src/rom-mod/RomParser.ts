@@ -322,3 +322,12 @@ export function getLevelByOffsetId(levels: Level[], id: LevelDataOffset): Level 
         return undefined;
     }
 }
+
+export function overwriteLevelByOffsetId(levels: Level[], id: LevelDataOffset, newLevel: Level): void {
+    const levelIndex = levels.map(x => x.levelId).indexOf(id);
+    if (levelIndex === -1) {
+        console.log("Level not found by ID",id);
+    } else {
+        levels[levelIndex] = newLevel;
+    }
+}
