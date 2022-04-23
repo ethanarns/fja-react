@@ -137,7 +137,6 @@ interface TempRenderOrderData {
     curLevel: Level,
     pixiApp: Application,
     availableTextures: Record<string,RenderTexture>,
-    setAvailableTextures: Function,
     sp: ScreenPageData,
     noCache: boolean = false
 ): void {
@@ -232,7 +231,6 @@ interface TempRenderOrderData {
         }
     }
     //console.log(`Rendered ScreenPage ${sp.screenPageId} in ${performance.now() - perf} ms`);
-    setAvailableTextures(availableTextures);
     // Sort by layer
     toRender.sort((x: TempRenderOrderData,y: TempRenderOrderData) => {
         if (x.layer > y.layer) {

@@ -23,15 +23,21 @@ import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
 import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
 
+/* *********************************************
+ * *** Special: outside of normal state data ***
+ * *********************************************
+ */
+
 /**
- * Special: outside of normal state data
+ * Used for undo mainly
  */
 let cachedLevelData = "";
+
+let textureCache: Record<string,RenderTexture> = {};
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
-    const [textureCache, setTextureCache] = useState<Record<string,RenderTexture>>({});
     const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
     const [romData, setRomData] = useState<RomData>();
     const [curLevelId, setCurLevelId] = useState(0);
@@ -50,7 +56,7 @@ function App() {
             console.log("PixiApp failed to initialize for graphics generation");
             return;
         }
-        setTextureCache(getDefaultRenderTextures(newPixiApp));
+        textureCache = getDefaultRenderTextures(newPixiApp);
     },[]);
 
     // Set up interactivity with correct references
@@ -149,8 +155,11 @@ function App() {
         if (!levelRef) {
             return;
         }
+        if (noCache) {
+
+        }
         screenPageData.forEach(sp => {
-            renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp,noCache);
+            renderScreen(levelRef,pixiApp,textureCache,sp,noCache);
         });
         console.debug(`rerenderPages completed in ${performance.now() - rerenderPerf} ms`);
     };
@@ -344,7 +353,7 @@ function App() {
 
             // Can't do local rerender, parent objects not yet set
             screenPages.forEach(sp => {
-                renderScreen(levelRef,pixiApp,textureCache,setTextureCache,sp);
+                renderScreen(levelRef,pixiApp,textureCache,sp);
             });
             pixiApp.ticker.add(delta => {
                 tick(pixiApp,delta);
