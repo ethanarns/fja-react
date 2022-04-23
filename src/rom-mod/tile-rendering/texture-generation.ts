@@ -207,3 +207,7 @@ export function getDefaultRenderTextures(pixiApp: Application): Record<string,Re
 
     return ret;
 }
+
+export function isDefaultChunkCode(chunkCode: string): boolean {
+    return (BUILTIN_CHUNK_CODES.includes(chunkCode) || chunkCode.startsWith("S"));
+}
