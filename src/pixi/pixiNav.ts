@@ -151,14 +151,18 @@ export function handleDragMove(pixiApp: Application, dims: any, curSelectedObjec
     return false;
 }
 
+/**
+ * Starts the levelObject dragging process
+ * @returns true if moving started successfully, false if not
+ */
 export function handleDragStart(
     pixiApp: Application,
     dims: any,
     curSelectedObject: LevelObject | null,
     screenPages: ScreenPageData[]
-) {
+): boolean {
     if (curSelectedObject === null) {
-        return;
+        return false;
     }
 
     let globalDims = localDimsToGlobalX(pixiApp,dims.x,dims.y);
@@ -183,7 +187,7 @@ export function handleDragStart(
             if (!found.map(x => x.objUuidFrom).includes(curSelectedObject.uuid)) {
                 dragStartX = undefined;
                 dragStartY = undefined;
-                return;
+                return false;
             }
         }
     }
@@ -192,6 +196,7 @@ export function handleDragStart(
     objectDragStartY = curSelectedObject.yPos + 0;
 
     isDragging = true;
+    return true;
 }
 
 /**

@@ -23,6 +23,11 @@ import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
 import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
 
+/**
+ * Special: outside of normal state data
+ */
+let cachedLevelData = "";
+
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
@@ -69,13 +74,30 @@ function App() {
         interactiveSprite.off("pointerdown");
         interactiveSprite.on("pointerdown", (event: any) => {
             (window as any).spriteClicked(event);
-            handleDragStart(pixiApp, event.data.global, curSelectedObject, screenPageData);
+            const didStart = handleDragStart(pixiApp, event.data.global, curSelectedObject, screenPageData);
+            if (didStart) {
+                console.log("Started");
+                const levelData = getLevelByOffsetId(romData.levels,curLevelId);
+                if (levelData) {
+                    cachedLevelData = JSON.stringify(levelData);
+                } else {
+                    console.error("No level data found when trying to start drag!", levelData);
+                    cachedLevelData = "";
+                }
+            }
         });
 
         interactiveSprite.off("pointerup");
         interactiveSprite.on("pointerup", (e: any) => {
             const didMove = handleDragEnd(pixiApp, curSelectedObject, screenPageData);
             if (didMove) {
+                addActionToUndo({
+                    formerLevelDataStr: cachedLevelData + "",
+                    newLevelDataStr: JSON.stringify(levelRef),
+                    actionType: "moveLevelObject",
+                    levelIdOn: curLevelId
+                });
+                cachedLevelData = "";
                 rerenderPages();
             }
         });
@@ -84,6 +106,13 @@ function App() {
         interactiveSprite.on("pointerupoutside", () => {
             const didMove = handleDragEnd(pixiApp, curSelectedObject, screenPageData);
             if (didMove) {
+                addActionToUndo({
+                    formerLevelDataStr: cachedLevelData + "",
+                    newLevelDataStr: JSON.stringify(levelRef),
+                    actionType: "moveLevelObject",
+                    levelIdOn: curLevelId
+                });
+                cachedLevelData = "";
                 rerenderPages();
             }
         })

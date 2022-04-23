@@ -19,6 +19,15 @@ let guiActionsTaken: UndoableAction[] = [];
 let guiActionsTakenIndex: number = -1;
 
 export function addActionToUndo(action: UndoableAction): void {
+    console.log("Adding action to undo");
+    if (!action.formerLevelDataStr) {
+        console.error("Missing former level data:",action.formerLevelDataStr);
+        return;
+    }
+    if (!action.newLevelDataStr) {
+        console.error("Missing new level data string:",action.newLevelDataStr);
+        return;
+    }
     if (guiActionsTaken.length - 1 === guiActionsTakenIndex) {
         // The index is at the end, nothing to delete
         guiActionsTaken.push(action);
