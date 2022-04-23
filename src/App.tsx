@@ -21,7 +21,7 @@ import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
 import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
-import { addActionToUndo, undoClicked } from './rom-mod/undoManager';
+import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
@@ -456,6 +456,17 @@ function App() {
         // Don't rerender cache, no need
         rerenderPages(false);
     }
+
+    const redo = () => {
+        if (!romData) {
+            console.error("Can't undo, no romData");
+            return;
+        }
+        redoClicked(romData);
+        replaceAllChunks();
+        // Don't rerender cache, no need
+        rerenderPages(false);
+    }
     
     return (
         <div className="App">
@@ -477,6 +488,7 @@ function App() {
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
                 <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
                 <button onClick={undo} disabled={loading || !inputLoaded} id="undoButton">Undo</button>
+                <button onClick={redo} disabled={loading || !inputLoaded} id="redoButton">Redo</button>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (
