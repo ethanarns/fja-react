@@ -46,7 +46,7 @@ export function drawGround(lo: LevelObject): DrawInstruction[] {
 }
 
 // 0x2
-export function drawGroundEdge2(lo: LevelObject): DrawInstruction[] {
+export function drawGroundLeftCorner(lo: LevelObject): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     const zLength = lo.dimZ;
     if (zLength === undefined) {
@@ -102,5 +102,61 @@ export function drawGroundEdge2(lo: LevelObject): DrawInstruction[] {
             uniqueLevelObjectId: lo.uuid
         });
     }
+    return result;
+}
+
+// 0x3
+export function drawGroundRightCorner(lo: LevelObject): DrawInstruction[] {
+    let result: DrawInstruction[] = [];
+    const zLength = lo.dimZ;
+    if (zLength === undefined) {
+        console.error("drawGroundEdge3 is missing z dimension:",lo);
+        return [];
+    }
+    // Base
+    result.push({
+        offsetY: 0,
+        offsetX: 0,
+        renderCodes: "4455,4454,4465,4463",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    result.push({
+        offsetY: -1,
+        offsetX: 0,
+        renderCodes: "40ff,40ff,4044,4045",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    result.push({
+        offsetY: 1,
+        offsetX: 0,
+        renderCodes: "4476,4443,407e,445d",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    for (let downOffset = 0; downOffset < zLength-1; downOffset++) {
+        result.push({
+            offsetY: 2+downOffset,
+            offsetX: 0,
+            renderCodes: "447f,447d,4073,447d",
+            layer: lo.zIndex,
+            uniqueLevelObjectId: lo.uuid
+        });
+    }
+    result.push({
+        offsetY: 0,
+        offsetX: 1,
+        renderCodes: "4452,40ff,4462,40ff",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
+    result.push({
+        offsetY: -1,
+        offsetX: 1,
+        renderCodes: "40ff,40ff,4442,40ff",
+        layer: lo.zIndex,
+        uniqueLevelObjectId: lo.uuid
+    });
     return result;
 }
