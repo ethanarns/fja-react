@@ -11,7 +11,7 @@ import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, Container, RenderTexture, Sprite } from "pixi.js"
-import { getDefaultRenderTextures } from './rom-mod/tile-rendering/texture-generation';
+import { getDefaultRenderTextures, INVERT_CACHE, isDefaultChunkCode } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { deleteObject, placeLevelObject, renderScreen } from "./pixi/pixiMod";
 import { handleDragStart, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
@@ -23,24 +23,16 @@ import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
 import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
 
-/* *********************************************
- * *** Special: outside of normal state data ***
- * *********************************************
- */
-
-/**
- * Used for undo mainly
- */
+// These are up here because they write and read DURING React actions
 let cachedLevelData = "";
-
 let textureCache: Record<string,RenderTexture> = {};
+let curLevelId = 0;
 
 function App() {
     const [pixiApp, setPixiApp] = useState<Application | null>(null);
     const [inputLoaded, setInputLoaded] = useState(false);
     const [screenPageData, setScreenPageData] = useState<ScreenPageData[]>([]);
     const [romData, setRomData] = useState<RomData>();
-    const [curLevelId, setCurLevelId] = useState(0);
     const [loading, setLoading] = useState(false);
     const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
     const [interactiveSprite, setInteractiveSprite] = useState<Sprite | undefined>(undefined);
@@ -51,7 +43,7 @@ function App() {
     useEffect(() => {
         const newPixiApp = generatePixiApp();
         setPixiApp(newPixiApp);
-        setCurLevelId(0x0);
+        curLevelId = 0x0;
         if (newPixiApp === null) {
             console.log("PixiApp failed to initialize for graphics generation");
             return;
@@ -134,7 +126,7 @@ function App() {
         });
     // What the fuck is the purpose of this even? Don't you WANT custom dependencies??
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[curSelectedObject, curLevelId, romData, interactiveSprite]);
+    },[curSelectedObject, romData, interactiveSprite]);
 
     /**
      * Rerenders every single ScreenPage
@@ -154,6 +146,28 @@ function App() {
         const levelRef = getLevelByOffsetId(romData.levels,curLevelId);
         if (!levelRef) {
             return;
+        }
+        if (noCache) {
+            for (let i = 0; i < screenPageData.length; i++) {
+                screenPageData[i].tilemap.clear();
+                // It makes multiple tilesets within it
+                screenPageData[i].tilemap.children.forEach(c => {
+                    c.destroy();
+                });
+                screenPageData[i].tilemap.removeChildren();
+            }
+            Object.keys(textureCache).forEach(chunkCode => {
+                if (!isDefaultChunkCode(chunkCode) && textureCache[chunkCode]) {
+                    textureCache[chunkCode].destroy(true);
+                    (textureCache[chunkCode] as any) = undefined;
+                }
+            });
+            Object.keys(INVERT_CACHE).forEach(chunkCode => {
+                if (!isDefaultChunkCode(chunkCode) && INVERT_CACHE[chunkCode]) {
+                    INVERT_CACHE[chunkCode].destroy(true);
+                    (INVERT_CACHE[chunkCode] as any) = undefined;
+                }
+            });
         }
         screenPageData.forEach(sp => {
             renderScreen(levelRef,pixiApp,textureCache,sp);
@@ -433,7 +447,7 @@ function App() {
         setLoading(true);
         window.setTimeout(() => {
             // Actually set level ID
-            setCurLevelId(levelTargetId);
+            curLevelId = levelTargetId;
 
             setCurSelectedObject(null);
             screenPageData.forEach(sp => {
