@@ -190,6 +190,12 @@ function App() {
                     }
                 })
             });
+            if (foundObjects.length === 1) {
+                console.log("Found Object:",foundObjects[0]);
+            } else {
+                console.log("Found Objects:",foundObjects);
+            }
+            
             let selectedObject: LevelObject = foundObjects[0];
             if (foundObjects.length > 1) {
                 let highestLayer = -9999999999;
