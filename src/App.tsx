@@ -241,9 +241,9 @@ function App() {
                 })
             });
             if (foundObjects.length === 1) {
-                console.log("Found Object:",foundObjects[0]);
+                console.log("Found LevelObject and chunks:",foundObjects[0],found);
             } else {
-                console.log("Found Objects:",foundObjects);
+                console.log("Found LevelObjects and chunks:",foundObjects,found);
             }
             
             let selectedObject: LevelObject = foundObjects[0];
