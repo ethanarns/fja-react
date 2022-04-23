@@ -46,8 +46,12 @@ function executeInstruction(instruction: DrawInstruction, lo: LevelObject, scree
         console.error("No zIndex!");
         return;
     }
-    // Overwrite the instruction
-    instruction.layer = lo.zIndex;
+    if (instruction.layer === undefined) {
+        instruction.layer = lo.zIndex;
+    }
+    if (!instruction.uniqueLevelObjectId) {
+        instruction.uniqueLevelObjectId = lo.uuid;
+    }
     if (lo.objectType === "sprite") {
         instruction.layer += ORDER_PRIORITY_SPRITE;
     }

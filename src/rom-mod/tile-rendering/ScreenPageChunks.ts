@@ -243,9 +243,9 @@ export default class ScreenPageData {
         const relativeChunkYbase = relativeTileY * 2;
         instruction.renderCodes.split(",").forEach((code, index) => {
             const newChunk: ScreenPageTileChunk = {
-                objUuidFrom: instruction.uniqueLevelObjectId,
+                objUuidFrom: instruction.uniqueLevelObjectId!,
                 chunkCode: code,
-                layer: instruction.layer,
+                layer: instruction.layer!,
                 effect: "normal"
             };
             if (index === 0) {
