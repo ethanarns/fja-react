@@ -90,8 +90,9 @@ function clampNav(navObject: DisplayObject): void {
     if (newCoords.x + CANVAS_WIDTH / scaleVal > (0xff*16 + 16)) {
         navObject.pivot.x = (0xff*16 + 16) - (CANVAS_WIDTH / scaleVal / 2);
     }
-    if (newCoords.y + CANVAS_HEIGHT / scaleVal > (0xff*16 / 2)) {
-        navObject.pivot.y = (0xff*16 / 2) - (CANVAS_HEIGHT / scaleVal / 2);
+    // For some reason, last 8 y pixels are cut off. These +8s fix it
+    if (newCoords.y + CANVAS_HEIGHT / scaleVal > (0xff*16 / 2)+8) {
+        navObject.pivot.y = (0xff*16 / 2) - (CANVAS_HEIGHT / scaleVal / 2)+8;
     }
 }
 
