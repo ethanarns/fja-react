@@ -14,9 +14,9 @@ export interface DrawInstruction {
      * In Tile-Scale, not chunk or pixel
      */
     offsetY: number;
+    renderCodes: string;
     uniqueLevelObjectId?: string;
     layer?: number;
-    renderCodes: string;
 }
 
 export type RenderedTileDataName = string;
