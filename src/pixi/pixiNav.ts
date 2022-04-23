@@ -1,5 +1,5 @@
 import { DisplayObject, Container, Application } from "pixi.js";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX, NAV_CONTAINER } from "../GLOBALS";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, NAV_CONTAINER } from "../GLOBALS";
 import { LevelObject } from "../rom-mod/RomInterfaces";
 import ScreenPageData from "../rom-mod/tile-rendering/ScreenPageChunks";
 
@@ -130,8 +130,16 @@ export function handleDragMove(pixiApp: Application, dims: any, curSelectedObjec
         const offsetY = globalDims.y - dragStartY;
         const tileOffsetX = Math.floor(offsetX / FULL_TILE_DIMS_PX);
         const tileOffsetY = Math.floor(offsetY / FULL_TILE_DIMS_PX);
-        curSelectedObject.xPos = tileOffsetX + objectDragStartX;
-        curSelectedObject.yPos = tileOffsetY + objectDragStartY;
+        const newX = tileOffsetX + objectDragStartX;
+        const newY = tileOffsetY + objectDragStartY;
+        if (newX < 0 || newY < 0) {
+            return false;
+        }
+        if (newX > FULL_TILE_DIM_COUNT || newY > FULL_TILE_DIM_COUNT/2) {
+            return false;
+        }
+        curSelectedObject.xPos = newX;
+        curSelectedObject.yPos = newY;
         console.debug(
             curSelectedObject.objectId.toString(16),
             curSelectedObject.xPos.toString(16),
