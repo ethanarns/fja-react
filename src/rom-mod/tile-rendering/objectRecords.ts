@@ -7,7 +7,7 @@ import { bigBlueRocks } from "./drawInstructionRetrieval/extendedStatics/largeEx
 import { redSign } from "./drawInstructionRetrieval/extendedStatics/smallExtendedStatics";
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
-import { drawGround, drawGroundLeftCorner, drawGroundRightCorner } from "./drawInstructionRetrieval/ground/standardGround";
+import { drawGround, drawGround4, drawGround5, drawGround6, drawGroundLeftCorner, drawGroundRightCorner, drawGroundSlope45 } from "./drawInstructionRetrieval/ground/standardGround";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -43,6 +43,30 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0x3,
         prettyName: "Ground - Right corner",
         instructionFunction: (lo: LevelObject) => drawGroundRightCorner(lo)
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x4,
+        prettyName: "Ground - Down Right",
+        instructionFunction: (lo: LevelObject) => drawGround4(lo)
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x5,
+        prettyName: "Ground - Down Left",
+        instructionFunction: (lo: LevelObject) => drawGround5(lo)
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x6,
+        prettyName: "Ground - Down Right 45",
+        instructionFunction: (lo: LevelObject) => drawGround6(lo)
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x7,
+        prettyName: "Ground - Down Left 45",
+        instructionFunction: (lo: LevelObject) => drawGroundSlope45(lo)
     },{
         objectType: "sprite",
         isExtended: false,
