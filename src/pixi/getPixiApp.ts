@@ -4,8 +4,8 @@ import { settings as tsettings } from "@pixi/tilemap";
 
 export default function generatePixiApp(): Application | null {
     console.log("Starting PixiJS Application");
-    tsettings.use32bitIndex = true;
-    tsettings.TEXTURES_PER_TILEMAP = 100;
+    // Avoid tons of overlapping sub-tilemaps
+    tsettings.TEXTURES_PER_TILEMAP = 120;
     const pixiApp = new Application({
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
