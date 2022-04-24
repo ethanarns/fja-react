@@ -32,7 +32,7 @@ export function placeLevelObject(
     romBuffer: Uint8Array
 ): void {
     //const perf = performance.now();
-    const instructions = getDrawInstructionsForObject(lo, level, romBuffer);
+    const instructions = getDrawInstructionsForObject(lo, level, romBuffer, screenPages);
     const insLen = instructions.length; // cache for speed
     for (let i = 0; i < insLen; i++) {
         executeInstruction(instructions[i], lo, screenPages);
@@ -73,7 +73,7 @@ function executeInstruction(instruction: DrawInstruction, lo: LevelObject, scree
     console.error("Screen page ID not found:", screenPageId);
 }
 
-export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBuffer: Uint8Array): DrawInstruction[] {
+export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBuffer: Uint8Array, screenPages: ScreenPageData[]): DrawInstruction[] {
     if (!lo || !lo.objectId || !level) {
         console.error("Cannot do getDrawInstructionsForObject, bad input", lo, level);
         return [];
@@ -86,7 +86,8 @@ export function getDrawInstructionsForObject(lo: LevelObject,level: Level, romBu
     })
     if (objectRecord.length <= 1) {
         if (objectRecord.length === 1 && objectRecord[0].instructionFunction) {
-            return objectRecord[0].instructionFunction(lo,level,romBuffer);
+            // This is the replacable function that
+            return objectRecord[0].instructionFunction(lo,level,romBuffer, screenPages);
         }
         if (lo.objectType === "sprite") {
             const tk = "S" + lo.objectId.toString(16).padStart(3,"0");

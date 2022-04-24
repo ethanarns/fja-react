@@ -1,4 +1,5 @@
 import { Level, LevelObject } from "../../../RomInterfaces";
+import ScreenPageData from "../../ScreenPageChunks";
 import { DrawInstruction } from "../../tile-construction-tile-keys";
 import { getTileRenderCodesFromTilecode } from "../commonInstructions";
 
@@ -13,9 +14,14 @@ const INSET_TILE_CODES: Record<string,number> = {
     CORNER_BOTTOM_LEFT: 0x7010,
     CORNER_BOTTOM_RIGHT: 0x7011,
     FILL: 0x7012,
+
+    ENTRANCE_LEFT_MIDDLE: 0x7016,
+    ENTRANCE_RIGHT_MIDDLE: 0x7017,
+    ENTRANCE_LEFT_TOP: 0x7018,
+    ENTRANCE_RIGHT_TOP: 0x7019,
 }
 
-export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuffer: Uint8Array): DrawInstruction[] {
+export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuffer: Uint8Array, screenPages: ScreenPageData[]): DrawInstruction[] {
     let result: DrawInstruction[] = [];
     let yLength = lo.dimY;
     let xLength = lo.dimX;
@@ -33,6 +39,12 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_LEFT"]);
                 } else {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["WALL_LEFT"]);
+                    const overlappingObjectsForLeftWall = ScreenPageData.getLevelObjectsOverlapping(lo,xOffset,yOffset,screenPages,level);
+                    if (overlappingObjectsForLeftWall) {
+                        if(overlappingObjectsForLeftWall[overlappingObjectsForLeftWall.length-1].objectId === 0x2) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_MIDDLE"]);
+                        }
+                    }
                 }
             } else if (xOffset === xLength) {
                 if (yOffset === 0) {

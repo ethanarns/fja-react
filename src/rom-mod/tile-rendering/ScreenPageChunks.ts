@@ -1,6 +1,7 @@
 import { CompositeTilemap } from "@pixi/tilemap";
 import { Application, Container, Graphics, Text } from "pixi.js";
 import { FULL_TILE_DIMS_PX, NAV_CONTAINER, SCREEN_PAGE_LINE_COLOR, TILEMAP_ID, TILE_QUADRANT_DIMS_PX } from "../../GLOBALS";
+import { Level, LevelObject } from "../RomInterfaces";
 import { DrawInstruction } from "./tile-construction-tile-keys";
 
 export type ChunkEffect = "normal" | "inverted";
@@ -365,5 +366,44 @@ export default class ScreenPageData {
         screenPageData.forEach(sp2 => {
             sp2.setEffectByObjUuid(uuid,fx);
         });
+    }
+
+    public static getLevelObjectsOverlapping(
+        curObj: LevelObject,
+        tileOffsetX: number,
+        tileOffsetY: number,
+        screenPages: ScreenPageData[],
+        level: Level
+    ): LevelObject[] | undefined {
+        const actualTileX = curObj.xPos + tileOffsetX;
+        const actualTileY = curObj.yPos + tileOffsetY;
+        const spid = ScreenPageData.getScreenPageIdFromTileCoords(actualTileX,actualTileY);
+        const foundScreenPages = screenPages.filter(sp => sp.screenPageId === spid);
+        if (foundScreenPages.length === 1) {
+            const screen = foundScreenPages[0];
+            const localTileX = actualTileX - screen.tileX;
+            const localTileY = actualTileY - screen.tileY;
+            const localChunkX = localTileX * 2;
+            const localChunkY = localTileY * 2;
+            const foundChunks = screen.getTileChunkDataFromLocalCoords(localChunkX, localChunkY);
+            if (foundChunks) {
+                let foundLevelObjects: LevelObject[] = [];
+                foundChunks.forEach(ch => {
+                    const objIndex = level.objects.map(x => x.uuid).indexOf(ch.objUuidFrom);
+                    if (objIndex !== -1) {
+                        foundLevelObjects.push(level.objects[objIndex]);
+                    } else {
+                        console.error("Object not found with uuid:", ch.objUuidFrom);
+                    }
+                });
+                return foundLevelObjects;
+            } else {
+                console.error("No chunks found!");
+                return undefined;
+            }
+        } else {
+            console.error("Found incorrect number of screen pages:", foundScreenPages, spid);
+            return undefined;
+        }
     }
 }

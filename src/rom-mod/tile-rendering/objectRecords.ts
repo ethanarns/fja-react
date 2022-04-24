@@ -9,8 +9,9 @@ import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
 import { drawGround, drawGround4, drawGround5, drawGround6, drawGroundLeftCorner, drawGroundRightCorner, drawGroundSlope45 } from "./drawInstructionRetrieval/ground/standardGround";
 import { getRectangularGroundInset } from "./drawInstructionRetrieval/ground/insets";
+import ScreenPageData from "./ScreenPageChunks";
 
-export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
+export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array, screenPages: ScreenPageData[]) => DrawInstruction[];
 
 export interface ObjectRecord {
     objectType: LevelObjectType;
