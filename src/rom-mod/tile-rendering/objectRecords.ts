@@ -8,6 +8,7 @@ import { redSign } from "./drawInstructionRetrieval/extendedStatics/smallExtende
 import { drawFlowerSlope_steepest, drawGardenGround, drawGardenSlope_downleft_30, drawGardenSlope_downLeft_45, drawGardenSlope_downright_30, drawGardenSlope_downright_steepest, drawGroundSides } from "./drawInstructionRetrieval/ground/flowerGround";
 import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBlocks";
 import { drawGround, drawGround4, drawGround5, drawGround6, drawGroundLeftCorner, drawGroundRightCorner, drawGroundSlope45 } from "./drawInstructionRetrieval/ground/standardGround";
+import { getRectangularGroundInset } from "./drawInstructionRetrieval/ground/insets";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array) => DrawInstruction[];
 
@@ -73,6 +74,12 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0x0d,
         prettyName: "Goal Ring",
         textDescription: "Jump through this to complete the level"
+    },{
+        objectType: "static",
+        isExtended: false,
+        objectId: 0x14,
+        prettyName: "Ground Inset",
+        instructionFunction: getRectangularGroundInset
     },{
         objectType: "static",
         isExtended: true,
