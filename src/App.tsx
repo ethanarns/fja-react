@@ -7,7 +7,7 @@
 
 import './App.css';
 import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, MAX_LEVEL_ENTRANCE_ID, NAV_CONTAINER, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
-import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
 import { Application, Container, Rectangle, RenderTexture, Sprite } from "pixi.js"
@@ -521,11 +521,73 @@ function App() {
         rerenderPages(false);
     }
 
-    const tileTest = (tileCodeStr: string) => {
+    const tileTest = (e: any) => {
+        const SPRITE_NAME = "TILE_TEST_";
+        if (!romData) {
+            console.error("No romData");
+            return;
+        }
+        if (!pixiApp) {
+            console.error("No pixiApp");
+            return;
+        }
+        const level = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!level) {
+            console.error("No level");
+            return;
+        }
+        for (let i = 0; i < 4; i++) {
+            const foundSprite = pixiApp.stage.getChildByName(SPRITE_NAME + i);
+            if (foundSprite) {
+                foundSprite.destroy({
+                    children: true,
+                    baseTexture: true,
+                    texture: true
+                });
+            }
+        }
+        const tileCodeStr = e.target.value as string;
+        if (tileCodeStr.length !== 4 || isNaN(parseInt(tileCodeStr,16))) {
+            return;
+        }
         const num = parseInt(tileCodeStr,16);
         if (isNaN(num)) {
             return;
         }
+        const tileCodes = getTileRenderCodesFromTilecode(romBuffer,num);
+        tileCodes.split(",").forEach((code, index) => {
+            const graphic = getGraphicFromChunkCode(code,level);
+            const renderTexture = pixiApp.renderer.generateTexture(graphic, {
+                region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+            });
+            graphic.destroy();
+            const sprite = new Sprite(renderTexture);
+            const baseX = FULL_TILE_DIMS_PX*2;
+            const baseY = FULL_TILE_DIMS_PX*2;
+            if (index === 0) {
+                sprite.name = SPRITE_NAME + "0";
+                sprite.x = baseX;
+                sprite.y = baseY;
+                pixiApp.stage.addChild(sprite);
+            } else if (index === 1) {
+                sprite.name = SPRITE_NAME + "1";
+                sprite.x = baseX + TILE_QUADRANT_DIMS_PX;
+                sprite.y = baseY;
+                pixiApp.stage.addChild(sprite);
+            } else if (index === 2) {
+                sprite.name = SPRITE_NAME + "2";
+                sprite.x = baseX;
+                sprite.y = baseY + TILE_QUADRANT_DIMS_PX;
+                pixiApp.stage.addChild(sprite);
+            } else if (index === 3) {
+                sprite.name = SPRITE_NAME + "3";
+                sprite.x = baseX + TILE_QUADRANT_DIMS_PX;
+                sprite.y = baseY + TILE_QUADRANT_DIMS_PX;
+                pixiApp.stage.addChild(sprite);
+            } else {
+                console.error("Bad index in placeTile:",index);
+            }
+        });
     }
 
     const chunkTest = (e: any) => {
@@ -562,6 +624,8 @@ function App() {
         graphic.destroy();
         const sprite = new Sprite(renderTexture);
         sprite.name = SPRITE_NAME;
+        sprite.x = 0x10;
+        sprite.y = 0x10;
         pixiApp.stage.addChild(sprite);
     }
     
@@ -586,7 +650,7 @@ function App() {
                 <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
                 <button onClick={undo} disabled={loading || !inputLoaded} id="undoButton">Undo</button>
                 <button onClick={redo} disabled={loading || !inputLoaded} id="redoButton">Redo</button>
-                <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Tilecode"/>
+                <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Tilecode" onChange={tileTest}/>
                 <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Chunkcode" onChange={chunkTest}/>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
