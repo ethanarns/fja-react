@@ -18,6 +18,11 @@ export interface PixelCoordinates {
     globalPixelY: number;
 }
 
+export interface OverlappingDataExport {
+    levelObject?: LevelObject;
+    chunks?: ScreenPageTileChunk[];
+}
+
 export default class ScreenPageData {
     public static readonly SCREEN_PAGE_TILE_DIMS = 0x10;
     public static readonly SCREEN_PAGE_CHUNK_DIMS = ScreenPageData.SCREEN_PAGE_TILE_DIMS * 2;
@@ -367,13 +372,21 @@ export default class ScreenPageData {
         });
     }
 
+    /**
+     * This object is for the occasional times we may need to check what we are
+     * writing on top of it. The vast majority of tiles are fine with just
+     * removing everything beneath them, so this is only used for complex things
+     * like insets, removers, or the occasional flower tileset extended object
+     * @returns OverlappingDataExport
+     */
     public static getLevelObjectOverlapping(
         curObj: LevelObject,
         tileOffsetX: number,
         tileOffsetY: number,
         screenPages: ScreenPageData[],
         level: Level
-    ): LevelObject | undefined {
+    ): OverlappingDataExport {
+        let ret: OverlappingDataExport = {};
         const actualTileX = curObj.xPos + tileOffsetX;
         const actualTileY = curObj.yPos + tileOffsetY;
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(actualTileX,actualTileY);
@@ -386,30 +399,27 @@ export default class ScreenPageData {
             const localChunkY = localTileY * 2;
             const foundChunk = screen.getTileChunkDataFromLocalCoords(localChunkX, localChunkY);
             if (foundChunk) {
+                ret.chunks = [
+                    foundChunk,
+                    screen.getTileChunkDataFromLocalCoords(localChunkX+1, localChunkY  )!,
+                    screen.getTileChunkDataFromLocalCoords(localChunkX  , localChunkY+1)!,
+                    screen.getTileChunkDataFromLocalCoords(localChunkX+1, localChunkY+1)!
+                ];
                 const objIndex = level.objects.map(x => x.uuid).indexOf(foundChunk.objUuidFrom);
                 if (objIndex !== -1) {
-                    return level.objects[objIndex];
+                    ret.levelObject = level.objects[objIndex];
+                    return ret;
                 } else {
                     console.error("Object not found with uuid:", foundChunk.objUuidFrom);
-                    return undefined;
+                    return ret;
                 }
-                // let foundLevelObjects: LevelObject[] = [];
-                // foundChunks.forEach(ch => {
-                //     const objIndex = level.objects.map(x => x.uuid).indexOf(ch.objUuidFrom);
-                //     if (objIndex !== -1) {
-                //         foundLevelObjects.push(level.objects[objIndex]);
-                //     } else {
-                //         console.error("Object not found with uuid:", ch.objUuidFrom);
-                //     }
-                // });
-                // return foundLevelObjects;
             } else {
-                console.error("No chunks found!");
-                return undefined;
+                // No chunks found
+                return ret;
             }
         } else {
             console.error("Found incorrect number of screen pages:", foundScreenPages, spid);
-            return undefined;
+            return ret;
         }
     }
 }
