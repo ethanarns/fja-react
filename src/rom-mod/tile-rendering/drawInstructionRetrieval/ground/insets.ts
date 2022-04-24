@@ -35,6 +35,12 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
             if (xOffset === 0) {
                 if (yOffset === 0) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_LEFT"]);
+                    const overlappingObjectsForLeftWall = ScreenPageData.getLevelObjectsOverlapping(lo,xOffset,yOffset,screenPages,level);
+                    if (overlappingObjectsForLeftWall) {
+                        if(overlappingObjectsForLeftWall[overlappingObjectsForLeftWall.length-1].objectId === 0x2) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_TOP"]);
+                        }
+                    }
                 } else if (yOffset === yLength) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_LEFT"]);
                 } else {
