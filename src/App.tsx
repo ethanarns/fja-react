@@ -6,12 +6,12 @@
  */
 
 import './App.css';
-import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, MAX_LEVEL_ENTRANCE_ID, NAV_CONTAINER, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
-import { FormEvent, useContext, useEffect, useState } from 'react';
+import { DOM_CANVAS_ID, FULL_TILE_DIMS_PX, FULL_TILE_DIM_COUNT, MAX_LEVEL_ENTRANCE_ID, NAV_CONTAINER, TILE_QUADRANT_DIMS_PX, WHITE_SQUARE_RENDER_CODE } from './GLOBALS';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import { RomContext } from './rom-mod/RomProvider';
 import generatePixiApp from './pixi/getPixiApp';
-import { Application, Container, RenderTexture, Sprite } from "pixi.js"
-import { getDefaultRenderTextures, INVERT_CACHE, isDefaultChunkCode } from './rom-mod/tile-rendering/texture-generation';
+import { Application, Container, Rectangle, RenderTexture, Sprite } from "pixi.js"
+import { getDefaultRenderTextures, getGraphicFromChunkCode, INVERT_CACHE, isDefaultChunkCode } from './rom-mod/tile-rendering/texture-generation';
 import { LevelObject, RomData } from './rom-mod/RomInterfaces';
 import { deleteObject, placeLevelObject, renderScreen } from "./pixi/pixiMod";
 import { handleDragStart, handleDragMove, handleDragEnd, localDimsToGlobalX, pan, zeroNavObject, zoom } from "./pixi/pixiNav";
@@ -22,6 +22,7 @@ import LeftPanel from './components/LeftPanel';
 import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
 import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
+import { getTileRenderCodesFromTilecode } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 
 // These are up here because they write and read DURING React actions
 let cachedLevelData = "";
@@ -302,7 +303,6 @@ function App() {
             return;
         }
         if (!curSelectedObject) {
-            console.warn("No object selected, can't delete",curSelectedObject);
             return;
         }
         const preDeleteCache = JSON.stringify(levelRef);
@@ -312,6 +312,11 @@ function App() {
             newLevelDataStr: JSON.stringify(levelRef),
             levelIdOn: curLevelId,
             actionType: "deleteLevelObject"
+        });
+        setCurSelectedObject(null);
+        // Remove all inverted effects
+        screenPageData.forEach(screenPageToWipeFX => {
+            screenPageToWipeFX.removeAllEffectsByEffect("inverted");
         });
         replaceAllChunks();
         // Don't rerender cache, no need
@@ -412,7 +417,6 @@ function App() {
                         zoom(navContainer, "reset");
                         break;
                     case "Delete":
-                    case "Backspace":
                         //deleteSelected(); // This doesn't work because React is stupid
                         document.getElementById("deleteButton")!.click();
                         break;
@@ -516,6 +520,50 @@ function App() {
         // Don't rerender cache, no need
         rerenderPages(false);
     }
+
+    const tileTest = (tileCodeStr: string) => {
+        const num = parseInt(tileCodeStr,16);
+        if (isNaN(num)) {
+            return;
+        }
+    }
+
+    const chunkTest = (e: any) => {
+        const SPRITE_NAME = "CHUNK_TEST";
+        if (!romData) {
+            console.error("No romData");
+            return;
+        }
+        if (!pixiApp) {
+            console.error("No pixiApp");
+            return;
+        }
+        const level = getLevelByOffsetId(romData.levels,curLevelId);
+        if (!level) {
+            console.error("No level");
+            return;
+        }
+        const foundSprite = pixiApp.stage.getChildByName(SPRITE_NAME);
+        if (foundSprite) {
+            foundSprite.destroy({
+                children: true,
+                baseTexture: true,
+                texture: true
+            });
+        }
+        const val = e.target.value as string;
+        if (val.length !== 4 || isNaN(parseInt(val, 16))) {
+            return;
+        }
+        const graphic = getGraphicFromChunkCode(val,level);
+        const renderTexture = pixiApp.renderer.generateTexture(graphic, {
+            region: new Rectangle(0,0,TILE_QUADRANT_DIMS_PX,TILE_QUADRANT_DIMS_PX)
+        });
+        graphic.destroy();
+        const sprite = new Sprite(renderTexture);
+        sprite.name = SPRITE_NAME;
+        pixiApp.stage.addChild(sprite);
+    }
     
     return (
         <div className="App">
@@ -538,6 +586,8 @@ function App() {
                 <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
                 <button onClick={undo} disabled={loading || !inputLoaded} id="undoButton">Undo</button>
                 <button onClick={redo} disabled={loading || !inputLoaded} id="redoButton">Redo</button>
+                <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Tilecode"/>
+                <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Chunkcode" onChange={chunkTest}/>
 
                 <select disabled={loading || !inputLoaded} id="levelSelectSelector" onChange={changeLevel}>
                     {romData ? romData.levels.map(le => (
