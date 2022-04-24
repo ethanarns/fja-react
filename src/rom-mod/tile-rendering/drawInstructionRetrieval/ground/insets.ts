@@ -29,15 +29,17 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
         console.error("drawGround6 missing XY dims:",lo);
         return [];
     }
+    const LEFT_GROUND_ID = 0x2;
+    const RIGHT_GROUND_ID = 0x3;
     for (let yOffset = 0; yOffset < yLength+1; yOffset++) {
         for (let xOffset = 0; xOffset < xLength+1; xOffset++) {
             let renderCode = "BLNK";
+            const overlappingObject = ScreenPageData.getLevelObjectOverlapping(lo,xOffset,yOffset,screenPages,level);
             if (xOffset === 0) {
                 if (yOffset === 0) {
-                    renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_LEFT"]);
-                    const overlappingObjectForLeftWallTop = ScreenPageData.getLevelObjectOverlapping(lo,xOffset,yOffset,screenPages,level);
-                    if (overlappingObjectForLeftWallTop) {
-                        if(overlappingObjectForLeftWallTop.objectId === 0x2) {
+                    renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_LEFT"]);                    
+                    if (overlappingObject) {
+                        if(overlappingObject.objectId === LEFT_GROUND_ID) {
                             renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_TOP"]);
                         }
                     }
@@ -45,9 +47,8 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_LEFT"]);
                 } else {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["WALL_LEFT"]);
-                    const overlappingObjectForLeftWall = ScreenPageData.getLevelObjectOverlapping(lo,xOffset,yOffset,screenPages,level);
-                    if (overlappingObjectForLeftWall) {
-                        if(overlappingObjectForLeftWall.objectId === 0x2) {
+                    if (overlappingObject) {
+                        if(overlappingObject.objectId === LEFT_GROUND_ID) {
                             renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_MIDDLE"]);
                         }
                     }
@@ -55,10 +56,20 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
             } else if (xOffset === xLength) {
                 if (yOffset === 0) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_RIGHT"]);
+                    if (overlappingObject) {
+                        if(overlappingObject.objectId === RIGHT_GROUND_ID) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_RIGHT_TOP"]);
+                        }
+                    }
                 } else if (yOffset === yLength) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_RIGHT"]);
                 } else {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["WALL_RIGHT"]);
+                    if (overlappingObject) {
+                        if(overlappingObject.objectId === RIGHT_GROUND_ID) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_RIGHT_MIDDLE"]);
+                        }
+                    }
                 }
             } else {
                 if (yOffset === 0) {
