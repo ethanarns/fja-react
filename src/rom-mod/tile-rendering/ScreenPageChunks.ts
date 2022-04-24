@@ -55,7 +55,10 @@ export default class ScreenPageData {
     public tilemap: CompositeTilemap;
     private bg: Graphics;
 
-    private chunks: (ScreenPageTileChunk[] | null)[][] = [];
+    /**
+     * There is only one chunk per chunk coordinate. New ones overwrite old ones
+     */
+    private chunks: (ScreenPageTileChunk | null)[][] = [];
 
     constructor(screenPageId: number, pixiApp: Application) {
         const navContainer = pixiApp.stage.getChildByName(NAV_CONTAINER) as Container;
@@ -161,7 +164,7 @@ export default class ScreenPageData {
      * @param chunkY Chunk-scale coords
      * @returns ScreenPageTileChunk, null if none
      */
-    public getTileChunkDataFromLocalCoords(chunkX: number, chunkY: number): ScreenPageTileChunk[] | null {
+    public getTileChunkDataFromLocalCoords(chunkX: number, chunkY: number): ScreenPageTileChunk | null {
         if (!this.hasChunkData) {
             return null;
         }
@@ -188,12 +191,7 @@ export default class ScreenPageData {
         this.chunks.forEach(subChunks => {
             subChunks.forEach(chunkData => {
                 if (chunkData !== null) {
-                    if (chunkData.length > 0) {
-                        shouldKeep = true;
-                    } else {
-                        // It's an empty array, just null it
-                        chunkData = null;
-                    }
+                    shouldKeep = true;
                 }
             });
         });
@@ -221,12 +219,10 @@ export default class ScreenPageData {
             this.fillChunks();
             this.hasChunkData = true;
         }
-        // It's null, make and add it
-        if (this.chunks[chunkY][chunkX] === null) {
-            this.chunks[chunkY][chunkX] = [newChunk];
+        if (["BLNK","60ff","40ee"].includes(newChunk.chunkCode.toLowerCase())) {
             return;
         }
-        this.chunks[chunkY][chunkX]!.push(newChunk);
+        this.chunks[chunkY][chunkX] = newChunk;
     }
 
     public tileInstruction(relativeTileX: number, relativeTileY: number, instruction: DrawInstruction): void {
@@ -284,14 +280,15 @@ export default class ScreenPageData {
         const xLen = this.chunks[0].length;
         for (let y = 0; y < yLen; y++) {
             for (let x = 0; x < xLen; x++) {
-                const place = this.chunks[y][x];
-                if (place) {
-                    place.forEach(chunk => {
-                        const chunkId = chunk.objUuidFrom;
-                        if (!ret.includes(chunkId)) {
-                            ret.push(chunkId);
-                        }
-                    });
+                const chunk = this.chunks[y][x];
+                if (chunk) {
+                    ret.push(chunk.objUuidFrom);
+                    // place.forEach(chunk => {
+                    //     const chunkId = chunk.objUuidFrom;
+                    //     if (!ret.includes(chunkId)) {
+                    //         ret.push(chunkId);
+                    //     }
+                    // });
                 }
             }
         }
@@ -327,12 +324,13 @@ export default class ScreenPageData {
         for (let y = 0; y < yLen; y++) {
             for (let x = 0; x < xLen; x++) {
                 const place = this.chunks[y][x];
-                if (place) {
-                    place.forEach(chunk => {
-                        if (chunk.objUuidFrom === objUuid) {
-                            chunk.effect = effect;
-                        }
-                    });
+                if (place && place.objUuidFrom === objUuid) {
+                    place.effect = effect;
+                    // place.forEach(chunk => {
+                    //     if (chunk.objUuidFrom === objUuid) {
+                    //         chunk.effect = effect;
+                    //     }
+                    // });
                 }
             }
         }
@@ -347,12 +345,13 @@ export default class ScreenPageData {
         for (let y = 0; y < yLen; y++) {
             for (let x = 0; x < xLen; x++) {
                 const place = this.chunks[y][x];
-                if (place) {
-                    place.forEach(chunk => {
-                        if (chunk.effect === effect) {
-                            chunk.effect = "normal";
-                        }
-                    });
+                if (place && place.effect === effect) {
+                    place.effect = "normal";
+                    // place.forEach(chunk => {
+                    //     if (chunk.effect === effect) {
+                    //         chunk.effect = "normal";
+                    //     }
+                    // });
                 }
             }
         }
@@ -368,13 +367,13 @@ export default class ScreenPageData {
         });
     }
 
-    public static getLevelObjectsOverlapping(
+    public static getLevelObjectOverlapping(
         curObj: LevelObject,
         tileOffsetX: number,
         tileOffsetY: number,
         screenPages: ScreenPageData[],
         level: Level
-    ): LevelObject[] | undefined {
+    ): LevelObject | undefined {
         const actualTileX = curObj.xPos + tileOffsetX;
         const actualTileY = curObj.yPos + tileOffsetY;
         const spid = ScreenPageData.getScreenPageIdFromTileCoords(actualTileX,actualTileY);
@@ -385,18 +384,25 @@ export default class ScreenPageData {
             const localTileY = actualTileY - screen.tileY;
             const localChunkX = localTileX * 2;
             const localChunkY = localTileY * 2;
-            const foundChunks = screen.getTileChunkDataFromLocalCoords(localChunkX, localChunkY);
-            if (foundChunks) {
-                let foundLevelObjects: LevelObject[] = [];
-                foundChunks.forEach(ch => {
-                    const objIndex = level.objects.map(x => x.uuid).indexOf(ch.objUuidFrom);
-                    if (objIndex !== -1) {
-                        foundLevelObjects.push(level.objects[objIndex]);
-                    } else {
-                        console.error("Object not found with uuid:", ch.objUuidFrom);
-                    }
-                });
-                return foundLevelObjects;
+            const foundChunk = screen.getTileChunkDataFromLocalCoords(localChunkX, localChunkY);
+            if (foundChunk) {
+                const objIndex = level.objects.map(x => x.uuid).indexOf(foundChunk.objUuidFrom);
+                if (objIndex !== -1) {
+                    return level.objects[objIndex];
+                } else {
+                    console.error("Object not found with uuid:", foundChunk.objUuidFrom);
+                    return undefined;
+                }
+                // let foundLevelObjects: LevelObject[] = [];
+                // foundChunks.forEach(ch => {
+                //     const objIndex = level.objects.map(x => x.uuid).indexOf(ch.objUuidFrom);
+                //     if (objIndex !== -1) {
+                //         foundLevelObjects.push(level.objects[objIndex]);
+                //     } else {
+                //         console.error("Object not found with uuid:", ch.objUuidFrom);
+                //     }
+                // });
+                // return foundLevelObjects;
             } else {
                 console.error("No chunks found!");
                 return undefined;

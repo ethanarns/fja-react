@@ -232,38 +232,45 @@ function App() {
                 rerenderPages();
                 return;
             }
-            let foundObjects: LevelObject[] = [];
-            found.forEach(ch => {
-                const chObs = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
-                chObs.forEach(chob => {
-                    if (!foundObjects.includes(chob)) {
-                        foundObjects.push(chob);
-                    }
-                })
-            });
-            if (foundObjects.length === 1) {
-                console.log("Found LevelObject and chunks:",foundObjects[0],found);
+            const objectIndex = levelRef.objects.map(x => x.uuid).indexOf(found.objUuidFrom);
+            if (objectIndex === -1) {
+                console.error("Bad object index");
             } else {
-                console.log("Found LevelObjects and chunks:",foundObjects,found);
+                const selectedObject = levelRef.objects[objectIndex];
+                if (curSelectedObject && curSelectedObject.uuid === selectedObject.uuid) {
+                    // Nothing new was selected, don't do anything
+                    return;
+                }
+                console.log("Found LevelObject and chunk:",selectedObject,found);
+                ScreenPageData.applyEffectToSingleObject(selectedObject.uuid, screenPageData, "inverted");
+                setCurSelectedObject(selectedObject);
+                rerenderPages();
             }
+            // let foundObjects: LevelObject[] = [];
+            // found.forEach(ch => {
+            //     const chObs = levelRef.objects.filter(x => x.uuid === ch.objUuidFrom);
+            //     chObs.forEach(chob => {
+            //         if (!foundObjects.includes(chob)) {
+            //             foundObjects.push(chob);
+            //         }
+            //     })
+            // });
+            // if (foundObjects.length === 1) {
+            //     console.log("Found LevelObject and chunks:",foundObjects[0],found);
+            // } else {
+            //     console.log("Found LevelObjects and chunks:",foundObjects,found);
+            // }
             
-            let selectedObject: LevelObject = foundObjects[0];
-            if (foundObjects.length > 1) {
-                let highestLayer = -9999999999;
-                foundObjects.forEach(fo => {
-                    if (fo.zIndex > highestLayer) {
-                        highestLayer = fo.zIndex;
-                    }
-                });
-                selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
-            }
-            if (curSelectedObject && curSelectedObject.uuid === selectedObject.uuid) {
-                // Nothing new was selected, don't do anything
-                return;
-            }
-            ScreenPageData.applyEffectToSingleObject(selectedObject.uuid, screenPageData, "inverted");
-            setCurSelectedObject(selectedObject);
-            rerenderPages();
+            // let selectedObject: LevelObject = foundObjects[0];
+            // if (foundObjects.length > 1) {
+            //     let highestLayer = -9999999999;
+            //     foundObjects.forEach(fo => {
+            //         if (fo.zIndex > highestLayer) {
+            //             highestLayer = fo.zIndex;
+            //         }
+            //     });
+            //     selectedObject = foundObjects.filter(x => x.zIndex === highestLayer)[0];
+            // }
         } else {
             console.error("Unusual number of screen pages found:", foundScreenPages);
         }

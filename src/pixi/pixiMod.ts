@@ -160,13 +160,13 @@ interface TempRenderOrderData {
     let toRender: TempRenderOrderData[] = [];
     for (let innerChunkY = 0; innerChunkY < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkY++) {
         for (let innerChunkX = 0; innerChunkX < ScreenPageData.SCREEN_PAGE_CHUNK_DIMS; innerChunkX++) {
-            const curChunkTileDataArray = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
-            if (curChunkTileDataArray !== null) {
-                curChunkTileDataArray.forEach(chunkTileData => {
-                    const chunkCode = chunkTileData.chunkCode;
+            const curChunk = sp.getTileChunkDataFromLocalCoords(innerChunkX,innerChunkY);
+            if (curChunk !== null) {
+                // curChunkTileDataArray.forEach(chunkTileData => {
+                    const chunkCode = curChunk.chunkCode;
                     let renderTexture: RenderTexture | undefined = undefined;
                     // No effects, render normally //
-                    if (chunkTileData.effect === "normal") {
+                    if (curChunk.effect === "normal") {
                         if (availableTextures[chunkCode]) {
                             // Already available in texture cache
                             renderTexture = availableTextures[chunkCode];
@@ -181,7 +181,7 @@ interface TempRenderOrderData {
                             graphic.destroy();
                         }
                     // Inverted effect (usually selection), do special //
-                    } else if (chunkTileData.effect === "inverted") {
+                    } else if (curChunk.effect === "inverted") {
                         if (INVERT_CACHE[chunkCode]) {
                             renderTexture = INVERT_CACHE[chunkCode];
                         } else if (BUILTIN_CHUNK_CODES.includes(chunkCode)) {
@@ -215,13 +215,13 @@ interface TempRenderOrderData {
                             rt: renderTexture,
                             localPixelX: innerChunkX * 8,
                             localPixelY: innerChunkY * 8,
-                            uuid: chunkTileData.objUuidFrom,
-                            layer: chunkTileData.layer,
+                            uuid: curChunk.objUuidFrom,
+                            layer: curChunk.layer,
                             chunkCode: chunkCode,
-                            effect: chunkTileData.effect
+                            effect: curChunk.effect
                         });
                     }
-                });
+                // });
             }
         }
     }

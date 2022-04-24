@@ -182,13 +182,16 @@ export function handleDragStart(
             Math.floor(globalDims.x / 8),
             Math.floor(globalDims.y / 8)
         );
-        if (found) {
+        if (found && found.objUuidFrom !== curSelectedObject.uuid) {
+            dragStartX = undefined;
+            dragStartY = undefined;
+            return false;
             // One ore more tiles here
-            if (!found.map(x => x.objUuidFrom).includes(curSelectedObject.uuid)) {
-                dragStartX = undefined;
-                dragStartY = undefined;
-                return false;
-            }
+            // if (!found.map(x => x.objUuidFrom).includes(curSelectedObject.uuid)) {
+            //     dragStartX = undefined;
+            //     dragStartY = undefined;
+            //     return false;
+            // }
         }
     }
 
