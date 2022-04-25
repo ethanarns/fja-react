@@ -19,9 +19,13 @@ const INSET_TILE_CODES: Record<string,number> = {
     ENTRANCE_RIGHT_MIDDLE: 0x7017,
     ENTRANCE_LEFT_TOP: 0x7018,
     ENTRANCE_RIGHT_TOP: 0x7019,
+
+    ENTRANCE_LEFT_BOTTOM: 0x7030,
+    ENTRANCE_RIGHT_BOTTOM: 0x7031
 }
 const LEFT_GROUND_ID = 0x2;
 const RIGHT_GROUND_ID = 0x3;
+// 4103: has a few black pixels
 const FILL_CHUNK_CODES = ["4192","415e","4103"];
 
 export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuffer: Uint8Array, screenPages: ScreenPageData[]): DrawInstruction[] {
@@ -36,7 +40,9 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
         for (let xOffset = 0; xOffset < xLength+1; xOffset++) {
             let renderCode = "BLNK";
             const overlapData = ScreenPageData.getLevelObjectOverlapping(lo,xOffset,yOffset,screenPages,level);
+            // Farthest left side
             if (xOffset === 0) {
+                // Top
                 if (yOffset === 0) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_LEFT"]);                    
                     if (overlapData.levelObject) {
@@ -44,8 +50,14 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                             renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_TOP"]);
                         }
                     }
+                // Bottom
                 } else if (yOffset === yLength) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_LEFT"]);
+                    if (overlapData.levelObject) {
+                        if(overlapData.levelObject.objectId === LEFT_GROUND_ID) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_LEFT_BOTTOM"]);
+                        }
+                    }
                 } else {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["WALL_LEFT"]);
                     if (overlapData.levelObject) {
@@ -54,6 +66,7 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                         }
                     }
                 }
+            // Farthest right side
             } else if (xOffset === xLength) {
                 if (yOffset === 0) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_TOP_RIGHT"]);
@@ -64,6 +77,11 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                     }
                 } else if (yOffset === yLength) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CORNER_BOTTOM_RIGHT"]);
+                    if (overlapData.levelObject) {
+                        if(overlapData.levelObject.objectId === RIGHT_GROUND_ID) {
+                            renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["ENTRANCE_RIGHT_BOTTOM"]);
+                        }
+                    }
                 } else {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["WALL_RIGHT"]);
                     if (overlapData.levelObject) {
@@ -72,6 +90,7 @@ export function getRectangularGroundInset(lo: LevelObject, level: Level, romBuff
                         }
                     }
                 }
+            // In-between left and right
             } else {
                 if (yOffset === 0) {
                     renderCode = getTileRenderCodesFromTilecode(romBuffer,INSET_TILE_CODES["CEILING_INSIDE"]);
