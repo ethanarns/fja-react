@@ -58,23 +58,23 @@ export function undoClicked(romData: RomData): boolean {
     return true;
 }
 
+export function getCanUndo(): boolean {
+    return !(0 > guiActionsTakenIndex);
+}
 
-export function redoClicked(romData: RomData): void {
+export function getCanRedo(): boolean {
+    return !(guiActionsTaken.length - 1 === guiActionsTakenIndex);
+}
+
+export function redoClicked(romData: RomData): boolean {
     if (guiActionsTaken.length - 1 === guiActionsTakenIndex) {
         console.warn("Cannot redo, at head");
-        return;
+        return false;
     }
     // Increment the index before taking data this time (++var modifies THEN returns)
     const actionToRedo: UndoableAction = guiActionsTaken[++guiActionsTakenIndex];
     overwriteLevelByOffsetId(romData.levels,actionToRedo.levelIdOn,JSON.parse(actionToRedo.newLevelDataStr));
-    // for (let actionIndex = 0; actionIndex < actionsToRedo.length; actionIndex++) {
-    //     const action = actionsToRedo[actionIndex];
-    //     this.romService.overwriteLevelData(this.currentLevelDataOffset,JSON.parse(action.newLevelDataStr));
-    // }
-    // this.needsFullExpansion = true;
-    // this.expandAll();
-    // this.updateGlobalGuiData();
-    // this.resetSelection();
+    return true;
 }
 
 /**

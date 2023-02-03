@@ -21,7 +21,7 @@ import { tick } from './pixi/pixiTick';
 import LeftPanel from './components/LeftPanel';
 import { writeLevel } from './rom-mod/export/compileManager';
 import { compileLevelData } from './rom-mod/export/compiler';
-import { addActionToUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
+import { addActionToUndo, getCanRedo, getCanUndo, redoClicked, undoClicked } from './rom-mod/undoManager';
 import { getTileRenderCodesFromTilecode } from './rom-mod/tile-rendering/drawInstructionRetrieval/commonInstructions';
 
 // These are up here because they write and read DURING React actions
@@ -37,6 +37,8 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [curSelectedObject, setCurSelectedObject] = useState<LevelObject | null>(null);
     const [interactiveSprite, setInteractiveSprite] = useState<Sprite | undefined>(undefined);
+    const [canUndo, setCanUndo] = useState<boolean>(false);
+    const [canRedo, setCanRedo] = useState<boolean>(false);
 
     const { loadRomFromArrayBuffer, romBuffer } = useContext(RomContext);
 
@@ -96,6 +98,8 @@ function App() {
                     actionType: "moveLevelObject",
                     levelIdOn: curLevelId
                 });
+                setCanUndo(getCanUndo())
+                setCanRedo(getCanRedo());
                 cachedLevelData = "";
                 rerenderPages();
             }
@@ -111,6 +115,8 @@ function App() {
                     actionType: "moveLevelObject",
                     levelIdOn: curLevelId
                 });
+                setCanUndo(getCanUndo())
+                setCanRedo(getCanRedo());
                 cachedLevelData = "";
                 rerenderPages();
             }
@@ -320,6 +326,8 @@ function App() {
             levelIdOn: curLevelId,
             actionType: "deleteLevelObject"
         });
+        setCanUndo(getCanUndo())
+        setCanRedo(getCanRedo());
         setCurSelectedObject(null);
         // Remove all inverted effects
         screenPageData.forEach(screenPageToWipeFX => {
@@ -512,6 +520,8 @@ function App() {
             return;
         }
         undoClicked(romData);
+        setCanUndo(getCanUndo())
+        setCanRedo(getCanRedo());
         replaceAllChunks();
         // Don't rerender cache, no need
         rerenderPages(false);
@@ -523,6 +533,8 @@ function App() {
             return;
         }
         redoClicked(romData);
+        setCanUndo(getCanUndo())
+        setCanRedo(getCanRedo());
         replaceAllChunks();
         // Don't rerender cache, no need
         rerenderPages(false);
@@ -655,8 +667,8 @@ function App() {
                 <button onClick={saveLevel} disabled={loading || !inputLoaded}>Save Level</button>
                 <button onClick={exportClicked} disabled={loading || !inputLoaded}>Export</button>
                 <button onClick={deleteSelected} disabled={loading || !inputLoaded} id="deleteButton">Delete</button>
-                <button onClick={undo} disabled={loading || !inputLoaded} id="undoButton">Undo</button>
-                <button onClick={redo} disabled={loading || !inputLoaded} id="redoButton">Redo</button>
+                <button onClick={undo} disabled={loading || !inputLoaded || !canUndo} id="undoButton">Undo</button>
+                <button onClick={redo} disabled={loading || !inputLoaded || !canRedo} id="redoButton">Redo</button>
                 <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Tilecode" onChange={tileTest}/>
                 <input type="text" disabled={loading || !inputLoaded} style={{width: 70}} placeholder="Chunkcode" onChange={chunkTest}/>
 
