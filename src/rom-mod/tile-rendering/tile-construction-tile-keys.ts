@@ -1,3 +1,5 @@
+import { ChunkRenderCodeGroup } from "./drawInstructionFunctions/drawFunctionv2";
+
 export interface TileChunkPreRenderData {
     tileId: number;
     paletteId: number;
@@ -14,7 +16,10 @@ export interface DrawInstruction {
      * In Tile-Scale, not chunk or pixel
      */
     offsetY: number;
-    renderCodes: string;
+    /**
+     * Example: "108d,108e,109d,109e"
+     */
+    renderCodes: ChunkRenderCodeGroup;
     uniqueLevelObjectId?: string;
     layer?: number;
 }

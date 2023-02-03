@@ -10,6 +10,7 @@ import { generateStoneBlocks } from "./drawInstructionRetrieval/blocks/stoneBloc
 import { drawGround, drawGround4, drawGround5, drawGround6, drawGroundLeftCorner, drawGroundRightCorner, drawGroundSlope45 } from "./drawInstructionRetrieval/ground/standardGround";
 import { getRectangularGroundInset } from "./drawInstructionRetrieval/ground/insets";
 import ScreenPageData from "./ScreenPageChunks";
+import { DrawInstructionFunction } from "./drawInstructionFunctions/drawFunctionv2";
 
 export type InstructionGenerator = (levelObject: LevelObject, level: Level, romBuffer: Uint8Array, screenPages: ScreenPageData[]) => DrawInstruction[];
 
@@ -21,6 +22,7 @@ export interface ObjectRecord {
     prettyName?: string;
     textDescription?: string;
     iconTileCode?: string;
+    drawInstructionFunction?: DrawInstructionFunction;
 };
 
 export const OBJECT_RECORDS: ObjectRecord[] = [

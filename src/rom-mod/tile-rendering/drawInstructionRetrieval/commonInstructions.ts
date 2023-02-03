@@ -1,5 +1,6 @@
 import { readAddressFromArray, readWord, readWordFromArray } from "../../binaryUtils/binary-io";
 import { LevelObject } from "../../RomInterfaces";
+import { ChunkRenderCodeGroup, TileRenderCode } from "../drawInstructionFunctions/drawFunctionv2";
 import { DrawInstruction } from "../tile-construction-tile-keys";
 
 export function drawVerticalItemWithEnds(lo: LevelObject, top: string, middle: string, bottom: string): DrawInstruction[] {
@@ -131,7 +132,7 @@ export function drawRepeatingRectangle(lo: LevelObject, chunkCodes: string): Dra
  * @param romBuffer Uint8Array
  * @param tileCode number, 2byte/word, stored in 0x02...
  */
- export function getTileRenderCodesFromTilecode(romBuffer: Uint8Array, tileCode: number): string {
+ export function getTileRenderCodesFromTilecode(romBuffer: Uint8Array, tileCode: TileRenderCode): ChunkRenderCodeGroup {
     const STATIC_TILES_BASE = 0x001bad20; // 081bad20
     // << 2 multiplies it by 4 so it offsets the address right
     // let firstOffset = (tileCode >> 0x8) << 0x2;
