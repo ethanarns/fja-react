@@ -302,5 +302,17 @@ export const OBJECT_RECORDS: ObjectRecord[] = [
         objectId: 0xec,
         instructionFunction: (lo) => drawGroundSides(lo),
         prettyName: "Flower Ground - Edge Right"
+    },{
+        objectType: "sprite",
+        isExtended: false,
+        objectId: 0x182,
+        prettyName: "Dragonfly (Effect)",
+        textDescription: "An ambient effect that is a dragonfly flying around"
+    },{
+        objectType: "sprite",
+        isExtended: false,
+        objectId: 0x183,
+        prettyName: "Butterfly (Effect)",
+        textDescription: "An ambient effect that is a butterfly flying around"
     }
 ];
