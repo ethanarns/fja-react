@@ -2,8 +2,11 @@
   "name": "fja-react",
   "version": "0.1.0",
   "private": true,
+  "main": "electron-main.js",
   "dependencies": {
     "@pixi/tilemap": "^3.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "pixi.js": "^6.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -18,13 +21,15 @@
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.79",
-    "@types/react-dom": "^18.2.25"
+    "@types/react-dom": "^18.2.25",
+    "electron": "^30.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
